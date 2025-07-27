@@ -1,0 +1,58 @@
+include _navigation
+include ../logo/_logo
+
+mixin rd-navbar
+	//RD Navbar
+	header.section.rd-navbar-wrap.rd-navbar-wrap-absolute
+		nav.rd-navbar.rd-navbar-creative&attributes( attributes )
+			.navbar-container
+				.navbar-row.navbar-row-left
+					.navbar-cell
+						.navbar-panel
+							button.navbar-switch.linearicons-menu( data-multi-switch!= {
+								targets: '.rd-navbar',
+								scope:   '.rd-navbar',
+								isolate: '[data-multi-switch]'
+							})
+
+							+logo-navbar
+
+					.navbar-cell.align-items-center
+						button.navbar-button.navbar-switch-menu.linearicons-menu( data-multi-switch!= {
+							targets: '.rd-navbar',
+							scope:   '.rd-navbar',
+							class:   'navbar-navigation-active',
+							isolate: '[data-multi-switch]'
+						})
+
+					.navbar-cell
+						+navigation( menu )
+
+					.navbar-cell.navbar-spacer
+
+				.navbar-row.navbar-row-right
+					.navbar-cell
+						.navbar-subpanel
+							.navbar-subpanel-item
+								button.navbar-button.navbar-social-button.mdi-dots-vertical( data-multi-switch!= {
+									targets: '.rd-navbar',
+									scope:   '.rd-navbar',
+									class:   'navbar-social-active',
+									isolate: '[data-multi-switch]'
+								})
+
+								.navbar-aside.navbar-social.d-flex.align-items-center
+									a.navbar-social-text( href='#' ) Join us
+									a.navbar-social-icon.icon.icon-link.mdi-facebook( href='#' )
+									a.navbar-social-icon.icon.icon-link.mdi-twitter( href='#' )
+									a.navbar-social-icon.icon.icon-link.mdi-youtube-play( href='#' )
+
+							.navbar-subpanel-item
+								button.navbar-button.navbar-cart-button.mdi-cart( data-multi-switch!= {
+									targets: '.rd-navbar',
+									scope:   '.rd-navbar',
+									class:   'navbar-cart-active',
+									isolate: '[data-multi-switch]'
+								}): span.navbar-button-badge 1
+
+								include _cart

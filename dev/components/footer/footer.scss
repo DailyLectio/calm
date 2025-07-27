@@ -1,0 +1,64 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.footer-menu {
+	padding-bottom: px-to-rem( 20px );
+	font-size: $font-size-sm * .93;
+	font-weight: 700;
+	text-transform: uppercase;
+	border-bottom: 1px solid $border-color;
+	@include groupX( 20px );
+
+	> li {
+		display: inline-block;
+	}
+}
+
+* + .footer-row {
+	margin-top: px-to-rem( 30px );
+}
+
+
+// Context dark
+.context-dark {
+	.footer-post {
+		.post-title {
+			color: $context-light;
+		}
+	}
+
+	.footer-menu {
+		border-bottom-color: rgba( $white, .1 );
+
+		> li > a {
+			color: $white;
+
+			&:hover {
+				color: $primary;
+			}
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up(lg) {
+	.footer-menu {
+		padding-bottom: px-to-rem( 40px );
+		@include groupX( 70px );
+	}
+
+	* + .footer-row {
+		margin-top: px-to-rem( 62px );
+	}
+}
+
+@import "footer-extended";
+@import "footer-contact";
+@import "footer-subscribe";

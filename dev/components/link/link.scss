@@ -1,0 +1,122 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Base
+a {
+	text-decoration: none;
+}
+
+.link {
+	display: inline-block;
+}
+
+.page .link-arrow {
+	position: relative;
+	color: $headings-color;
+	transition: $transition-base;
+
+	&::before {
+		width: 0;
+		display: inline-block;
+		font-family: 'Material Design Icons';
+		font-size: .83em;
+		color: $primary;
+		content: '\f14f';
+		transition: inherit;
+		transform: scale( 0 );
+	}
+
+	&:hover {
+		color: $headings-color;
+
+		&::before {
+			padding-right: 1.4em;
+			transform: scale( 1 );
+		}
+	}
+}
+
+.link-inherit {
+	color: inherit;
+
+	&:hover {
+		color: $primary;
+	}
+}
+
+.link-inherit-primary {
+	color: inherit;
+
+	&:hover {
+		color: $primary;
+	}
+}
+
+.link-large {
+	font-size: px-to-rem( 26px );
+	font-family: $font-family-secondary;
+	line-height: 1.3;
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+
+// Spacing
+* + .link-container { margin-top: px-to-rem( 6px ); }
+
+
+// Context dark
+.context-dark {
+	.link-arrow {
+		color: $white;
+
+		&:hover {
+			color: $white;
+		}
+	}
+
+	.link-inherit {
+		&:hover {
+			color: $white;
+		}
+	}
+
+	.link-inherit-primary {
+		color: inherit;
+
+		&:hover {
+			color: $primary;
+		}
+	}
+
+	.link-contrast {
+		color: $white;
+
+		&:hover {
+			color: $primary;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	.link-large {
+		font-size: $h2-font-size * 1.14;
+		line-height: $h2-line-height;
+	}
+
+	* + .link-container { margin-top: px-to-rem( 12px ); }
+}
+
+
+.privacy-link {
+	&:hover {
+		text-decoration: underline;
+	}
+}
+

@@ -1,0 +1,51 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Base
+.text-divider {
+	position: relative;
+	padding-bottom: .52em;
+
+	&::after {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 76px;
+		height: 2px;
+		content: '';
+		background-color: $primary;
+	}
+}
+
+
+// Modifying
+.text-divider-center {
+	&::after {
+		left: 50%;
+		transform: translateX( -50% );
+	}
+}
+
+.text-divider-large {
+	padding-bottom: .64em;
+
+	&::after {
+		width: 100%;
+		content: '';
+		background-color: $gray-400;
+	}
+}
+
+.text-divider-wide {
+	padding-bottom: 1.3em;
+
+	&::after {
+		width: 100vw;
+		height: 1px;
+		content: '';
+		background-color: $gray-400;
+	}
+}

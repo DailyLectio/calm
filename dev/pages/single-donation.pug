@@ -1,0 +1,58 @@
+extends ../components/base/_skeleton
+include ../components/rd-navbar/_rd-navbar
+include ../components/page-title/_page-title
+
+block variables
+	- pageName = 'Single Donation';
+
+block page
+	+page-title({
+		bgImage: 'images/background/bg-6-1920x496.jpg',
+		title: 'Providing African & Indian Regions with Fresh Food'
+	})
+		+rd-navbar
+
+	section.section-md.bg-100
+		.container
+			.row.row-50.justify-content-between
+				.col-md-6
+					h3.h3-big Select Your Donation Method
+					.mt-4
+						.custom-control.custom-radio.custom-control-inline
+							input#customRadioInline1.custom-control-input(type='radio', name='customRadioInline1')
+							label.custom-control-label(for='customRadioInline1') Test Donation
+						.custom-control.custom-radio.custom-control-inline
+							input#customRadioInline2.custom-control-input(type='radio', name='customRadioInline1')
+							label.custom-control-label(for='customRadioInline2') Offline Donation
+						.custom-control.custom-radio.custom-control-inline
+							input#customRadioInline3.custom-control-input(type='radio', name='customRadioInline1')
+							label.custom-control-label(for='customRadioInline3') PayPal
+					.group-25.mt-4.d-flex.align-items-start.flex-column.flex-sm-row
+						+img('person/person-6-125x125').rounded-circle
+						div
+							p Our church incorporates God’s family into our fellowship. We provide a warm, authentic community, welcoming new believers into the body of Christ through baptism.
+							h4.text-primary.mt-3 Jane Peters
+				.col-md-6.col-lg-5
+					form.rd-mailform.rd-form( data-form-output='form-consultation', data-form-type='contact', method='post', action='components/rd-mailform/rd-mailform.php' )
+						.row.row-15
+							.col-12
+								.form-group
+									.input-group
+										.input-group-prepend 
+											.input-group-text $
+										input.form-control( type='text', name='price', placeholder='200.00', data-constraints='@Numeric' )
+							.col-12
+								.form-group
+									input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+							.col-12
+								.form-group
+									input.form-control( type='text', name='lastName', placeholder='Last Name*', data-constraints='@Required' )
+							.col-12
+								.form-group
+									input.form-control( type='email', name='email', placeholder='E-mail*', data-constraints='@Email @Required' )
+							.col-12
+								button.btn( type='submit' style='width: 100%' ) Make a Donation
+		
+		
+					#form-consultation.form-output.snackbar.snackbar-primary
+	include ../components/footer/_footer-contact

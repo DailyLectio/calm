@@ -1,0 +1,74 @@
+// Base
+.person-boxed {
+	max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+	color: $body-color;
+	box-shadow: 0 20px 30px rgba( $gray-900, 0.25 );
+
+	.person-img {
+		width: 100%;
+	}
+
+	.person-inner {
+		display: flex;
+		align-items: flex-end;
+		background-color: $white;
+	}
+
+	.person-content {
+		flex-grow: 1;
+		padding: px-to-rem( 24px, 29px );
+	}
+
+	.person-divider {
+		width: 76px;
+		border-top: 1px solid $border-color;
+	}
+
+	.person-meta {
+		font-size: $font-size-sm * .93;
+		text-transform: uppercase;
+		color: $primary;
+	}
+
+	.person-button {
+		padding: px-to-rem( 18px, 17px );
+		display: inline-block;
+		font-size: $h4-font-size;
+		line-height: 1;
+		color: $white;
+		background-color: $primary;
+		transition: $transition-base;
+
+		&:hover {
+			background-color: $gray-700;
+		}
+	}
+
+	* + .person-divider,
+	.person-divider + * {
+		margin-top: px-to-rem( 15px );
+	}
+
+	* + .person-text { margin-top: px-to-rem( 6px ) }
+	* + .person-meta { margin-top: px-to-rem( 14px ) }
+}
+
+
+// Context dark
+.context-dark {
+	.person-boxed {
+		.person-title {
+			color: $headings-color;
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.person-boxed {
+		* + .person-meta { margin-top: px-to-rem( 19px ) }
+	}
+}

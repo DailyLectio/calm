@@ -1,0 +1,45 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Core variables and mixins
+@import "lightgallery/lg-variables";
+@import "lightgallery/lg-mixins";
+@import "lightgallery/lg-fonts";
+@import "lightgallery/lg-theme-default";
+@import "lightgallery/lg-thumbnail";
+@import "lightgallery/lg-video";
+@import "lightgallery/lg-autoplay";
+@import "lightgallery/lg-zoom";
+@import "lightgallery/lg-pager";
+@import "lightgallery/lg-fullscreen";
+@import "lightgallery/lg-share";
+@import "lightgallery/lg-transitions";
+
+
+// Core
+@import "lightgallery/lg-core";
+
+
+// Base
+.lg-outer .lg-thumb {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+// Media
+@include media-breakpoint-down(md) {
+	// Hide zooming toggles
+	#lg-zoom-in,
+	#lg-zoom-out {
+		display: none;
+	}
+
+	// Reduce toolbar buttons width
+	.lg-toolbar .lg-icon {
+		width: 40px;
+	}
+}

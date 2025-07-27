@@ -1,0 +1,30 @@
+include ../progress-linear/_progress-liear
+
+// Progress linear
+section.section-md.bg-transparent
+	.container
+		.row.row-30.justify-content-between.align-items-center
+			.col-md-6
+				h2 Skill Bars
+				+progress-linear({
+					title: 'Dedication',
+					value: '88'
+				})
+
+				+progress-linear({
+					title: 'Knowledge',
+					value: '70'
+				})
+
+				+progress-linear({
+					title: 'Experience',
+					value: '74'
+				})
+
+				+progress-linear({
+					title: 'Professionalism',
+					value: '68'
+				})
+
+			.col-md-6.col-xl-5.text-center.text-md-end
+				+img( 'image-1-470x331' )

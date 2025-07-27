@@ -1,0 +1,135 @@
+@import "../bootstrap/scss/_functions";
+@import "../bootstrap/scss/_variables";
+@import "../bootstrap/scss/_mixins";
+@import "../base/_functions";
+@import "../base/_variables";
+
+// Variables
+$countdown-circle-bg: $gray-400;
+$countdown-circle-bg-width: 2px;
+$countdown-circle-fg: $primary;
+$countdown-circle-fg-width: 3px;
+
+$countdown-counter-color: $gray-900;
+$countdown-counter-fsz: px-to-rem( 60px );
+
+$countdown-title-color: $gray-600;
+$countdown-title-fsz: $font-size-sm;
+
+.countdown {
+	display: flex;
+	align-items: center;
+	margin-left: -5px;
+	margin-right: -5px;
+	line-height: 1;
+	text-align: center;
+}
+
+.countdown-block {
+	position: relative;
+	flex: 0 1 auto;
+	padding: 0 5px;
+}
+
+.countdown-block-seconds {
+	position: absolute;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.countdown-wrap {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.countdown-circle {
+	fill: transparent;
+
+	html:not(.ie-11):not(.ie-10) & {
+		width: 100%;
+		height: auto;
+	}
+}
+
+.countdown-circle-bg {
+	stroke: $countdown-circle-bg;
+	stroke-width: $countdown-circle-bg-width;
+}
+
+.countdown-circle-fg {
+	stroke: $countdown-circle-fg;
+	stroke-width: $countdown-circle-fg-width;
+}
+
+.countdown-counter {
+	font-family: $font-family-secondary;
+	font-size: $countdown-counter-fsz * .6;
+	font-weight: 700;
+	line-height: .8;
+	letter-spacing: 0.01em;
+	color: $countdown-counter-color;
+}
+
+.countdown-title {
+	font-size: $countdown-title-fsz;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: $countdown-title-color;
+}
+
+* + .countdown { margin-top: px-to-rem( 25px ); }
+.countdown + * { margin-top: px-to-rem( 25px ); }
+
+
+// Context dark
+.context-dark {
+	.countdown-counter {
+		color: $white;
+	}
+
+	.countdown-title {
+		color: rgba( $white, .6 );
+	}
+}
+
+@include media-breakpoint-up( sm ) {
+	.countdown-block-seconds {
+		position: relative;
+		opacity: 1;
+		visibility: visible;
+	}
+}
+
+@include media-breakpoint-up( md ) {
+	.countdown {
+		margin-left: -20px;
+		margin-right: -20px;
+	}
+
+	.countdown-block {
+		padding: 0 20px;
+	}
+
+	.countdown-counter {
+		font-size: 34px;
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.countdown-counter {
+		font-size: $countdown-counter-fsz;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	* + .countdown { margin-top: px-to-rem( 40px ); }
+	.countdown + * { margin-top: px-to-rem( 40px ); }
+}

@@ -1,0 +1,70 @@
+include ../post/_post
+include ../pagination/_pagination
+
+// Blog classic
+section.section-md.bg-transparent
+	.container
+		.row.row-40.justify-content-xxl-between
+			.col-md-8
+				+post-classic({
+					title:    'Peace in an Age of Outrage',
+					text:     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+					tag:      'News',
+					date:     'April 10, 2023',
+					comments: '0'
+				})
+					a.post-media.post-img( href='blog-post.html' )
+						+img( 'image-14-769x431' )
+
+				+post-classic({
+					title:    'Why Expository Preaching?',
+					text:     'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat.',
+					tag:      'News',
+					date:     'April 10, 2023',
+					comments: '0'
+				})
+					.owl-carousel.owl-nav-lg( data-owl= { nav: true } )
+						+img( 'image-9-769x431' )
+						+img( 'image-2-769x431' )
+						+img( 'image-15-769x431' )
+
+				+post-classic({
+					title:    'Surprised by the Perfect Being',
+					text:     'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam.',
+					tag:      'News',
+					date:     'April 10, 2023',
+					comments: '0'
+				})
+					a.post-media.post-img( href='#' )
+						+img( 'image-15-769x431' )
+
+				+post-classic({
+					title:    'Calling My Prejudice By Its Name',
+					text:     'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum.',
+					tag:      'News',
+					date:     'April 10, 2023',
+					comments: '0'
+				}).post-classic-boxed
+
+				+post-classic({
+					title:    'Is Healing in the Atonement?',
+					text:     'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui.',
+					tag:      'News',
+					date:     'April 10, 2023',
+					comments: '0'
+				})( 'data-lightgallery' )
+					a.post-media.video.lightgallery-item( href='https://www.youtube.com/embed/hNQFjqDvPhA' )
+						+img( 'image-2-769x431' ).video-image
+						.video-link
+							.icon.video-icon.mdi-play
+
+				+pagination([
+					{ prev: true, actionClass: 'disabled' },
+					{ value: '1', actionClass: 'active' },
+					{ value: '2' },
+					{ value: '3' },
+					{ next: true }
+				]).justify-content-center
+
+			.col-md-4.col-xl-3
+				include ../widget/_blog-sidebar-widgets

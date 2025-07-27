@@ -1,0 +1,31 @@
+//- Progress Circle
+	@param {object} data - object data
+	@param {number} data.value - progress value
+	@param {string} data.unit - progress value unit
+	@param {array} [data.gradient] - progress background gradient (2 colors)
+	@param {string} [data.gradientId] - progress gradient id (unique if set)
+	@param {string} [data.color] - progress background color
+	@param {string} [data.title] - progress title
+	@param {string} [data.text] - progress description
+mixin progress-circle( data )
+	// Progress circle
+	-
+		data.gradientId = data.gradientId || Math.random().toString( 36 ).substring( 2 );
+		colorValue = data.gradient ? 'url(#' + data.gradientId + ')' : data.color ? data.color : '#cccccc';
+	.progress-circle
+		.progress-circle-inner
+			svg.progress-circle-bar( x='0', y='0', width='170', height='170', viewbox='0 0 170 170' )
+				if (data.gradient)
+					defs
+						linearGradient( id= data.gradientId )
+							stop( offset='0%', stop-color= data.gradient[ 0 ] )
+							stop( offset='100%', stop-color= data.gradient[ 1 ] )
+				circle.bg( cx=85, cy=85, r=80 )
+				circle.fg.clipped( cx=85, cy=85, r=80, style='stroke: ' + colorValue )
+			.progress-circle-counter-value
+				span.progress-circle-counter= data.value
+				= data.unit ? data.unit : '%'
+		if (data.title)
+			.progress-circle-title.h5= data.title
+		if (data.text)
+			.progress-circle-text.small= data.text

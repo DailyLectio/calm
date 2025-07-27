@@ -1,0 +1,61 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.icon {
+	display: inline-block;
+}
+
+
+// Sizing
+.icon-md {
+	font-size: px-to-rem( 22px );
+}
+
+
+// Theming
+.icon-link {
+	color: inherit;
+
+	&:hover {
+		color: $primary;
+	}
+}
+
+.icon-link-gray {
+	color: $gray-400;
+
+	&:hover {
+		color: $primary;
+	}
+}
+
+
+// box icon bordered
+.box-icon-bordered {
+	display: flex;
+	align-items: center;
+	padding: 10px 0 10px 25px;
+	border-left: 1px solid;
+	border-color: $gray-300;
+	
+	.context-dark & {
+		border-color: rgba( $white, .1 );
+	}
+
+	.box-icon-bordered-title {
+		font-size: px-to-rem( 22px );
+		line-height: 1.4;
+		font-weight: 600;
+	}
+
+	.box-icon-bordered-icon {
+		font-size: px-to-rem( 34px );
+		margin-right: 10px;
+	}
+}

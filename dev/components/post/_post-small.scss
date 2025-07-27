@@ -1,0 +1,38 @@
+.post-small {
+	display: flex;
+	@include groupX( 16px );
+
+	.post-img-link {
+		flex-shrink: 0;
+		max-width: 20%;
+		transition: $transition-base;
+
+		&:hover {
+			opacity: .8;
+		}
+	}
+
+	.post-body {
+		margin-top: px-to-rem( -4px );
+	}
+
+	.post-date {
+		color: $post-primary;
+	}
+
+	* + .post-date { margin-top: px-to-rem( 4px ) }
+}
+
+
+// Spacing
+* + .post-small { margin-top: px-to-rem( 25px ) }
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.post-small {
+		.post-img-link {
+			max-width: 50%;
+		}
+	}
+}

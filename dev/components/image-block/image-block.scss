@@ -1,0 +1,74 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Variables
+$ib-shadow: 20px 20px 30px rgba( $gray-900, 0.15 );
+$ib-counter-color: $primary;
+
+
+// Base
+.image-block {
+	position: relative;
+	display: inline-block;
+}
+
+.image-block-embed {
+	position: absolute;
+	top: 47%;
+	right: -10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100px;
+	height: 100px;
+	padding: px-to-rem( 10px );
+	background-color: $white;
+	box-shadow: $ib-shadow;
+	text-align: center;
+
+	.counter-value {
+		color: $ib-counter-color;
+	}
+	
+	p {
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+}
+
+* + .image-block-title { margin-top: px-to-rem( 13px ) }
+
+
+// Modifiers
+.image-block-left {
+	.image-block-embed {
+		top: auto;
+		left: -10px;
+		bottom: 10%;
+		right: auto;
+		box-shadow: -20px 20px 30px rgba( $gray-900, 0.15 );
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.image-block-embed {
+		min-width: 136px;
+		min-height: 136px;
+		top: 47%;
+		right: -35px;
+	}
+
+	.image-block-left {
+		.image-block-embed {
+			left: -54px;
+			bottom: 13%;
+		}
+	}
+}

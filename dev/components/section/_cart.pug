@@ -1,0 +1,50 @@
+// Cart
+section.section-md.bg-transparent
+	.container
+		.row.justify-content-center
+			.col-xl-10
+				h3.h3-big.text-center Cart
+				.table-container.table-responsive-md
+					table.table.table-align-center.table-cart
+						tr
+							td
+								a.d-inline-block( href='single-product.html' ): +img( 'product/product-3-135x170' )
+							td
+								h5: a( href='single-product.html' ) Spring Harvest 2020 Songbook: Unleashed
+								p Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+							td
+								.h5 $35
+							td
+								.form-group.table-cart-spinner
+									input.form-control.input-spinner( data-spinner, type='number', name='spinner', value='1' )
+							td
+								.h5.text-primary $35
+
+						tr
+							td
+								a.d-inline-block( href='single-product.html' ): +img( 'product/product-3-135x170' )
+							td
+								h5: a( href='single-product.html' ) Spring Harvest 2020 Songbook: Unleashed
+								p Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+							td
+								.h5 $35
+							td
+								.form-group.table-cart-spinner
+									input.form-control.input-spinner( data-spinner, type='number', name='spinner', value='1' )
+							td
+								.h5.text-primary $35
+
+				table.table.table-filled.table-align-1
+					tr.text-small
+						td.text-small Subtotal
+						td $70.00
+					tr
+						td.text-small Shipping:
+						td $0.00
+					tr
+						td.text-small Taxes:
+						td $0.00
+					tr
+						td.text-small.text-primary Total
+						td $70.00
+				a.btn( href='checkout.html' ) Checkout

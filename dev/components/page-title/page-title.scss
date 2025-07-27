@@ -1,0 +1,54 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Base
+.page-title {
+	padding: 35px 0;
+}
+
+.page-title-text {
+	text-transform: uppercase;
+}
+
+* + .page-title-exeption { margin-top: px-to-rem( 6px ) }
+
+
+// Context dark
+.context-dark {
+	.page-title-exeption {
+		color: inherit;
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( md ) {
+	.page-title {
+		padding: 55px 0;
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.page-title {
+		min-height: 180px;
+		padding: 50px 0 50px;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.page-title {
+		min-height: 340px;
+		padding: 135px 0 30px;
+	}
+}
+
+@include media-breakpoint-up( xxl ) {
+	.page-title {
+		min-height: 500px;
+		padding: 255px 0 30px;
+	}
+}

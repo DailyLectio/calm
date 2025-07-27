@@ -1,0 +1,21 @@
+// Contact form
+section.section-md.bg-100
+	.container
+		h3.h3-big Get in Touch
+		form.rd-mailform.rd-form( data-form-output='form-consultation', data-form-type='contact', method='post', action='components/rd-mailform/rd-mailform.php' )
+			.row.row-25.row-gutters-24
+				.col-md-4
+					.form-group
+						input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+				.col-md-4
+					.form-group
+						input.form-control( type='text', name='phone', placeholder='Phone*', data-constraints='@PhoneNumber @Required' )
+				.col-md-4
+					.form-group
+						input.form-control( type='email', name='email', placeholder='E-mail*', data-constraints='@Email @Required' )
+				.col-md-12
+					.form-group
+						textarea.form-control( name='comment', placeholder='Message' )
+				.col-sm-12
+					button.btn( type='submit' ) Make an appointment
+		#form-consultation.form-output.snackbar.snackbar-primary

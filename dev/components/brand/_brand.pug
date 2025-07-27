@@ -1,0 +1,9 @@
+//- Brand
+	@param {object} data - brand data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - brand title
+	@param {string} data.text - brand description
+mixin brand-hover( data )
+	// Brand
+	.brand.brand-hover&attributes( attributes )
+		+img( data )

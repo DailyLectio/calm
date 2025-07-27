@@ -1,0 +1,122 @@
+// Thumbnail simple
+.thumbnail-simple {
+	position: relative;
+	max-width: 370px;
+	margin-left: auto;
+	margin-right: auto;
+	border-bottom: 1px solid $thumbnail-border-color;
+
+	&::before {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 0;
+		content: '';
+		background-color: $thumbnail-primary;
+		transition: $transition-base;
+	}
+
+	.thumbnail-media {
+		position: relative;
+		display: inline-block;
+
+		&::after {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			font-size: $h3-font-size;
+			font-family: 'Material Design Icons';
+			color: $white;
+			content: '\f42b';
+			transform: translate( -50%, -50% );
+		}
+
+		&::before {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			content: '';
+			background-image: $gradient-gray-1;
+		}
+	}
+
+	.thumbnail-body {
+		padding: 20px 20px 15px;
+	}
+
+	.thumbnail-title {
+		position: relative;
+
+		&::before {
+			position: absolute;
+			top: .65em;
+			right: 100%;
+			content: '';
+			width: 15px;
+			height: 1px;
+			background-color: $thumbnail-primary;
+			transform: translateX( -7px );
+		}
+	}
+
+	.thumbnail-link {
+		display: inline-block;
+		font-size: $font-size-sm;
+		font-weight: $font-weight-bold;
+		text-transform: uppercase;
+	}
+
+	&:hover {
+		&::before {
+			height: 4px;
+		}
+	}
+
+	* + .thumbnail-text { margin-top: px-to-rem( 6px ); }
+	* + .thumbnail-link { margin-top: px-to-rem( 10px ); }
+}
+
+
+// Desktop context
+.desktop {
+	.thumbnail-simple {
+		.thumbnail-media {
+			&::before,
+			&::after {
+				transition: $transition-base;
+				opacity: 0;
+			}
+
+			&:hover {
+				&::before,
+				&::after {
+					opacity: 1;
+				}
+			}
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.thumbnail-simple {
+		.thumbnail-body {
+			padding: 26px 16px 26px 36px;
+		}
+
+		.thumbnail-title {
+			&::before {
+				top: .65em;
+				width: 21px;
+				transform: translateX( -16px );
+			}
+		}
+
+		* + .thumbnail-text { margin-top: px-to-rem( 8px ); }
+		* + .thumbnail-link { margin-top: px-to-rem( 17px ); }
+	}
+}

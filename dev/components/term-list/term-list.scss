@@ -1,0 +1,96 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+dt {
+	font-weight: 400;
+}
+
+
+.term-list-lg {
+	* + dd { margin-top: px-to-rem( 15px ) }
+}
+
+* + .term-list-lg { margin-top: px-to-rem( 20px ) }
+
+
+// Term list divided
+.term-list-divided {
+	padding-left: px-to-rem( 20px );
+
+	dt {
+		position: relative;
+
+		&::before {
+			position: absolute;
+			top: .68em;
+			right: 100%;
+			content: '';
+			width: px-to-rem( 10px );
+			height: 1px;
+			background-color: $primary;
+			transform: translateX( -5px );
+		}
+	}
+
+	* + dd { margin-top: px-to-rem( 5px ) }
+}
+
+* + .term-list-divided { margin-top: px-to-rem( 20px ) }
+
+
+// Term list inline
+.term-list-inline {
+	dt, dd {
+		display: inline-block;
+	}
+
+	dt {
+		color: $gray-900;
+	}
+
+	dd {
+		color: $gray-600;
+	}
+}
+
+.term-list-inline + .term-list-inline { margin-top: 7px }
+* + .term-list-inline { margin-top: px-to-rem( 12px ) }
+
+
+// Context dark
+.context-dark {
+	.term-list {
+		dt {
+			color: inherit;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.term-list-divided {
+		padding-left: px-to-rem( 40px );
+
+		dt {
+			position: relative;
+
+			&::before {
+				top: .72em;
+				width: px-to-rem( 26px );
+				transform: translateX( -13px );
+			}
+		}
+
+		* + dd { margin-top: px-to-rem( 12px ) }
+	}
+
+	* + .term-list-divided { margin-top: px-to-rem( 53px ) }
+	* + .term-list-inline { margin-top: px-to-rem( 20px ) }
+	* + .term-list-lg { margin-top: px-to-rem( 25px ) }
+}

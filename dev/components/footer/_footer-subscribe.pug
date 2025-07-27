@@ -1,0 +1,34 @@
+include ../logo/_logo
+include ../rights/_rights
+
+// Footer subscribe
+footer.footer-subscribe.context-dark.bg-900
+	.container
+		+logo
+		.row.row-40.justify-content-lg-around.justify-content-xxl-between.flex-row-reverse.justify-content-end
+			.col-lg-5.col-xl-4
+				.row.row-30
+					.col-6
+						.list.list-divided-double.big
+							a.list-item( href='about-us.html' ) About
+							a.list-item( href='#' ) Services
+							a.list-item( href='sermons.html' ) Practice
+							a.list-item( href='contact-us.html' ) Contact Us
+					.col-6
+						.list.list-divided-double.big
+							a.list-item( href='sermons.html' ) Cases
+							a.list-item( href='lawyers.html' ) Our Team
+							a.list-item( href='sermons.html' ) News
+
+			.col-md-9.col-lg-6.col-xl-5
+				form.form-inline.rd-mailform.rd-form.group-y-10.align-items-stretch( data-form-output='form-footer-subscribe', data-form-type='subscribe', method='post', action='components/rd-mailform/rd-mailform.php' )
+					.form-inline-group
+						input.form-control( type='email', name='email', placeholder='E-mail', data-constraints='@Email @Required' )
+					button.btn Subscribe
+				#form-footer-subscribe.form-output.snackbar.snackbar-primary
+				ul.list.list-vertical
+					li.list-item
+						a.link.link-inherit.big(href='#') 800.567.1234
+						a.link.link-inherit(href='#') info@demolink.org
+					li.list-item 355 S Grand Ave #[br]Los Angeles, CA 90071
+				+rights.footer-rights

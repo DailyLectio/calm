@@ -1,0 +1,26 @@
+// Base
+.footer-subscribe {
+	padding: 50px 0;
+
+	.footer-rights {
+		color: rgba( $white, .2 );
+	}
+
+	* + .footer-rights { margin-top: px-to-rem( 15px ) }
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.footer-subscribe {
+		padding: 60px 0;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.footer-subscribe {
+		padding: 95px 0 120px;
+
+		* + .footer-rights { margin-top: px-to-rem( 53px ) }
+	}
+}

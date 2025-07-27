@@ -1,0 +1,77 @@
+// Checkout
+section.section-md.bg-transparent
+	.container
+		h3.h3-big.text-center Checkout
+		.row.row-40.row-xl-55.justify-content-between.row-offset-md
+			.col-md-6
+				h3 Billing details
+				.rd-form
+					.row.row-15.row-gutters-15
+						.col-sm-6
+							.form-group
+								input.form-control( type='text', name='first-name', placeholder='First Name*', data-constraints='@Required' )
+						.col-sm-6
+							.form-group
+								input.form-control( type='text', name='last-name', placeholder='Last Name*', data-constraints='@Required' )
+						.col-12
+							.form-group
+								input.form-control( type='text', name='company-name', placeholder='Company Name (optional)' )
+						.col-12
+							.form-group
+								.select-wrap.position-relative
+									select.select2( id='input-sex', name='sex', data-select2-options!={ placeholder: 'Country*' }, data-constraints='@Required' )
+										option( label='placeholder' )
+										option USA
+										option United Kingdom
+										option Germany
+										option Spain
+										option France
+										option Germany
+						.col-12
+							.form-group
+								input.form-control( type='text', name='street-address', placeholder='Street Address*', data-constraints='@Required' )
+						.col-12
+							.form-group
+								input.form-control( type='text', name='city', placeholder='Town / City*', data-constraints='@Required' )
+						.col-12
+							.form-group
+								input.form-control( type='text', name='country', placeholder='State / County*', data-constraints='@Required' )
+						.col-12
+							.form-group
+								input.form-control( type='text', name='postcode', placeholder='Postcode / ZIP*', data-constraints='@Required' )
+						.col-12
+							.form-group
+								input.form-control( type='text', name='phone', placeholder='Phone*', data-constraints='@PhoneNumber @Required' )
+						.col-sm-12
+							.form-group
+								input.form-control( type='email', name='email', placeholder='Your E-mail*', data-constraints='@Email @Required' )
+
+			.col-md-6.col-lg-5
+				h3 Do you have a promotional code?
+				.rd-form
+					.row.row-15.row-gutters-15
+						.col-sm-12
+							.form-group
+								input.form-control( type='text', name='promocode', placeholder='Enter Promocode' )
+						.col-sm-12
+							button.btn( type='submit' ) Apply coupon
+
+			.col-12
+				h3 Your order
+				table.table.table-filled.table-align-1 
+					tr.text-small
+						td Product
+						td price
+					tr
+						td Spring Harvest 2020 Songbook: Unleashed #[span.text-primary x 3]
+						td $35.00
+					tr
+						td Ten Girls Who Changed the World
+						td $35.00
+					tr
+						td.text-small Subtotal
+						td $140.00
+					tr
+						td.text-small Total
+						td $140.00
+				button.btn place order

@@ -1,0 +1,17 @@
+// Base
+.post-minimal {
+	.post-meta {
+		font-size: $font-size-sm * .93;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
+	* + .post-meta { margin-top: px-to-rem( 7px ) }
+}
+
+.post-minimal + .post-minimal { margin-top: px-to-rem( 15px ) }
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.post-minimal + .post-minimal { margin-top: px-to-rem( 24px ) }
+}

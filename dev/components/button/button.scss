@@ -1,0 +1,175 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../bootstrap/scss/buttons";
+@import "../bootstrap/scss/button-group";
+
+
+// Base
+.btn {
+	position: relative;
+	z-index: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: $btn-border-width solid transparent;
+	font-family: $btn-font-family;
+	font-weight: $btn-font-weight;
+	text-transform: uppercase;
+	box-shadow: $btn-box-shadow;
+	background: $primary;
+	color: $white;
+	transition: $transition-base;
+
+	@include button-size(
+		$btn-padding-y,
+		$btn-padding-x,
+		$btn-font-size,
+		$btn-border-radius
+	);
+
+	&::before {
+		position: absolute;
+		left: -1px;
+		top: -1px;
+		right: -1px;
+		bottom: -1px;
+		z-index: -1;
+		background-color: $gray-700;
+		content: '';
+		transform: scale( .8 );
+		opacity: 0;
+		transition: inherit;
+	}
+
+	&:hover,
+	&.hover,
+	&:active,
+	&.active {
+		text-decoration: none;
+		color: $white;
+
+		&::before {
+			opacity: 1;
+			transform: scale( 1 );
+		}
+	}
+
+	&:focus,
+	&.focus {
+		outline: 0;
+		box-shadow: none;
+	}
+
+	&.disabled,
+	&:disabled {
+		opacity: $btn-disabled-opacity;
+		pointer-events: none;
+	}
+}
+
+
+// Spacing
+* + .btn {
+	margin-top: px-to-rem( 22px );
+}
+
+table + .btn {
+	margin-top: px-to-rem( 15px );
+}
+
+.rd-range-value + .btn,
+.rd-range + .btn {
+	margin-top: px-to-rem( 13px );
+}
+
+
+// Theming
+.btn-outline {
+	font-weight: 700;
+	color: $gray-900;
+	background: transparent;
+	border-color: $gray-900;
+
+	&::before {
+		background-color: $gray-900;
+	}
+
+	&:hover {
+		color: $white;
+	}
+}
+
+.btn-primary-light {
+	background-color: $primary-light;
+}
+
+.btn-white {
+	background-color: $white;
+	color: $gray-900;
+}
+
+
+.btn-block {
+	display: flex;
+	width: 100%;
+}
+
+
+.btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	.icon {
+		margin-right: 5px;
+		font-size: 24px;
+		line-height: 26px;
+		color: $primary;
+		fill: $primary;
+		path {
+			fill: $primary;
+		}
+	}
+}
+
+// Sizing
+.btn-sm {
+	padding: px-to-rem( 11px, 24px );
+}
+
+
+// Context dark
+.context-dark {
+	.btn-outline {
+		color: $white;
+		border-color: rgba( $white, .3 );
+
+		&::before {
+			background-color: $primary;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up(md) {
+	.row + .btn {
+		margin-top: px-to-rem( 50px );
+	} 
+}
+
+@include media-breakpoint-up(lg) {
+	table + .btn {
+		margin-top: px-to-rem( 20px );
+	}
+
+	h2 + .btn {
+		margin-top: px-to-rem( 42px );
+	}
+
+	h1 + .btn {
+		margin-top: px-to-rem( 37px );
+	}
+}

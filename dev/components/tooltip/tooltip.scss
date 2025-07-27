@@ -1,0 +1,17 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+// Variables
+$tooltip-padding-y: .05rem;
+$tooltip-padding-x: .5rem;
+$tooltip-border-radius: 0;
+$tooltip-font-size: $font-size-base;
+
+@import "../bootstrap/scss/mixins";
+@import "../bootstrap/scss/tooltip";
+
+.tooltip {
+	line-height: 1.65;
+}

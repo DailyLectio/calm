@@ -1,0 +1,104 @@
+-
+	var
+		logo = {
+			default: 'logo-inverse-296x104.png',
+			inverse: 'logo-inverse-296x104.png',
+			inverse2: 'logo-inverse-1-296x104.png',
+			name: 'Calm'
+		},
+		menu = {
+			type: 'root',
+			child: [
+				{
+					title: 'About', 
+					link: 'about-us.html',
+					id: 'about-us',
+					child: {
+						type: 'dropdown', 
+						child: [
+							{ title: 'Team member' }
+						]
+					}
+				},
+
+				{
+					title: 'Donations',
+					child: {
+						type: 'dropdown',
+						child: [
+							{ title: 'Single Donation' }
+						]
+					}
+				}, 
+
+				{
+					title: 'Pages',
+					link: '#',
+					class: 'navbar-navigation-item-hidden',
+					child: {
+						type: 'dropdown', 
+						child: [
+							{
+								title: 'Blog', 
+								link: '#',
+								child: {
+									type: 'dropdown',
+									child: [
+										{ title: 'Classic blog' },
+										{ title: 'Blog post' },
+										{ title: 'Blog carousel' },
+										{ title: 'Blog grid' },
+										{ title: 'Blog grid without sidebar' },
+									]
+								}
+							},
+							{ title: '404' }, 
+							{ title: 'Typography' }, 
+							{ title: 'Coming soon' }, 
+							{ title: 'Search results' } 
+						]
+					}
+				},
+
+				{
+					title: 'Sermons',
+					class: 'navbar-navigation-item-hidden',
+					link: 'sermons.html',
+					child: {
+						type: 'dropdown',
+						child: [
+							{ title: 'Sermon Categories' },
+							{
+								title: 'Single Sermon',
+								link: 'single-sermon.html'
+							}
+						]
+					}
+				},
+
+				{
+					title: 'Shop',
+					class: 'navbar-navigation-item-hidden',
+					child: {
+						type: 'dropdown', 
+						child: [
+							{ title: 'Single product' },
+							{ title: 'Checkout' },
+							{ title: 'Cart' }
+						]
+					}
+				},
+
+				{
+					title: 'Contact us',
+					class: 'navbar-navigation-item-hidden'
+				}
+			]
+		},
+
+		homePage,
+		pageName,
+		pageId,
+		pageClass= null,
+		htmlClass= null,
+		breadcrumbs = [];

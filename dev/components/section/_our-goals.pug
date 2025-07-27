@@ -1,0 +1,41 @@
+// Our goals
+section#consultation-form.section-md.bg-100
+	.container
+		.row.row-30.justify-content-xl-between
+			.col-md-6.col-xl-5.text-center.text-md-start( data-animate!={ class: 'fadeInLeftBig' } )
+				.image-block
+					+img( 'image-11-357x494' )
+					.image-block-embed
+						h3.text-primary 16:00
+						p.small November
+							br
+							| 12, 2023
+					
+			.col-md-6.col-xl-7.col-xxl-6
+				h2( data-animate!={ class: 'fadeInRightBig' } ) Come visit Us
+				p.big( data-animate!={ class: 'fadeInRightBig', delay: '.1' } ) Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+				.row.row-5.row-content( data-animate!={ class: 'fadeInRightBig', delay: '.2' } )
+					.col-sm-6
+						ul.list.list-marked
+							li.list-item Prayer;
+							li.list-item Singing;
+					.col-sm-6
+						ul.list.list-marked
+							li.list-item Giving;
+							li.list-item The Bible Study.
+				.divider.divider-sm( data-animate!={ class: 'fadeInRightBig', delay: '.3' } )
+				h4( data-animate!={ class: 'fadeInRightBig', delay: '.4' } ) Get a free consultation
+				form.rd-mailform.rd-form( data-form-output='form-consultation', data-form-type='contact', method='post', action='components/rd-mailform/rd-mailform.php', data-animate!={ class: 'fadeInRightBig', delay: '.5' } )
+					.row.row-15.row-gutters-15
+						.col-sm-6
+							.form-group
+								input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+						.col-sm-6
+							.form-group
+								input.form-control( type='email', name='email', placeholder='Your E-mail*', data-constraints='@Email @Required' )
+						.col-sm-6.col-md-12.col-lg-6
+							.form-group
+								input.form-control( type='text', name='phone', placeholder='Your Phone*', data-constraints='@PhoneNumber @Required' )
+						.col-sm-6.col-md-12.col-lg-6
+							button.btn.btn-block( type='submit' ) Make an appointment
+				#form-consultation.form-output.snackbar.snackbar-primary

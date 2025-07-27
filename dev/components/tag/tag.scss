@@ -1,0 +1,32 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Variables
+$tag-outline-color: $body-color;
+$tag-outline-bg: $white;
+$tag-outline-border-color: $border-color;
+
+
+// Modifying
+.tag-outline {
+	display: inline-block;
+	padding: px-to-rem( 11px, 12px );
+	font-size: $font-size-sm * .92;
+	font-weight: 700;
+	line-height: 1;
+	text-transform: uppercase;
+	color: $tag-outline-color;
+	background-color: $tag-outline-bg;
+	border: 1px solid $tag-outline-border-color;
+	transition: $transition-base;
+
+	&:hover {
+		color: $tag-outline-bg;
+		background-color: $tag-outline-color;
+	}
+}

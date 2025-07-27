@@ -1,0 +1,36 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../base/mixins";
+@import "../bootstrap/scss/mixins";
+
+
+// Base
+.rating {
+	font-size: px-to-rem( 20px );
+	line-height: 1;
+}
+
+.rating-body {
+	position: relative;
+	display: inline-block;
+}
+
+.rating-empty {
+	color: $gray-300;
+}
+
+
+// Raining container
+.rating-container {
+	display: flex;
+	align-items: center;
+}
+
+.rating-title {
+	margin-right: .6em;
+	color: $gray-900;
+}
+
+* + .rating-container { margin-top: px-to-rem( 12px ) }

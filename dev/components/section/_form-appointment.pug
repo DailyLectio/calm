@@ -1,0 +1,24 @@
+include ../quote/_quote
+
+// Team member experience
+section#appointment-form.section-md.bg-900.context-dark
+	.container
+		.row.row-5.align-items-baseline
+			.col-lg-6
+				h2 Free Consultation
+			.col-lg-6
+				h3.font-italic.font-secondary( style='opacity: .6' ) Excellent legal assistance without stress
+		form.rd-mailform.rd-form( data-form-output='form-appointment', data-form-type='contact', method='post', action='components/rd-mailform/rd-mailform.php' )
+			.row.row-20.row-gutters-20
+				.col-sm-6.col-lg-3
+					.form-group
+						input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+				.col-sm-6.col-lg-3
+					.form-group
+						input.form-control( type='email', name='email', placeholder='Your E-mail*', data-constraints='@Email @Required' )
+				.col-sm-6.col-lg-3
+					.form-group
+						input.form-control( type='text', name='phone', placeholder='Your Phone*', data-constraints='@PhoneNumber @Required' )
+				.col-sm-6.col-lg-3
+					button.btn.btn-block( type='submit' ) Make an appointment
+		#form-appointment.form-output.snackbar.snackbar-primary

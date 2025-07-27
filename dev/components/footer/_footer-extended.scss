@@ -1,0 +1,47 @@
+// Base
+.footer-extended {
+	padding: 40px 0;
+
+	.footer-logo {
+		display: inline-block;
+		max-width: 130px;
+	}
+
+	* + .footer-divider,
+	.footer-divider + * {
+		margin-top: px-to-rem( 20px );
+	}
+
+	* + .footer-divider-1 {
+		margin-top: px-to-rem( 30px );
+	}
+
+	.footer-title + * { margin-top: px-to-rem( 15px ) }
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.footer-extended {
+		padding: 60px 0;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.footer-extended {
+		padding: 89px 0 58px;
+
+		.footer-title + * {
+			margin-top: px-to-rem( 36px )
+		}
+
+		* + .footer-divider,
+		.footer-divider + * {
+			margin-top: px-to-rem( 39px );
+		}
+
+		* + .footer-divider-1 {
+			margin-top: px-to-rem( 68px );
+		}
+	}
+}

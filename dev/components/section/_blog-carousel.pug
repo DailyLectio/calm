@@ -1,0 +1,96 @@
+include ../post/_post
+
+// Blog carousel
+section.section-md.bg-transparent
+	.container
+		.row.row-5.align-items-center
+			.col-md-5( data-animate!={ class: 'fadeIn' } )
+				h2 New Sermons
+			.col-md-7( data-animate!={ class: 'fadeIn', delay: '.2s' } )
+				p.big Explore & listen to the latest seermons by our church’s pastors added daily and available for download in all popular formats.
+		// Swiper slider
+		.swiper-carousel
+			.swiper-container( data-swiper!={
+				breakpoints: {
+					576:  {
+						slidesPerView: 2,
+						spaceBetween:  15
+					},
+					768:  {
+						slidesPerView: 3,
+						spaceBetween:  30
+					}
+				},
+				loop: false,
+				pagination: {
+					type: 'custom'
+				} } )
+				// Additional required wrapper
+				.swiper-wrapper
+					// Slides
+					.swiper-slide
+						+post-shadow({
+							img:     'image-12-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'God’s Cure For the World’s Worst Disease',
+							date:    'November 12, 2023'
+						})
+
+					.swiper-slide
+						+post-shadow({
+							img:     'image-1-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'Christian Life: Running Well, Finishing Strong',
+							date:    'November 12, 2023'
+						})
+
+					.swiper-slide
+						+post-shadow({
+							img:     'image-13-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'The Passing of Religious Opportunity',
+							date:    'November 12, 2023'
+						})
+
+					.swiper-slide
+						+post-shadow({
+							img:     'image-4-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'Christian Life: Where Are My Strengths? (Romans 12:1-8)',
+							date:    'November 12, 2023'
+						})
+
+					.swiper-slide
+						+post-shadow({
+							img:     'image-8-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'Life is what Happens to You While You Are Making Plans',
+							date:    'November 12, 2023'
+						})
+
+					.swiper-slide
+						+post-shadow({
+							img:     'image-9-370x257',
+							tag:     'Sermons',
+							tagLink: 'sermons.html',
+							title:   'Rock Solid: How to Build a Life that Lasts',
+							date:    'November 12, 2023'
+						})
+
+				.swiper-controls
+					// Pagination
+					.swiper-pagination
+
+					// Scrollbar
+					.swiper-progress
+						.swiper-progress-bar
+
+					// Navigation
+					.swiper-buttons
+						.swiper-button-prev.mdi-chevron-left
+						.swiper-button-next.mdi-chevron-right

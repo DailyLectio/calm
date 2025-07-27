@@ -1,0 +1,34 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.blog-post {
+	* + h3 { margin-top: px-to-rem( 20px ) }
+	* + p { margin-top: px-to-rem( 8px ) }
+	* + img { margin-top: px-to-rem( 20px ) }
+	* + .post-meta { margin-top: px-to-rem( 8px ) }
+	* + .blog-post-item { margin-top: px-to-rem( 30px ) }
+	* + .quote-default { margin-top: px-to-rem( 15px ) }
+	* + .rd-form { margin-top: px-to-rem( 14px ) }
+	* + .divider, .divider + * { margin-top: px-to-rem( 24px ) }
+}
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	.blog-post {
+		* + h3 { margin-top: px-to-rem( 35px ) }
+		* + p { margin-top: px-to-rem( 17px ) }
+		* + img { margin-top: px-to-rem( 47px ) }
+		* + .post-meta { margin-top: px-to-rem( 11px ) }
+		* + .blog-post-item { margin-top: px-to-rem( 50px ) }
+		* + .quote-default { margin-top: px-to-rem( 30px ) }
+		* + .rd-form { margin-top: px-to-rem( 28px ) }
+		* + .divider, .divider + * { margin-top: px-to-rem( 45px ) }
+	}
+}

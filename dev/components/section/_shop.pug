@@ -1,0 +1,57 @@
+include ../product/_product
+include ../pagination/_pagination
+
+// Shop
+section.section-md.bg-transparent
+	.container
+		.row.row-40
+			.col-md-8.col-lg-9
+				.row.row-40.row-xl-55
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-1-270x358',
+							title: 'Spring Harvest 2020 Songbook: Unleashed',
+							price: '35.00'
+						})
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-2-270x358',
+							title: 'The Ruthless Elimination of Hurry',
+							price: '35.00'
+						})
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-3-270x358',
+							title: 'Ten Girls Who Changed the World',
+							price: '35.00'
+						})
+
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-4-270x358',
+							title: 'The Usborne Children\'s Bible',
+							price: '35.00'
+						})
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-5-270x358',
+							title: 'KJV Pocket Size New Testament And Psalms',
+							price: '35.00'
+						})
+					.col-6.col-lg-4
+						+product-simple({
+							img: 'product/product-6-270x358',
+							title: 'NIV Holy Bible, Purple, Hodder Classic Design',
+							price: '35.00'
+						})
+
+				+pagination([
+					{ prev: true, actionClass: 'disabled' },
+					{ value: '1', actionClass: 'active' },
+					{ value: '2' },
+					{ value: '3' },
+					{ next: true }
+				]).justify-content-center
+
+			.col-md-4.col-lg-3
+				include ../widget/_shop-sidebar-widgets

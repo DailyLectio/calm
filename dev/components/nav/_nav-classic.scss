@@ -1,0 +1,32 @@
+// Variables
+$nav-link-color: $gray-600;
+$nav-link-active-color: $primary;
+$nav-link-hover-color: $primary-light;
+
+
+// Base
+.nav-classic {
+	.nav-link {
+		padding: 0;
+		color: $nav-link-color;
+		@include text-small;
+
+		&:hover {
+			color: $nav-link-hover-color;
+		}
+
+		&.active {
+			color: $nav-link-active-color;
+		}
+	}
+
+	.nav-item:not(:last-child) { margin-right: px-to-rem( 20px ) }
+}
+
+
+// Media
+@include media-breakpoint-up(lg) {
+	.nav-classic {
+		.nav-item:not(:last-child) { margin-right: px-to-rem( 55px ) }
+	}
+}

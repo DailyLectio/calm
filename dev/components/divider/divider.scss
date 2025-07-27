@@ -1,0 +1,44 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.divider {
+	border-top: 1px solid $border-color;
+}
+
+// Spacing
+* + .divider,
+.divider + * {
+	margin-top: px-to-rem( 31px );
+}
+
+
+// Modifying
+.divider-dark {
+	border-color: $gray-900;
+}
+
+.divider-sm {
+	border-top-width: 1px;
+}
+
+.divider-lg {
+	border-top-width: 3px;
+}
+
+.divider-xl {
+	border-top-width: 4px;
+}
+
+
+// Contexts
+.context-dark {
+	.divider {
+		border-color: rgba( $white, .1 );
+	}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Intense",
+  "version": "1.0.0",
+  "description": "Multipage site template",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "TemplateMonster",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "tempaw-zemez-functions": "^2.4.32"
+  }
+}

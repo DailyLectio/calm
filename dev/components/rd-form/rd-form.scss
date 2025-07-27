@@ -1,0 +1,39 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Spacing
+* + .rd-form {
+	margin-top: px-to-rem( 30px );
+}
+
+h3 + .rd-form {
+	margin-top: px-to-rem( 25px )
+}
+
+h4 + .rd-form {
+	margin-top: px-to-rem( 20px );
+}
+
+.rating-container + .rd-form {
+	margin-top: px-to-rem( 12px )
+}
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	* + .rd-form {
+		margin-top: px-to-rem( 45px );
+	}
+
+	h3 + .rd-form {
+		margin-top: px-to-rem( 30px )
+	}
+
+	.rating-container + .rd-form {
+		margin-top: px-to-rem( 26px )
+	}
+}

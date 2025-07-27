@@ -1,0 +1,14 @@
+//- Logo
+mixin logo
+	// Logo
+	.logo&attributes( attributes )
+		a.logo-link( href= 'index.html' )
+			+img( logo.default, { retina: true } ).logo-image-default( alt= logo.name )
+			+img( logo.inverse, { retina: true } ).logo-image-inverse( alt= logo.name )
+
+//- Logo navbar
+mixin logo-navbar
+	.navbar-logo&attributes( attributes )
+		a.navbar-logo-link( href= 'index.html' )
+			+img( logo.default, { retina: true } ).navbar-logo-default( alt= logo.name )
+			+img( logo.inverse, { retina: true } ).navbar-logo-inverse( alt= logo.name )

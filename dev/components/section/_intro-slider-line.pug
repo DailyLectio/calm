@@ -1,0 +1,71 @@
+include ../blurb/_blurb
+
+// Intro slider
+section.intro.intro-line.context-dark
+	+rd-navbar
+	.intro-line-table
+		.intro-line-row
+			.intro-line-col
+			.intro-line-col.intro-line-col-center
+			.intro-line-col
+
+		.intro-line-row.intro-line-content
+			.intro-line-col
+			.intro-line-col.intro-line-col-center
+			.intro-line-col
+
+		.intro-line-row
+			.intro-line-col
+			.intro-line-col.intro-line-col-center.intro-line-footer
+				.container( data-animate!={ class: 'fadeIn' } )
+					.row.row-25
+						.col-lg-9.col-xl-7.text-center.text-lg-start
+							+blurb-link-2({
+								iconClass: 'text-white linearicons-compass2',
+								title:     '355 S Grand Ave, Los Angeles, CA 90071',
+								subtitle:  'Feel free to visit our firm’s office at any time.'
+							})
+						.col-lg-3.col-xl-5.text-center.text-lg-end
+							.group-15.group-lg-30
+								a.icon.icon-md.icon-link.icon-link-gray.mdi-facebook( href='#' )
+								a.icon.icon-md.icon-link.icon-link-gray.mdi-linkedin( href='#' )
+								a.icon.icon-md.icon-link.icon-link-gray.mdi-twitter( href='#' )
+			.intro-line-col
+
+	// Swiper slider
+	.swiper-container.swiper-numbered( data-swiper )
+		// Additional required wrapper
+		.swiper-wrapper
+			// Slides
+			.swiper-slide( style='background-image: url( images/background/bg-8-1920x930.jpg )' )
+				.intro-line-container
+					.container
+						.row
+							.col-md-10.col-lg-7
+								h3.font-italic.font-secondary  Welcome to Our Church
+								h1 Join the prayer
+								p.big Calm Church is a Family of Faith that is committed to Bible teaching and joyful worship for children, youth and adults of all ages.
+								a.btn.btn-white( href='#' ) See More
+
+			.swiper-slide( style='background-image: url( images/background/bg-9-1920x930.jpg )' )
+				.intro-line-container
+					.container
+						.row
+							.col-md-10.col-lg-7
+								h3.font-italic.font-secondary  Reconnect with the Creator
+								h1 Connect & Grow
+								p.big Our church is a perfect place for all local residents to come in with their families and join for a prayer and a newfound peace of mind.
+								a.btn.btn-white( href='#' ) See More
+
+			.swiper-slide( style='background-image: url( images/background/bg-4-1920x930.jpg )' )
+				.intro-line-container
+					.container
+						.row
+							.col-md-10.col-lg-7
+								h3.font-italic.font-secondary  Embrace Your Faith
+								h1 Share the love
+								p.big At our church, we help people to find their way back to God. We accomplish this by reaching people far from God.
+								a.btn.btn-white( href='#' ) See More
+
+		// Pagination
+		.swiper-pagination

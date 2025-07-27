@@ -1,0 +1,177 @@
+// Elements spacing
+* + p {
+	margin-top: px-to-rem( 13px );
+}
+
+* + h1 {
+	margin-top: px-to-rem( 10px );
+}
+
+h1 + h2 {
+	margin-top: px-to-rem( 10px );
+}
+
+h3 + h1 {
+	margin-top: px-to-rem( 13px );
+}
+
+h2 + h2 {
+	margin-top: px-to-rem( 6px );
+}
+
+h4 + h2 {
+	margin-top: px-to-rem( 4px );
+}
+
+img + h2 {
+	margin-top: px-to-rem( 25px );
+}
+
+.img-single + h3 {
+	margin-top: px-to-rem( 50px );
+}
+
+* + h3 {
+	margin-top: px-to-rem( 25px );
+}
+
+* + h5 {
+	margin-top: px-to-rem( 13px );
+}
+
+* + h4,
+* + h6 {
+	margin-top: px-to-rem( 16px );
+}
+
+h2.text-divider + h1 {
+	margin-top: px-to-rem( 28px );
+}
+
+* + img,
+* + figure {
+	margin-top: px-to-rem( 20px );
+}
+
+h1 + p {
+	margin-top: px-to-rem( 10px );
+}
+
+h2 + p {
+	margin-top: px-to-rem( 20px );
+}
+
+h4 + p {
+	margin-top: px-to-rem( 6px );
+}
+
+h5 + p {
+	margin-top: px-to-rem( 5px );
+}
+
+img + p {
+	margin-top: px-to-rem( 31px );
+}
+
+h2 + h3 {
+	margin-top: px-to-rem( 14px );
+}
+
+h2 + img {
+	margin-top: px-to-rem( 25px );
+}
+
+h4 + ul {
+	margin-top: px-to-rem( 20px );
+}
+
+dl + dl {
+	margin-top: px-to-rem( 8px );
+}
+
+p + .btn {
+	margin-top: px-to-rem( 40px );
+}
+
+* + address {
+	margin-top: px-to-rem( 16px );
+}
+
+// Media
+@include media-breakpoint-up(xl) {
+	* + h1 {
+		margin-top: px-to-rem( 23px );
+	}
+
+	h1 + h2 {
+		margin-top: px-to-rem( 0 );
+	}
+
+	h2 + h2 {
+		margin-top: px-to-rem( 12px );
+	}
+
+	h4 + h2 {
+		margin-top: px-to-rem( 9px );
+	}
+
+	img + h2 {
+		margin-top: px-to-rem( 45px );
+	}
+
+	.img-single + h2 {
+		margin-top: px-to-rem( 70px );
+	}
+
+	h2.text-divider + h1 {
+		margin-top: px-to-rem( 38px );
+	}
+}
+
+
+// Group spacing
+html {
+	.group-5 {
+		@include group( 5px );
+	}
+
+	.group-10 {
+		@include group( 10px );
+	}
+
+	.group-15 {
+		@include group( 15px );
+	}
+
+	.group-20 {
+		@include group( 20px );
+	}
+
+	.group-25 {
+		@include group( 25px );
+	}
+
+	.group-30 {
+		@include group( 30px );
+	}
+
+	.group-x-50 {
+		@include groupX( 50px );
+	}
+
+	.group-y-10 {
+		@include groupY( 10px );
+	}
+
+	@include media-breakpoint-up(lg) {
+		.group-lg-30 {
+			@include group-media( 30px );
+		}
+	}
+
+	@include media-breakpoint-up(xl) {
+		.group-x-xl-40 {
+			@include groupX( 40px );
+		}
+	}
+}

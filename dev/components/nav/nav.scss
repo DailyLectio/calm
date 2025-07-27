@@ -1,0 +1,43 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+@import "../bootstrap/scss/nav";
+
+// Base
+.nav {
+	flex-wrap: nowrap;
+	scrollbar-width: thin;
+	scrollbar-color: rgba( $gray-400,.3 );
+	overflow-x: auto;
+	overflow-x: overlay;
+	overflow-y: hidden;
+
+	.nav-link {
+		white-space: nowrap;
+	}
+
+	&::-webkit-scrollbar {
+		width: 0;
+		height: 0;
+		background: rgba( $gray-400,.3 );
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: rgba( $gray-400, .8);
+	}
+
+	.mobile &,
+	&:hover {
+		&::-webkit-scrollbar {
+			width: 3px;
+			height: 3px;
+		}
+	}
+}
+
+// Modifying
+@import "nav-classic";
+@import "nav-creative";

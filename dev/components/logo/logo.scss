@@ -1,0 +1,31 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+
+// Base
+.logo-link {
+	> * {
+		margin-top: 0;
+	}
+}
+
+.logo-image-inverse {
+	display: none;
+}
+
+
+// Spacing
+.logo + p {
+	margin-top: px-to-rem( 30px );
+}
+
+
+// Contexts
+.context-dark {
+	.logo-image-default {
+		display: none;
+	}
+
+	.logo-image-inverse {
+		display: inline-block;
+	}
+}

@@ -1,0 +1,99 @@
+include ../post/_post
+include ../quote/_quote
+
+// Blog post
+section.section-md.bg-transparent
+	.container
+		.row.row-40.justify-content-xxl-between
+			.col-md-8
+				.blog-post
+					.blog-post-item
+						+img( 'image-14-769x431' )
+						h3.h3-big Peace in an Age of Outrage
+						.post-meta.list.list-inline-divided.text-small
+							.list-item
+								.post-tags: a.post-tag( href='#' ) News
+							.list-item
+								a.post-date( href='#' ) April 10, 2023
+							.list-item
+								a.post-comments( href='#' ) 0 comments
+						p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+						p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+						+img( 'image-20-768x431' )
+						h3 When Being Right Trumps Relationship
+						p Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis quasi.
+						+quote-default-light({
+							quote:  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ut enim ad minim veniam sed.',
+							author: 'James Adams, Parishioner'
+						}).quote-default-light
+						.row.row-15
+							.col-sm-6
+								+img( 'image-1-349x358' )
+							.col-sm-6
+								h3 Moving Toward Peace
+								p Lorem ipsum dolor sit amet, consectetur adiscing elit, sed do eiusmod tempor.
+								p Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+								.row.row-5.row-content.row-gutters-5
+									.col-lg-6
+										ul.list.list-marked
+											li.list-item Lorem ipsum dolor
+											li.list-item Lacus vel facilisis
+											li.list-item At in tellus integer
+
+									.col-lg-6
+										ul.list.list-marked
+											li.list-item Quis vel eros
+											li.list-item Hendrerit dolor
+						.divider
+						.row.row-15.justify-content-between.align-items-center
+							.col-sm-6
+								.group-10
+									a.tag.tag-outline( href='#' ) News
+									a.tag.tag-outline( href='#' ) Blog
+									a.tag.tag-outline( href='#' ) Religion
+
+							.col-sm-6
+								.group-10.d-flex.align-items-center
+									span Share post:
+									a.icon.icon-md.icon-link.icon-link-gray.mdi-facebook( href='#' )
+									a.icon.icon-md.icon-link.icon-link-gray.mdi-linkedin( href='#' )
+									a.icon.icon-md.icon-link.icon-link-gray.mdi-twitter( href='#' )
+
+					.blog-post-item
+						h3 Related Posts
+						.row.row-20.row-content 
+							.col-xs-11.col-sm-6
+								+post-line({
+									img:   'image-18-368x228',
+									tag:   'News',
+									title: 'The Next 10 Years: The Context of Theology',
+									date:  'November 12, 2023'
+								})
+							.col-xs-11.col-sm-6
+								+post-line({
+									img:   'image-15-368x228',
+									tag:   'News',
+									title: 'Why Do Christians Need to Hear the Gospel Every Day?',
+									date:  'November 12, 2023'
+								})
+
+					.blog-post-item
+						h3 Leave a Comment
+						form.rd-form.rd-mailform(data-form-output="form-post" data-form-type="contact" method="post" action="components/rd-mailform/rd-mailform.php")
+							.row.row-15.row-gutters-15
+								.col-sm-6
+									.form-group
+										input.form-control( type='text', name='name', placeholder='Your Name*' data-constraints="@Required")
+								.col-sm-6
+									.form-group
+										input.form-control( type='email', name='email', placeholder='Your E-mail*' data-constraints="@Email @Required")
+								.col-12
+									.form-group
+										textarea.form-control( name='comment', placeholder='Message' )
+								.col-12
+									button.btn( type='submit' ) Submit
+						
+
+						#form-post.form-output.snackbar.snackbar-primary
+			.col-md-4.col-xl-3
+				include ../widget/_blog-sidebar-widgets

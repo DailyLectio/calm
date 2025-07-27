@@ -1,0 +1,17 @@
+//- Pagination bootstrap
+	@param {array} data - pagination data array
+	@param {object} item - single item object
+	@param {string} item.value - item value
+	@param {string} [item.prev] - set prev button to pagination
+	@param {string} [item.next] - set next button to pagination
+	@param {string} [item.actionClass] - add action class to item
+mixin pagination( data )
+	ul.pagination&attributes( attributes )
+		each item in data
+			li.page-item( class= item.actionClass )
+				if ( item.prev )
+					a.page-link.page-link-prev.mdi-chevron-left.novi-icon( href='#' )
+				else if ( item.next )
+					a.page-link.page-link-next.mdi-chevron-right.novi-icon( href='#' )
+				else
+					a.page-link( class= (item.class ? item.class : ''),  href='#' )= item.value

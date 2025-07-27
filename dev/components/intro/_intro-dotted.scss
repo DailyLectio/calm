@@ -1,0 +1,75 @@
+// Base
+.intro-dotted {
+	* + h2 { margin-top: px-to-rem( 12px ) }
+}
+
+.intro-dotted-inner {
+	position: relative;
+	z-index: 0;
+	padding: px-to-rem( 50px, 0, 100px );
+	background-position: bottom;
+	background-size: auto 50px;
+	background-repeat: repeat-x;
+}
+
+.intro-dotted-image-inner {
+	margin-top: -50px;
+}
+
+.intro-dotted-image {
+	position: relative;
+	z-index: 0;
+}
+
+
+// Media
+@include media-breakpoint-up( md ) {
+	.intro-dotted-inner {
+		padding: px-to-rem( 70px, 0, 160px );
+		background-size: auto 80px;
+	}
+
+	.intro-dotted-image-inner {
+		margin-top: -80px;
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.intro-dotted-inner {
+		padding: px-to-rem( 100px, 0, 220px );
+		background-size: auto 160px;
+	}
+
+	.intro-dotted-image-inner {
+		margin-top: -160px;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.intro-dotted {
+		* + h2 { margin-top: px-to-rem( 24px ) }
+	}
+
+	.intro-dotted-inner {
+		padding: px-to-rem( 185px, 0, 405px );
+		background-size: auto 300px;
+	}
+
+	.intro-dotted-image-inner {
+		margin-top: -300px;
+	}
+}
+
+@include media-breakpoint-up( xxl ) {
+	.intro-dotted {
+		* + h2 { margin-top: px-to-rem( 24px ) }
+	}
+
+	.intro-dotted-inner {
+		background-size: auto 330px;
+	}
+
+	.intro-dotted-image-inner {
+		margin-top: -330px;
+	}
+}

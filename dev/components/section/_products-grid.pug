@@ -1,0 +1,35 @@
+include ../product/_product
+
+// Products grid
+section.section-md.bg-transparent
+	.container
+		h3 Related products
+		.row.row-40.row-xl-55
+			.col-6.col-lg-3
+				+product-simple({
+					img:   'product/product-1-270x358',
+					title: 'The Usborne Children\'s Bible',
+					price: '35.00'
+				})
+
+			.col-6.col-lg-3
+				+product-simple({
+					img:   'product/product-2-270x358',
+					title: 'The Ruthless Elimination of Hurry',
+					price: '35.00'
+				})
+
+			.col-6.col-lg-3
+				+product-simple({
+					img:   'product/product-4-270x358',
+					title: 'Ten Girls Who Changed the World',
+					price: '35.00'
+				})
+
+			.col-6.col-lg-3
+				+product-simple({
+					img:   'product/product-3-270x358',
+					title: 'KJV Pocket Size New Testament And Psalms',
+					price: '35.00'
+				})
+

@@ -1,0 +1,57 @@
+@import "../bootstrap/scss/_functions";
+@import "../base/_functions";
+@import "../base/_variables";
+@import "../bootstrap/scss/_variables";
+@import "../bootstrap/scss/_mixins";
+
+
+// Base
+.ui-spinner {
+	position: relative;
+	display: block;
+}
+
+.ui-spinner-input {
+	padding-right: px-to-rem( 30px );
+	padding-left: px-to-rem( 30px );
+	-moz-appearance:textfield;
+	text-align: center;
+
+	&::-webkit-inner-spin-button {
+		display: none;
+	}
+}
+
+.ui-spinner-button {
+	position: absolute;
+	top: 50%;
+	cursor: pointer;
+	z-index: 3;
+	transition: $transition-base;
+	transform: translateY( -50% );
+
+	&:before {
+		font-size: px-to-rem( 20px );
+		font-family: 'Material Design Icons';
+		color: $gray-900;
+	}
+
+	&.ui-spinner-up {
+		right: 9px;
+
+		&:before {
+			content: '\f504';
+		}
+	}
+
+	&.ui-spinner-down {
+		left: 9px;
+
+		&:before {
+			content: '\f465';
+		}
+	}
+
+	&.ui-spinner-up.ui-button-icon:hover { border-bottom-color: $primary; }
+	&.ui-spinner-down.ui-button-icon:hover { border-top-color: $primary; }
+}

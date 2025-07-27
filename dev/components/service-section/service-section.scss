@@ -1,0 +1,17 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+
+// Base
+.service-section-fullwidth {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	.service-section-body {
+		padding: px-to-rem( 30px, 0 );
+	}
+}

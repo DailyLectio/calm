@@ -1,0 +1,25 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Variables
+$thumbnail-primary: $primary;
+$thumbnail-border-color: $border-color;
+
+
+// Thumbnail small
+.thumbnail-small {
+	transition: $transition-base;
+
+	&:hover {
+		opacity: .8;
+	}
+}
+
+
+// Layouts
+@import "thumbnail-simple";
+@import "thumbnail-light";
+@import "thumbnail-ordered";

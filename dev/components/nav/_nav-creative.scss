@@ -1,0 +1,132 @@
+// Base
+.nav-creative-container {
+	position: relative;
+	padding: px-to-rem( 20px, 15px );
+	color: $white;
+	background-color: $gray-900;
+}
+
+.nav-creative {
+	counter-reset: thumbnail-number;
+
+	.nav-link {
+		position: relative;
+		z-index: 0;
+		padding: px-to-rem( 10px );
+		color: inherit;
+		@include text-small;
+
+		&::after {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			z-index: -1;
+			width: 100%;
+			height: 100%;
+			content: '';
+			background-color: $white;
+			box-shadow: 0 20px 30px rgba( $gray-900, 0.6 );
+			transform: translate( -50%, -50% ) scale( 0.8 );
+			opacity: 0;
+			transition: $transition-base;
+		}
+
+		&:hover,
+		&.active {
+			color: $primary;
+
+			&::after {
+				transform: translate( -50%, -50% ) scale( 1 );
+				opacity: 1;
+			}
+		}
+	}
+
+	.nav-link-prefix {
+		&::before {
+			content: counter( thumbnail-number, decimal-leading-zero );
+			counter-increment: thumbnail-number;
+		}
+
+		&::after {
+			display: inline-block;
+			width: px-to-rem( 4px );
+			content: '';
+			transform: translateY( -.3em );
+		}
+	}
+
+	.nav-item + .nav-item { margin-left: px-to-rem( 5px ) }
+}
+
+
+// Media
+@include media-breakpoint-up( md ) {
+	.nav-creative-container {
+		z-index: 0;
+
+		&::after {
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			z-index: -1;
+			width: 100vw;
+			content: '';
+			background-color: inherit;
+			box-shadow: 20px 25px 30px rgba( $gray-900, 0.25 );
+		}
+	}
+
+	.nav-creative {
+		display: block;
+
+		.nav-item + .nav-item {
+			margin-top: px-to-rem( 10px );
+			margin-left: 0;
+		}
+
+		.nav-link-prefix {
+			&::after {
+				width: px-to-rem( 9px );
+				margin: px-to-rem( 0, 10px );
+				border-bottom: 2px solid;
+			}
+		}
+	}
+}
+
+@include media-breakpoint-up(lg) {
+	.nav-creative-container {
+		padding: px-to-rem( 35px, 25px );
+	}
+
+	.nav-creative {
+		.nav-link {
+			padding: px-to-rem( 20px, 25px );
+		}
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.nav-creative-container {
+		padding: px-to-rem(95px, 0, 76px, 56px);
+	}
+
+	.nav-creative {
+		margin: px-to-rem( -12px, -30px, -51px );
+		padding: px-to-rem( 12px, 30px, 51px );
+
+		.nav-link {
+			padding: px-to-rem( 30px, 51px );
+		}
+
+		.nav-item + .nav-item { margin-top: px-to-rem( 23px ) }
+
+		.nav-link-prefix {
+			&::after {
+				margin: px-to-rem( 0, 23px );
+			}
+		}
+	}
+}

@@ -1,0 +1,65 @@
+include ../post/_post
+include ../pagination/_pagination
+
+// Blog grid
+section.section-md.bg-transparent
+	.container
+		.row.row-30.row-xl-60.row-xxl-100
+			.col-md-4
+				+post-shadow({
+					img:   'image-12-370x257',
+					tag:   'Sermons',
+					title: 'God’s Cure For the World’s Worst Disease',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+			.col-md-4
+				+post-shadow({
+					img:   'image-1-370x257',
+					tag:   'Sermons',
+					title: 'Christian Life: Running Well, Finishing Strong',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+			.col-md-4
+				+post-shadow({
+					img:   'image-13-370x257',
+					tag:   'Sermons',
+					title: 'The Passing of Religious Opportunity',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+
+			.col-md-4
+				+post-shadow({
+					img:   'image-19-370x257',
+					tag:   'Sermons',
+					title: 'Christian Life: Where Are My Strengths? (Romans 12:1-8)',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+
+			.col-md-4
+				+post-shadow({
+					img:   'image-20-370x257',
+					tag:   'Sermons',
+					title: 'Life is what Happens to You While You Are Making Plans',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+			.col-md-4
+				+post-shadow({
+					img:   'image-5-370x257',
+					tag:   'Sermons',
+					title: 'Rock Solid: How to Build a Life that Lasts',
+					link:  '#',
+					date:  'November 12, 2023'
+				})
+
+		+pagination([
+			{ prev: true, actionClass: 'disabled' },
+			{ value: '1', actionClass: 'active' },
+			{ value: '2' },
+			{ value: '3' },
+			{ next: true }
+		]).justify-content-center

@@ -1,0 +1,15 @@
+//- Progress Bar linear
+	@param {object} data - object data
+	@param {string} data.title - progress title
+	@param {number} data.value - progress value
+	@param {string} [data.unit] - progress value unit
+mixin progress-linear( data )
+	// Linear progress bar
+	.progress-linear&attributes( attributes )
+		.progress-linear-title.h4
+			= data.title
+			span.progress-linear-counter-wrap
+				span.progress-linear-counter= data.value
+				= data.unit ? data.unit : '%'
+		.progress-linear-body
+			.progress-linear-bar

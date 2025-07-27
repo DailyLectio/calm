@@ -1,0 +1,148 @@
+// Variables
+
+$gray-100: #f8f8f8;
+$gray-200: #e3e3e3;
+$gray-400: #cfcfcf;
+$gray-600: #8d8d8d;
+$gray-700: #515151;
+$gray-800: #2f3340;
+$gray-900: #272b37;
+$gray-darkest: #171d2f;
+$white:    #fff;
+
+$primary:       #D79E8E;
+$primary-light: #DBAB9E;
+
+$context-light: rgba( $white, 1 );
+
+// Gradients
+$gradient-gray-1: linear-gradient( 180deg, rgba( $gray-800, 0 ) 0%, rgba( $gray-800, 0.34 ) 100% );
+
+// Body
+$body-color: $gray-700;
+
+// Fonts
+$font-family-base: 'Lato', sans-serif;
+$font-family-secondary: 'Crimson Text', serif;
+$font-size-base: px-to-rem( 16px );
+$font-size-lg: px-to-rem( 18px );
+$font-size-sm: px-to-rem( 13px );
+$line-height-base: 1.7;
+$line-height-lg: 1.58;
+$line-height-sm: 1.15;
+
+$h1-font-size: px-to-rem( 70px );
+$h2-font-size: px-to-rem( 44px );
+$h3-font-size: px-to-rem( 33px );
+$h4-font-size: px-to-rem( 22px );
+$h5-font-size: px-to-rem( 18px );
+$h6-font-size: px-to-rem( 16px );
+
+$h1-line-height: px-to-rem( 77px );
+$h2-line-height: px-to-rem( 51px );
+$h3-line-height: px-to-rem( 43px );
+$h4-line-height: px-to-rem( 32px );
+$h5-line-height: px-to-rem( 28px );
+$h6-line-height: px-to-rem( 27px );
+
+$headings-font-weight: 400;
+$headings-color: $gray-900;
+
+$list-inline-padding: px-to-rem( 16px );
+
+$mark-bg: $primary;
+
+$link-hover-color: $primary-light;
+
+// Components
+$border-color: $gray-400;
+$border-width: 1px;
+
+$border-radius: 0;
+
+$box-shadow-sm: 0px 7px 20px rgba( $gray-900, 0.15 );
+$box-shadow: 0 10px 30px rgba( $gray-900, 0.15 );
+$box-shadow-md: 0px 20px 30px rgba( $gray-900, 0.25 );
+$box-shadow-lg: 0px 20px 30px rgba( $gray-900, 0.8 );
+
+// Grid breakpoints
+$grid-breakpoints: (
+	xxs: 0,
+	xs: 480px,
+	sm: 576px,
+	md: 768px,
+	lg: 992px,
+	xl: 1200px,
+	xxl: 1600px
+);
+
+// Grid containers
+$container-max-widths: (
+	sm: 540px,
+	md: 720px,
+	lg: 960px,
+	xl: 1200px
+);
+
+$container-wide-max-width: 1790px;
+
+
+// Buttons + Forms
+$input-btn-padding-y: px-to-rem( 13px );
+$input-btn-padding-x: px-to-rem( 20px );
+$input-btn-font-size: $font-size-base;
+$input-btn-line-height: $line-height-base;
+
+// Buttons
+$btn-box-shadow: none;
+$btn-font-size: $font-size-sm;
+$btn-font-weight: 700;
+$btn-line-height: $line-height-base * 1.05;
+$btn-padding-y: px-to-rem( 15px );
+$btn-padding-x: px-to-rem( 25px );
+
+// Forms
+$label-font-size: $font-size-base;
+
+$input-padding-y: $input-btn-padding-y;
+$input-padding-x: $input-btn-padding-x;
+$input-font-size: $font-size-base;
+$input-line-height: $line-height-base;
+$input-font-weight: 400;
+$input-border-width: $border-width;
+$input-border-radius: 0;
+
+$input-bg: $gray-100;
+$input-disabled-bg: rgba( $gray-100, .8 );
+$input-border-color: $border-color;
+
+$input-focus-bg: $white;
+$input-focus-color: $gray-900;
+$input-focus-border-color: $input-border-color;
+$input-focus-box-shadow: 0 0 0 1px $input-focus-border-color;
+
+$input-color: $body-color;
+$input-placeholder-color: $input-color;
+
+$input-height-border: $input-border-width * 2;
+$input-height: #{$input-font-size * $input-line-height + $input-padding-y * 2 + px-to-rem($input-height-border)};
+
+$input-group-addon-color: $input-focus-color;
+$input-group-addon-bg: $input-bg;
+
+$form-group-margin-bottom: 0;
+
+$custom-control-indicator-size: px-to-rem(22px);
+$component-active-color: $primary;
+
+// Z-index master list
+$zindex-dropdown:       10;
+$zindex-sticky:         11;
+$zindex-popover:        12;
+$zindex-tooltip:        13;
+$zindex-fixed:          14;
+$zindex-modal-backdrop: 15;
+$zindex-modal:          16;
+
+// Disable smooth-scroll in bootstrap
+$enable-smooth-scroll:        false;

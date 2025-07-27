@@ -1,0 +1,42 @@
+// Base
+.swiper-numbered {
+	.swiper-pagination {
+		counter-reset: thumbnail-number;
+	}
+
+	.swiper-pagination-bullet {
+		width: auto;
+		height: auto;
+		color: $white;
+		background: transparent;
+		opacity: 1;
+		@include text-small;
+		justify-content: flex-end;
+		align-items: center;
+		transition: $transition-base;
+
+		&::after {
+			width: 0;
+			content: '';
+			border-bottom: 3px solid;
+			transition: inherit;
+		}
+
+		&::before {
+			content: counter( thumbnail-number, decimal-leading-zero );
+			counter-increment: thumbnail-number;
+		}
+
+		&:hover,
+		&-active {
+			color: $primary-light;
+		}
+
+		&-active {
+			&::after {
+				width: 13px;
+				margin-left: px-to-rem( 8px );
+			}
+		}
+	}
+}

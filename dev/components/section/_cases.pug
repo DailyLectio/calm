@@ -1,0 +1,30 @@
+include ../thumbnail/_thumbnail
+
+// Cases
+section.section-lg.bg-100.text-center
+	.container.container-wide
+		.row.row-40.row-xl-55.row-xxl-100.row-offset-md
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig' } )
+				+thumbnail-light({
+					img:      'image-18-425x338',
+					title:    'Bible Readings',
+					subtitle: 'Explore the Bible with Us'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.15s' } )
+				+thumbnail-light({
+					img:      'image-12-425x338',
+					title:    'Our Events',
+					subtitle: 'Take Part'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.3s' } )
+				+thumbnail-light({
+					img:      'image-1-425x338',
+					title:    'Our Church ',
+					subtitle: 'Locations'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.45s' } )
+				+thumbnail-light({
+					img:      'image-8-425x338',
+					title:    'Our Groups',
+					subtitle: 'Join Our Communities'
+				})

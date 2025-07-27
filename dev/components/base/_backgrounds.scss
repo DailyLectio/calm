@@ -1,0 +1,89 @@
+// Mixins
+@mixin bg-variant($parent, $color) {
+	#{$parent} {
+		background-color: $color;
+	}
+	a#{$parent},
+	button#{$parent} {
+			background-color: darken($color, 10%);
+	}
+}
+
+@mixin bg-gradient-variant($parent, $color) {
+	#{$parent} {
+		background: $color linear-gradient(180deg, mix($body-bg, $color, 15%), $color) repeat-x;
+	}
+}
+
+@mixin bg-adjacent() {
+	&:not([style*='background-']) + &:not([style*='background-']) {
+		padding-top: 0;
+	}
+}
+
+// Bootstrap styles
+@each $color, $value in $theme-colors {
+	@include bg-variant(".bg-#{$color}", $value);
+}
+
+@if $enable-gradients {
+	@each $color, $value in $theme-colors {
+		@include bg-gradient-variant(".bg-gradient-#{$color}", $value);
+	}
+}
+
+.bg-white {
+	background-color: $white;
+}
+
+.bg-transparent {
+	background-color: transparent;
+}
+
+// Gray backgrounds
+@each $color, $value in $grays {
+	@include bg-variant(".bg-#{$color}", $value);
+}
+
+.bg-darkest {
+	background-color: $gray-darkest;
+}
+
+// Image background
+.bg-image {
+	background-position: center center;
+	background-size: cover;
+}
+
+// Transparent background
+.bg-transparent {
+	@include bg-adjacent();
+}
+
+.bg-100 {
+	@include bg-adjacent();
+}
+
+.bg-overlay {
+	position: relative;
+	z-index: 0;
+
+	.bg-overlay-item {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: calc( 44% - 4px );
+		z-index: -1;
+	}
+}
+
+// Media
+@include media-breakpoint-up(xxl) {
+	.bg-overlay {
+		.bg-overlay-item {
+			height: 513px;
+			bottom: auto;
+		}
+	}
+}

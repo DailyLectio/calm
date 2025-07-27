@@ -1,0 +1,70 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+// Base
+.template-info {
+	padding-left: px-to-rem( 30px );
+	border-left: 1px solid $gray-400;
+}
+
+.template-info-title {
+	font-size: $font-size-sm;
+	font-weight: $font-weight-bold;
+	color: $black;
+	text-transform: uppercase;
+}
+
+.template-info-fonts-secondary {
+	font-family: $font-family-secondary;
+	font-size: $font-size-base * 3.15;
+	line-height: 1.31;
+}
+
+.template-info-fonts-base {
+	font-size: $font-size-base * 2.25;
+	font-weight: 500;
+	line-height: 1.15;
+}
+
+.template-info-colors {
+	display: flex;
+	flex-wrap: wrap;
+	@include group( 6px );
+}
+
+.template-info-color {
+	width: 35px;
+	height: 35px;
+	background-color: $primary;
+}
+
+.template-info-color-primary-light {
+	background-color: $primary-light;
+}
+
+@each $color, $value in $grays {
+	.template-info-color-#{$color} {
+		background-color: $value;
+	};
+}
+
+
+// Spacing
+* + .template-info-title { margin-top: px-to-rem( 41px ) }
+* + .template-info-fonts { margin-top: px-to-rem( 5px ) }
+* + .template-info-colors { margin-top: px-to-rem( 16px ) }
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	.template-info {
+		padding-left: px-to-rem( 63px );
+	}
+
+	* + .template-info-fonts { margin-top: px-to-rem( 13px ) }
+	* + .template-info-title { margin-top: px-to-rem( 51px ) }
+}

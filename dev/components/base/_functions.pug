@@ -1,0 +1,134 @@
+-
+	/**
+	* @desc Generates URL from name
+	* @param {string} name
+	* @return {string}
+	*/
+	function genURL( name ) {
+		return name.trim().replace( /\s/g, '-' ).replace( /[\(\)]/g, '' ).toLowerCase() +'.html';
+	}
+
+	/**
+	* @desc Navigation processing
+	* @param {object} item - navigation item
+	* @param {string} item.type
+	* @param {string} [item.title]
+	* @param {string} [item.link]
+	* @param {string} [item.class]
+	* @param {string} [item.child]
+	* @param {object} [parent] - parent to add a link
+	* @return {object}
+	*/
+	function procNavigation ( item, parent ) {
+		if ( item instanceof Array ) throw new Error( 'navigation element can not be an Array' );
+		if ( parent ) item.parent = parent;
+
+		switch ( item.type ) {
+			case 'root':
+			case 'dropdown':
+			case 'megamenu':
+			case 'column':
+			case 'block':
+				if ( !item.child ) {
+					throw new Error( '"child" is required parameter for a navigation elements of type: root, dropdown, megamenu, column, block' );
+				}
+
+				item.child.forEach( function ( child ) {
+					procNavigation( child, item );
+				});
+
+				break;
+
+			case undefined:
+				if ( !item.title ) {
+					throw new Error( '"title" is required parameter for a navigation element of type "item"' );
+				}
+
+				if ( !item.link ) {
+					if ( item.id ) {
+						item.link = genURL( item.id );
+					} else {
+						item.link = genURL( item.title );
+					}
+				}
+
+				if ( item.child ) {
+					if ( item.child instanceof Array ) {
+						throw new Error( 'navigation element of type "item" can not contain Array as child' );
+					} else {
+						procNavigation( item.child, item );
+					}
+				}
+
+				switch( item.parent.type ) {
+					case 'root':
+						item.type = 'root-item';
+						break;
+					case 'dropdown':
+						item.type = 'dropdown-item';
+						break;
+					case 'megamenu':
+					case 'column':
+					case 'block':
+						item.type = 'megamenu-item';
+						break;
+					default:
+						item.type = 'item';
+						break;
+				}
+
+				break;
+		}
+
+		return item;
+	}
+
+	function directMenuPass ( item, cb ) {
+		if ( cb ) cb( item );
+		if ( item.child ) {
+			if ( item.child instanceof Array ) {
+				item.child.forEach( function ( child ) {
+					directMenuPass( child, cb );
+				});
+			} else {
+				directMenuPass( item.child, cb );
+			}
+		}
+	}
+
+	function inverseMenuPass ( item, cb ) {
+		if ( cb ) cb( item );
+		if ( item.parent ) inverseMenuPass( item.parent, cb );
+	}
+
+	function main () {
+		// Primary menu processing
+		procNavigation( menu );
+
+		// Setting home page, active elements and generating breadcrumbs
+		directMenuPass( menu, function ( item ) {
+			if ( item.home ) {
+				homePage = item;
+			}
+
+			if ( typeof( pageId ) !== 'undefined' ) {
+				if ( item.id && item.id === pageId ) {
+					inverseMenuPass( item, function ( item ) {
+						if ( [ 'root-item', 'dropdown-item', 'megamenu-item', 'item' ].includes( item.type ) ) {
+							item.active = true;
+							breadcrumbs.unshift( item );
+						}
+					});
+				}
+			} else {
+				if ( item.title && item.title.toLowerCase() === pageName.toLowerCase() ) {
+					inverseMenuPass( item, function ( item ) {
+						if ( [ 'root-item', 'dropdown-item', 'megamenu-item', 'item' ].includes( item.type ) ) {
+							item.active = true;
+							breadcrumbs.unshift( item );
+						}
+					});
+				}
+			}
+		});
+	}

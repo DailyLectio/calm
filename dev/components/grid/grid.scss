@@ -1,0 +1,188 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/maps";
+@import "../bootstrap/scss/mixins/breakpoints";
+@import "../bootstrap/scss/mixins/container";
+@import "../bootstrap/scss/containers";
+@import "../bootstrap/scss/mixins/grid";
+@import "../bootstrap/scss/grid";
+@import "grid-spacing";
+
+.container-wide {
+	@media( min-width: 1200px ) {
+		max-width: $container-wide-max-width;
+	}
+}
+
+.row-gutters-5 {
+	$gutter: 5px;
+	margin-right: -$gutter/2;
+	margin-left: -$gutter/2;
+
+	> [ class*='col-' ] {
+		padding-right: $gutter/2;
+		padding-left: $gutter/2;
+	}
+}
+
+.row-gutters-15 {
+	$gutter: 14px;
+	margin-right: -$gutter/2;
+	margin-left: -$gutter/2;
+
+	> [ class*='col-' ] {
+		padding-right: $gutter/2;
+		padding-left: $gutter/2;
+	}
+}
+
+.row-gutters-24 {
+	$gutter: 24px;
+	margin-right: -$gutter/2;
+	margin-left: -$gutter/2;
+
+	> [ class*='col-' ] {
+		padding-right: $gutter/2;
+		padding-left: $gutter/2;
+	}
+}
+
+.row-gutters-20 {
+	$gutter: 20px;
+	margin-right: -$gutter/2;
+	margin-left: -$gutter/2;
+
+	> [ class*='col-' ] {
+		padding-right: $gutter/2;
+		padding-left: $gutter/2;
+	}
+}
+
+// Row bordered
+.row-bordered {
+	overflow: hidden;
+	border-left: 1px solid $border-color;
+	border-right: 1px solid $border-color;
+
+	.row {
+		margin: -1px 0 -1px -1px;
+
+		> [class*="col-"] {
+			border-left: 1px solid $border-color;
+			border-bottom: 1px solid $border-color;
+		}
+	}
+}
+
+
+// Context dark
+.context-dark {
+	.row-bordered {
+		border-left: 1px solid rgba( $white, .1 );
+		border-right: 1px solid rgba( $white, .1 );
+
+		.row {
+			> [class*="col-"] {
+				border-left: 1px solid rgba( $white, .1 );
+				border-bottom: 1px solid rgba( $white, .1 );
+			}
+		}
+	}
+}
+
+
+// Row spacing
+.row-5 {
+	@include grid-spacing(5px);
+}
+
+.row-10 {
+	@include grid-spacing(10px);
+}
+
+.row-15 {
+	@include grid-spacing(15px);
+}
+
+.row-20 {
+	@include grid-spacing(20px);
+}
+
+.row-25 {
+	@include grid-spacing(25px);
+}
+
+.row-30 {
+	@include grid-spacing(30px);
+}
+
+.row-40 {
+	@include grid-spacing(40px);
+}
+
+.row-50 {
+	@include grid-spacing(50px);
+}
+
+@include media-breakpoint-up(md) {
+	.row-md-30 {
+		@include grid-spacing(30px);
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.row-lg-5 {
+		@include grid-spacing( 5px );
+	}
+
+	.row-lg-25 {
+		@include grid-spacing( 25px );
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.row-xl-25 {
+		@include grid-spacing(25px);
+	}
+	.row-xl-40 {
+		@include grid-spacing(40px);
+	}
+	.row-xl-55 {
+		@include grid-spacing(55px);
+	}
+	.row-xl-60 {
+		@include grid-spacing(60px);
+	}
+}
+
+@include media-breakpoint-up( xxl ) {
+	.row-xxl-100 {
+		@include grid-spacing( 100px );
+	}
+}
+
+
+// Row spacing
+* + .row { margin-top: px-to-rem( 40px ); }
+* + .row-content { margin-top: px-to-rem( 18px ); }
+* + .row-offset-custom-1 { margin-top: px-to-rem( 15px ); }
+* + .row-offset-md,
+.row-offset-md + h2 { margin-top: px-to-rem( 30px ); }
+
+// Media
+@include media-breakpoint-up( lg ) {
+	* + .row-offset-custom-1 { margin-top: px-to-rem( 30px ); }
+}
+
+@include media-breakpoint-up( xl ) {
+	* + .row-content { margin-top: px-to-rem( 28px ); }
+	* + .row-offset-custom-1 { margin-top: px-to-rem( 40px ); }
+	.address + .row-content { margin-top: px-to-rem( 40px ); }
+
+	* + .row-offset-md,
+	.row-offset-md + h2 { margin-top: px-to-rem( 64px ); }
+
+	* + .row-offset-lg { margin-top: px-to-rem( 83px ) }
+}

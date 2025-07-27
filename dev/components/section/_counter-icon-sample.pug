@@ -1,0 +1,34 @@
+include ../counter/_counter
+
+// Progress linear
+section.section-md.bg-900.context-dark
+	.container
+		h2 Counters
+		.row.row-30.row-offset-md
+			.col-6.col-md-3
+				+counter({
+					value: '72',
+					title: 'Charges dropped',
+					iconClass: 'linearicons-umbrella'
+				}).counter-bordered
+
+			.col-6.col-md-3
+				+counter({
+					value: '87',
+					title: 'Cases won',
+					iconClass: 'linearicons-file-check'
+				}).counter-bordered
+
+			.col-6.col-md-3
+				+counter({
+					value: '25',
+					title: 'Cases dismissed',
+					iconClass: 'linearicons-bookmark2'
+				}).counter-bordered
+
+			.col-6.col-md-3
+				+counter({
+					value: '32',
+					title: 'Countersuits filed',
+					iconClass: 'linearicons-bubble-quote'
+				}).counter-bordered

@@ -1,0 +1,139 @@
+// Base
+.post-shadow {
+	max-width: 370px;
+	margin-left: auto;
+	margin-right: auto;
+	box-shadow: 0 10px 20px rgba( $gray-900, 0.15 );
+
+	.post-media {
+		width: 100%;
+		background-color: $gray-900;
+
+		> img {
+			width: 100%;
+			transition: $transition-base;
+		}
+	}
+
+	.post-hover-btn {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: px-to-rem( 84px );
+		height: px-to-rem( 84px );
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: $font-size-sm;
+		text-transform: uppercase;
+		color: $white;
+		background-color: $primary;
+		transform: translate( -50%, -50% );
+		border-radius: 50%;
+		transition: $transition-base;
+
+		&::before {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: calc( 100% + 14px );
+			height: calc( 100% + 14px );
+			content: '';
+			border-radius: inherit;
+			border: 1px solid $primary;
+			transform: translate( -50%, -50% );
+		}
+	}
+
+	.post-content {
+		padding: px-to-rem( 20px, 15px );
+	}
+
+	.post-tag {
+		display: inline-block;
+		padding: px-to-rem( 0, 10px );
+		color: $primary;
+		background-color: rgba( $primary, .2 );
+		transition: $transition-base;
+
+		&:hover {
+			color: $white;
+			background-color: $primary;
+		}
+	}
+
+	.post-title {
+		padding-bottom: .74em;
+
+		&::after {
+			width: 51px;
+			height: 1px;
+			background-color: $border-color;
+		}
+	}
+
+	.post-date {
+		font-size: $font-size-sm * .93;
+		font-weight: 600;
+		text-transform: uppercase;
+	}
+
+	* + .post-title { margin-top: px-to-rem( 8px ) }
+	* + .post-date { margin-top: px-to-rem( 15px ) }
+}
+
+
+// Owl carousel context
+.owl-carousel-shadow {
+	.owl-stage-outer {
+		margin: 0 -30px;
+		padding: 0 30px 30px;
+	}
+
+	.owl-item:not(.active) {
+		.post-shadow {
+			box-shadow: none;
+		}
+	}
+}
+
+
+// Desktop content
+.desktop {
+	.post-shadow {
+		.post-hover-btn {
+			opacity: 0;
+		}
+
+		.post-media:hover {
+			> img {
+				opacity: .8;
+			}
+
+			.post-hover-btn {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.post-shadow {
+		box-shadow: $box-shadow-md;
+
+		.post-content {
+			padding: px-to-rem( 30px, 29px, 35px );
+		}
+
+		* + .post-title { margin-top: px-to-rem( 16px ) }
+		* + .post-date { margin-top: px-to-rem( 20px ) }
+	}
+
+	.owl-carousel-shadow {
+		.owl-stage-outer {
+			padding-bottom: 50px;
+		}
+	}
+}

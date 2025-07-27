@@ -1,0 +1,49 @@
+//- Thumbnail
+	@param {object} data - thumbnail data object
+	@param {string} data.img - thumbnail image preview
+	@param {string} data.title - thumbnail title
+	@param {string} data.text - thumbnail description
+	@param {string} [data.linkText] - thumbnail link text
+mixin thumbnail-simple( data )
+	// Thumbnail
+	.thumbnail.thumbnail-simple&attributes( attributes )
+		a.thumbnail-media( href='single-sermon.html' )
+			+img( data.img )
+		.thumbnail-body
+			h3.thumbnail-title: a( href='single-sermon.html' )= data.title
+			.thumbnail-text= data.text
+			a.thumbnail-link( href='single-sermon.html' )= data.linkText ? data.linkText : 'Explore'
+
+//- Thumbnail
+	@param {object} data - thumbnail data object
+	@param {string} data.img - thumbnail image preview
+	@param {string} data.title - thumbnail title
+	@param {string} data.text - thumbnail description
+	@param {string} [data.linkText] - thumbnail link text
+mixin thumbnail-light( data )
+	// Thumbnail
+	.thumbnail.thumbnail-light&attributes( attributes )
+		a.thumbnail-media( href='#' )
+			+img( data.img )
+		.thumbnail-subtitle= data.subtitle
+		h4.thumbnail-title: a( href='#' )= data.title
+		.thumbnail-divider
+
+
+//- Thumbnail ordered
+	@param {object} data - thumbnail data object
+	@param {string} data.img - thumbnail image preview
+	@param {string} data.title - thumbnail title
+	@param {string} data.text - thumbnail description
+	@param {string} [data.linkText] - thumbnail link text
+mixin thumbnail-ordered( data )
+	// Thumbnail
+	.thumbnail.thumbnail-ordered&attributes( attributes )
+		.thumbnail-header
+			.thumbnail-number.h2
+		a.thumbnail-media( href='single-sermon.html' )
+			+img( data.img )
+		.thumbnail-body
+			h3.thumbnail-title: a( href='single-sermon.html' )= data.title
+			.thumbnail-text= data.text
+			a.link.thumbnail-link.text-small( href='single-sermon.html' )= 'Explore'

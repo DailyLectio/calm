@@ -1,0 +1,35 @@
+include ../person/_person
+
+// Our team
+section.section-md.context-dark.bg-900
+	.container.container-wide
+		h2.text-center Meet Our Team
+		.row.row-5.row-gutters-5.row-offset-lg.person-poster-container
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig' } )
+				+person-poster({
+					img: 'person/person-1-458x538.jpg',
+					author: 'Edward Gray',
+					position: 'Care Pastor',
+					description: 'Edward Gray supports our community groups and helps new parishioners.'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.15s' } )
+				+person-poster({
+					img: 'person/person-2-458x538.jpg',
+					author: 'Kate Lee',
+					position: 'Campus Pastor',
+					description: 'Kate supports our church ministries while also upholding Biblical priorities.'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.3s' } )
+				+person-poster({
+					img: 'person/person-3-458x538.jpg',
+					author: 'Harry Smith',
+					position: 'Senior Pastor',
+					description: 'Harry is our senior pastor who oversees church management in all areas.'
+				})
+			.col-sm-6.col-lg-3( data-animate!={ class: 'fadeInUpBig', delay: '.45s' } )
+				+person-poster({
+					img: 'person/person-4-458x538.jpg',
+					author: 'Jane Peters',
+					position: 'Youth Pastor',
+					description: 'Harry is our senior pastor who oversees church management in all areas.'
+				})

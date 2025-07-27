@@ -1,0 +1,29 @@
+// Base
+.footer-contact {
+	padding: 40px 0;
+
+	* + .rights { margin-top: 0; }
+	* + .footer-social { margin-top: px-to-rem( 25px ) }
+	
+	.link-large {
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.footer-contact {
+		padding: 60px 0;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.footer-contact {
+		padding: 119px 0 90px;
+
+		* + .footer-social { margin-top: px-to-rem( 43px ) }
+	}
+}

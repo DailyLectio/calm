@@ -1,0 +1,37 @@
+include ../rating/_rating
+
+// Product overview
+section.section-md.bg-transparent
+	.container
+		.tab.tab-classic
+			ul.nav.nav-classic.tab-header( role='tablist' )
+				li.nav-item
+					a.nav-link.active( data-bs-toggle='tab', href='#navClassic1-1', role='tab', aria-selected='true' ) Description
+				li.nav-item
+					a.nav-link( data-bs-toggle='tab', href='#navClassic1-2', role='tab', aria-selected='false' ) Reviews (0)
+			.tab-content
+				#navClassic1-1.tab-pane.fade.show.active( role='tabpanel' )
+					h3 Product Overview
+					p.big Ut enim ad minim veniam sed do eiusmod tempor .Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+					p.big Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+				#navClassic1-2.tab-pane.fade( role='tabpanel' )
+					h3 Reviews
+					h5 There are no reviews yet.
+					h5 Be the first to review “Spring Harvest 2020 Songbook: Unleashed”
+					p Your email address will not be published. Required fields are marked *
+					.rating-container
+						span.rating-title Your  rating:
+						+rating
+					form.rd-form
+						.row.row-15.row-gutters-15
+							.col-sm-6
+								.form-group
+									input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+							.col-sm-6
+								.form-group
+									input.form-control( type='email', name='email', placeholder='Your E-mail*', data-constraints='@Email @Required' )
+							.col-12
+								.form-group
+									textarea.form-control( name='comment', placeholder='Message' )
+							.col-12
+								button.btn( type='submit' ) Send message

@@ -1,0 +1,12 @@
+extends ../components/base/_skeleton
+include ../components/rd-navbar/_rd-navbar
+include ../components/page-title/_page-title
+
+block variables
+	- pageName = 'Checkout';
+
+block page
+	+rd-navbar
+
+	include ../components/section/_checkout
+	include ../components/footer/_footer-contact

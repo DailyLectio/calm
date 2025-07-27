@@ -1,0 +1,21 @@
+// Text decoration
+.text-strike {
+	text-decoration: line-through;
+}
+
+.text-primary-light {
+	color: $primary-light;
+}
+
+// Context dark
+.context-dark {
+	.text-primary-light {
+		color: $primary-light;
+	}
+}
+
+
+// font secondary
+.font-secondary {
+	font-family: $font-family-secondary;
+}

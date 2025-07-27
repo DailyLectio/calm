@@ -1,0 +1,12 @@
+.widget.widget-subscribe
+	h4.widget-title Newsletter
+	.widget-body
+		form.rd-mailform.rd-form( data-form-output='form-widget-subscribe', data-form-type='subscribe', method='post', action='components/rd-mailform/rd-mailform.php' )
+			.row.row-10
+				.col-md-12
+					.form-group
+						input.form-control( type='email', name='email', placeholder='E-mail', data-constraints='@Email @Required' )
+				.col-sm-12
+					button.btn.btn-block( type='submit' ) Subscribe
+
+		#form-widget-subscribe.form-output.snackbar.snackbar-primary

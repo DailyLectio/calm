@@ -1,0 +1,76 @@
+include ../logo/_logo
+include ../post/_post
+include ../rights/_rights
+
+// Footer extended
+footer.footer-extended.context-dark.bg-900
+	.container
+		.row.row-30
+			.col-md-3
+				+logo.footer-logo.mt-2
+				p.pe-xl-3 We are a team of highly experienced transactional and litigation attorneys from some of the nation’s biggest and the most elite law firms.
+			.col-md-5
+				h4.footer-title Trending Posts
+				+post-minimal({
+					title: 'US Sues California Over Immigration Laws',
+					date: 'November 12, 2020',
+					tag: 'News'
+				}).footer-post
+				+post-minimal({
+					title: 'Hit-and-Run Crash Should Seek Immediate Counsel',
+					date: 'November 12, 2020',
+					tag: 'News'
+				}).footer-post
+				+post-minimal({
+					title: 'What Does Marijuana Law Mean for You?',
+					date: 'November 12, 2020',
+					tag: 'News'
+				}).footer-post
+			.col-md-4
+				h4.footer-title Quick Links
+				.row.row-10.row-content
+					.col-6.col-md-12.col-lg-6
+						ul.list.list-sm
+							li.list-item: a.link.link-inherit( href='#' ) Admiralty Law
+							li.list-item: a.link.link-inherit( href='#' ) Bankruptcy Law
+							li.list-item: a.link.link-inherit( href='#' ) Business law
+							li.list-item: a.link.link-inherit( href='#' ) Civil Rights Law
+							li.list-item: a.link.link-inherit( href='#' ) Criminal Law
+					.col-6.col-md-12.col-lg-6
+						ul.list.list-sm
+							li.list-item: a.link.link-inherit( href='about-us.html' ) About
+							li.list-item: a.link.link-inherit( href='sermons.html' ) Services
+							li.list-item: a.link.link-inherit( href='lawyers.html' ) Lawyers
+							li.list-item: a.link.link-inherit( href='contact-us.html' ) Contacts
+
+		.divider.footer-divider.footer-divider-1
+
+		.row.row-10.big
+			.col-lg-6
+				dl.term-list.term-list-inline
+					dt Office:
+					dd.h5 355 S Grand Ave, Los Angeles, CA 90071
+			.col-lg-6
+				.group-10.group-x-50.d-flex.flex-wrap
+					div
+						dl.term-list.term-list-inline
+							dt= 'Tel: '
+							dd: a.link.link-contrast( href='tel:#' ) 800.567.1234
+					div
+						dl.term-list.term-list-inline
+							dt= 'E-mail: '
+							dd: a.link.link-inherit( href='mailto:#' ) info@demolink.org
+
+		.divider.footer-divider
+
+		.row.row-15
+			.col-sm-8.col-lg-6
+				.group-10.group-x-xl-40.d-flex.align-items-center.flex-wrap
+					+rights-2
+					div
+						.group-10.group-lg-30
+							a.icon.icon-md.icon-link.mdi-facebook( href='#' )
+							a.icon.icon-md.icon-link.mdi-youtube-play( href='#' )
+							a.icon.icon-md.icon-link.mdi-twitter( href='#' )
+			.col-sm-4.col-lg-6.text-sm-end
+				a.link.link-inherit( href='#' ) Privacy Policy

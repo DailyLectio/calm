@@ -1,0 +1,57 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.social {
+	> li {
+		display: inline-block;
+	}
+}
+
+.social-bordered {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	@include groupX( 16px );
+
+	&::before {
+		position: absolute;
+		top: calc(50% - 1px);
+		left: 50%;
+		width: 100%;
+		max-width: 800px;
+		transform: translateX( -50% );
+		content: '';
+		border-bottom: 1px solid $border-color;
+	}
+
+	.social-icon {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		min-width: 42px;
+		min-height: 42px;
+		color: rgba( $white, .3 );
+		background-color: $gray-900;
+		border: 1px solid $border-color;
+		transition: $transition-base;
+
+		&:hover {
+			background-color: $primary;
+		}
+	}
+}
+
+
+// Context dark
+.context-dark {
+	.social-bordered {
+		&::before { border-bottom-color: rgba( $white, .1 ); }
+		.social-icon { border-color: rgba( $white, .1 ); }
+	}
+}

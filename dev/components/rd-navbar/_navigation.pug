@@ -1,0 +1,71 @@
+//- Main Navigation
+mixin navigation( item )
+	case item.type
+		when 'root'
+			ul.navbar-navigation.rd-navbar-nav( class= item.class )&attributes( item.attributes )&attributes( attributes )
+				each child in item.child
+					+navigation( child )
+			- break;
+
+		when 'dropdown'
+			ul.navbar-navigation-dropdown.rd-navbar-dropdown( class= item.class )&attributes( item.attributes )
+				li.navbar-navigation-back
+					button.navbar-navigation-back-btn Back
+				each child in item.child
+					+navigation( child )
+			- break;
+
+		when 'megamenu'
+			.navbar-navigation-megamenu.rd-navbar-megamenu( class= item.class )&attributes( item.attributes )
+				.navbar-navigation-megamenu-container
+					.navbar-navigation-back
+						button.navbar-navigation-back-btn Back
+					if ( item.title )
+						h5.navbar-navigation-megamenu-heading= item.title
+					.navbar-navigation-megamenu-row
+						each child in item.child
+							+navigation( child )
+			- break;
+
+		when 'column'
+			ul.navbar-navigation-megamenu-column( class= item.class )&attributes( item.attributes )
+				each child in item.child
+					+navigation( child )
+			- break;
+
+		when 'block'
+			if ( item.title )
+				li.navbar-navigation-megamenu-heading= item.title
+			each child in item.child
+				+navigation( child )
+			- break;
+
+		when 'root-item'
+			li.navbar-navigation-root-item( class= { active: item.active }, class= item.class )&attributes( item.attributes )
+				a.navbar-navigation-root-link( href= item.link )
+					!= item.title + ( item.badge ? ' '+ item.badge : '' )
+				if ( item.child )
+					+navigation( item.child )
+			- break;
+
+		when 'dropdown-item'
+			li.navbar-navigation-dropdown-item( class= { active: item.active }, class= item.class )&attributes( item.attributes )
+				a.navbar-navigation-dropdown-link( href= item.link )
+					!= item.title + ( item.badge ? ' ' + item.badge : '' )
+				if ( item.child )
+					+navigation( item.child )
+			- break;
+
+		when 'megamenu-item'
+			li.navbar-navigation-megamenu-item( class= { active: item.active }, class= item.class )&attributes( item.attributes )
+				a.navbar-navigation-megamenu-link( href= item.link )
+					!= item.title + ( item.badge ? ' '+ item.badge : '' )
+				if ( item.child )
+					+navigation( item.child )
+			- break;
+
+		when 'banner'
+			li.navbar-navigation-banner
+				a( href= item.link, target='_blank' )
+					+img( item.image )
+			- break;

@@ -1,0 +1,25 @@
+include ../blurb/_blurb
+
+// Team overview
+section
+	.container
+		.row.align-items-end
+			.col-lg-6.d-none.d-lg-block
+				+img( 'person/person-6-773x609.png' )
+			.col-lg-6
+				.section-md
+					h2 Professional Team of Lawyers
+					p.big Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+					.row.row-25.row-offset-md
+						.col-sm-6.col-md-6
+							+blurb-hover({
+								iconClass: 'linearicons-library',
+								title:     '20+ years’ experience',
+								text:      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
+							})
+						.col-sm-6.col-md-6
+							+blurb-hover({
+								iconClass: 'linearicons-trophy2',
+								title:     'Professionalism',
+								text:      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.'
+							})

@@ -1,0 +1,21 @@
+include ../quote/_quote
+
+// Team member experience
+section.section-md.bg-100
+	.container
+		.row.row-30.justify-content-between.align-items-end
+			.col-md-6
+				.text-block-2
+					h3.h3-big Personal Experience
+					p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+			.col-md-6
+				.text-block-2
+					.text-small.text-primary.text-divider.text-divider-wide 10+ years of experience
+					p Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse.
+			.col-md-11
+				+quote-default-light({
+					quote:  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ut enim ad minim veniam sed do eiusmod tempor incididunt ut labore et dolore magna aliqua .',
+					author: 'James Adams, Parishioner'
+				}).quote-default-light
+			.col-md-12
+				a.btn.btn-outline( href='#appointment-form', data-anchor-link ) Free Consultation

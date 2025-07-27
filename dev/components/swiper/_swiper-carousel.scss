@@ -1,0 +1,130 @@
+.swiper-carousel {
+	margin-left: -15px;
+	margin-right: -15px;
+	padding: 0 15px;
+	overflow: hidden;
+
+	.swiper-container {
+		flex-direction: column;
+		overflow: visible;
+	}
+
+	// Slides
+	.swiper-slide {
+		opacity: 0;
+		transition: .5s;
+
+		&-active {
+			opacity: 1;
+		}
+	}
+
+	// Controls
+	.swiper-controls {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.swiper-pagination,
+	.swiper-controls,
+	.swiper-progress {
+		width: auto;
+	}
+
+	.swiper-pagination {
+		position: static;
+
+		&-custom {
+			@include text-small;
+
+			&-current {
+				color: $primary;
+			}
+		}
+	}
+
+	.swiper-buttons {
+		display: flex;
+		margin: 0 px-to-rem( -5px );
+	}
+
+	.swiper-button-prev,
+	.swiper-button-next {
+		position: static;
+		display: inline-block;
+		width: auto;
+		height: auto;
+		margin: 0;
+		padding: 0 px-to-rem( 5px );
+		font-size: px-to-rem( 25px );
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+	}
+
+	.swiper-progress {
+		position: relative;
+		flex-grow: 1;
+		max-width: 830px;
+		height: 3px;
+		margin: 0 px-to-rem( 25px );
+		border-radius: 3px;
+		background-color: $border-color;
+	}
+
+	.swiper-progress-bar {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		background-color: $primary;
+		border-radius: inherit;
+	}
+
+	* + .swiper-controls { margin-top: px-to-rem( 20px ) }
+}
+
+
+// Spacing
+* + .swiper-carousel { margin-top: px-to-rem( 30px ) }
+
+
+// Media
+@include media-breakpoint-up( sm ) {
+	.swiper-carousel {
+		margin-left: -30px;
+		margin-right: -30px;
+		padding: 0 30px;
+
+		.swiper-slide-active + .swiper-slide {
+			opacity: 1;
+		}
+	}
+}
+
+@include media-breakpoint-up( md ) {
+	.swiper-carousel {
+		margin-left: -50px;
+		margin-right: -50px;
+		padding: 0 50px;
+
+		.swiper-slide-active + .swiper-slide + .swiper-slide {
+			opacity: 1;
+		}
+
+		* + .swiper-controls { margin-top: px-to-rem( 30px ) }
+	}
+
+	* + .swiper-carousel { margin-top: px-to-rem( 40px ) }
+}
+
+@include media-breakpoint-up(xl) {
+	.swiper-carousel {
+		* + .swiper-controls { margin-top: px-to-rem( 90px ) }
+	}
+
+	* + .swiper-carousel { margin-top: px-to-rem( 80px ) }
+}

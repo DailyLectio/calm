@@ -1,0 +1,6 @@
+.widget.widget-search
+	.widget-body
+		form( action='search-results.html', method='GET', data-rd-search!={ template: '<h6 class="search-title"><a target="_top" href="#{href}" class="search-link">#{title}</a></h6><p>...#{token}...</p>' })
+			.form-group.form-group-icon
+				input.form-control( type='text', placeholder='Search in blog...', autocomplete='off', name='s' )
+				button.form-group-icon-btn.mdi-magnify

@@ -1,0 +1,16 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+
+// Contexts
+.context-dark {
+
+}
+
+.footer-contact {
+	.rights {
+		color: rgba( $white, .3 );
+	}
+}

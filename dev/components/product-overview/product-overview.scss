@@ -1,0 +1,30 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+// Base
+.product-overview-price-old {
+	margin-right: 1em;
+	text-decoration: line-through;
+	color: $gray-600;
+}
+
+.product-overview-price-new {
+	color: $primary;
+}
+
+
+// Spacing
+* + .product-overview-price { margin-top: px-to-rem( 9px ) }
+* + .product-overview-filter-form { margin-top: px-to-rem( 22px ) }
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.product-overview {
+		p + p { margin-top: px-to-rem( 18px ) }
+	}
+}

@@ -1,0 +1,87 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+// Bootstrap variables
+$pagination-padding-y: 6px;
+$pagination-padding-x: 3px;
+$pagination-font-size: $font-size-lg;
+$pagination-line-height: 1.25;
+$pagination-color: $gray-900;
+$pagination-bg: transparent;
+$pagination-border-width: 0;
+$pagination-border-radius: 50%;
+
+$pagination-hover-color: $white;
+$pagination-hover-bg: $primary;
+
+$pagination-active-color: $primary;
+$pagination-active-bg: transparent;
+
+$pagination-focus-box-shadow: none;
+$pagination-focus-outline: none;
+
+$pagination-disabled-color: $gray-400;
+$pagination-disabled-bg: transparent;
+
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+@import "../bootstrap/scss/pagination";
+
+
+
+// Base
+.pagination {
+	border-radius: 0;
+	@include group( 6px );
+}
+
+.page-link {
+	width: px-to-rem( $pagination-padding-y ) * 2 + ( $pagination-line-height * $pagination-font-size ) + px-to-rem( $pagination-border-width ) * 2;
+	height: px-to-rem( $pagination-padding-y ) * 2 + ( $pagination-line-height * $pagination-font-size ) + px-to-rem( $pagination-border-width ) * 2;
+	margin-left: 0;
+	text-align: center;
+	font-size: $pagination-font-size;
+	font-weight: 400;
+	border-radius: $pagination-border-radius;
+	transition: $transition-base;
+
+	&.inactive {
+		pointer-events: none;
+	}
+}
+
+.page-item {
+	.page-link.page-link-prev,
+	.page-link.page-link-next {
+		font-size: $pagination-font-size * 1.39;
+		line-height: $pagination-line-height / 1.39;
+		border-radius: $pagination-border-radius;
+	}
+}
+
+
+// Spacing
+* + .pagination { margin-top: 30px; }
+
+
+// Context dark
+.context-dark {
+	.page-item {
+		.page-link.page-link-prev,
+		.page-link.page-link-next {
+			color: inherit;
+
+			&:hover,
+			&:focus {
+				color: $pagination-active-bg;
+			}
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( xxl ) {
+	* + .pagination { margin-top: 72px; }
+}

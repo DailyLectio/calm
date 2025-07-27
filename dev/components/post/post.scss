@@ -1,0 +1,26 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../base/mixins";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Variables
+$post-primary: $primary;
+$post-border-color: $border-color;
+
+// Base
+.post-media {
+	position: relative;
+	display: inline-block;
+}
+
+
+// Layouts
+@import "post-classic";
+@import "post-shadow";
+@import "post-small";
+@import "post-line";
+@import "post-minimal";

@@ -1,0 +1,37 @@
+.product-small {
+	display: flex;
+	align-items: center;
+	@include groupX( 16px );
+
+	.product-img-link {
+		flex-shrink: 0;
+		max-width: 20%;
+		transition: $transition-base;
+
+		&:hover {
+			opacity: .8;
+		}
+	}
+
+	.product-body {
+		margin-top: px-to-rem( -4px );
+	}
+
+	.product-price {
+		color: $primary;
+	}
+}
+
+
+// Spacing
+* + .product-small { margin-top: px-to-rem( 25px ) }
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.product-small {
+		.product-img-link {
+			max-width: 50%;
+		}
+	}
+}

@@ -1,0 +1,73 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Base
+.text-decorated {
+	position: relative;
+	padding-left: .52em;
+
+	&::after {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 2px;
+		height: 100%;
+		content: '';
+		background-color: $primary;
+	}
+}
+
+.text-decorated-primary-light {
+	&::after {
+		background-color: $primary-light;
+	}
+}
+
+// Modifying
+.text-decorated-2 {
+	padding-left: .84em;
+
+	&::after {
+		width: 3px;
+		height: 90%;
+		background-color: $primary-light;
+	}
+}
+
+.text-decorated-3 {
+	padding-left: .84em;
+
+	&::after {
+		bottom: 15%;
+		height: 68%;
+		background-color: $primary-light;
+	}
+}
+
+.text-decorated-large {
+	padding-left: px-to-rem( 25px );
+
+	&::after {
+		width: 3px;
+	}
+}
+
+
+.text-decorated-thin {
+	&::after {
+		width: 1px;
+	}
+}
+
+
+// Context dark
+.context-dark {
+	.text-decorated-thin {
+		&::after {
+			background-color: rgba( $white, .1 );
+		}
+	}
+}

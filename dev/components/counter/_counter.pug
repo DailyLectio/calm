@@ -1,0 +1,16 @@
+//- Counter simple
+	@param {object} data - counter data object
+	@param {number} data.value - counter value
+	@param {string} [data.prefix] - counter value prefix character
+	@param {string} [data.postfix] - counter value postfix character
+	@param {string} [data.title] - counter title
+	@param {string} [data.iconClass] - counter icon class
+mixin counter( data )
+	// Counter
+	.counter&attributes( attributes )
+		.counter-value
+			span( data-counter='' )= data.value
+			span.counter-unit= data.unit || data.unit=='' ? data.unit : '%'
+			if ( data.iconClass )
+				span.counter-icon( class= data.iconClass )
+		.counter-title!= data.title

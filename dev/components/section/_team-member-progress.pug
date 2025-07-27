@@ -1,0 +1,38 @@
+include ../quote/_quote
+include ../progress-linear/_progress-liear
+
+// Team member experience
+section.section-md.bg-transparent
+	.container
+		.row.row-30.justify-content-between
+			.col-md-6
+				h3.h3-big Honors & Achievements
+				p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+				p Ut enim ad minim veniam sed do eiusmod tempor. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+				ul.list.list-ordered.text-dark
+					li.list-item Lorem ipsum dolor sit amet consectetur
+					li.list-item Adipiscing elit sed do eiusmod
+					li.list-item Dictum non consectetur a erat nam 
+					li.list-item Tellus molestie nunc non bland
+
+			.col-md-6
+				h3.h3-big Personal Skills
+				+progress-linear({
+					title: 'Public Speaking',
+					value: '88'
+				})
+
+				+progress-linear({
+					title: 'Spiritual Growth',
+					value: '70'
+				})
+
+				+progress-linear({
+					title: 'Counsel',
+					value: '74'
+				})
+
+				+progress-linear({
+					title: 'Christian Education',
+					value: '68'
+				})

@@ -1,0 +1,59 @@
+include _navigation
+include ../logo/_logo
+
+mixin rd-navbar
+	//RD Navbar
+	header.section.rd-navbar-wrap
+		nav.rd-navbar.navbar-dark&attributes( attributes )
+			.navbar-container
+					.navbar-cell
+						.navbar-panel
+							button.navbar-switch.linearicons-menu( data-multi-switch!= {
+								targets: '.rd-navbar',
+								scope:   '.rd-navbar',
+								isolate: '[data-multi-switch]'
+							})
+
+							+logo-navbar
+
+					.navbar-cell.navbar-spacer-small
+
+					.navbar-cell
+						+navigation( menu )
+
+					.navbar-cell.navbar-spacer
+
+					.navbar-cell
+						.navbar-subpanel
+							.navbar-subpanel-item
+								button.navbar-button.navbar-cart-button.mdi-cart( data-multi-switch!= {
+									targets: '.rd-navbar',
+									scope:   '.rd-navbar',
+									class:   'navbar-cart-active',
+									isolate: '[data-multi-switch]'
+								}): span.navbar-button-badge 1
+
+								include _cart
+
+							.navbar-subpanel-item
+								.navbar-contact-text
+									span.h4.text-uppercase Get in touch
+									include _contact-form
+								button.navbar-button.navbar-contact-btn.linearicons-menu( data-multi-switch!= {
+									targets: '.rd-navbar',
+									scope:   '.rd-navbar',
+									class:   'navbar-contact-active',
+									isolate: '[data-multi-switch]:not(.rd-navbar-contact-btn)'
+								})
+
+							.navbar-subpanel-item.navbar-subpanel-item-no-padding
+								button.navbar-button.navbar-list-button.mdi-dots-vertical( data-multi-switch!= {
+									targets: '.rd-navbar',
+									scope:   '.rd-navbar',
+									class:   'navbar-list-active',
+									isolate: '[data-multi-switch]'
+								})
+
+								.navbar-list
+									.navbar-list-icon.mdi-cellphone
+									a.link.link-inherit.navbar-list-link( href='tel:#' ) 800.567.1234

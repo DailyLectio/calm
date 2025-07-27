@@ -1,0 +1,22 @@
+.widget
+	h4.widget-title Price
+	.widget-body
+		// RD Range
+		.rd-range(
+			data-min='0',
+			data-max='999',
+			data-min-diff='100',
+			data-start='[66, 335]',
+			data-step='1',
+			data-tooltip='false',
+			data-input='.rd-range-input-value-1',
+			data-input-2='.rd-range-input-value-2'
+		)
+		.rd-range-value
+			.rd-range-form-wrap
+				span $
+				input.rd-range-input.rd-range-input-value-1( type='text', name='value-1', size='3' )
+			.rd-range-form-wrap
+				span $
+				input.rd-range-input.rd-range-input-value-2( type='text', name='value-2', size='3' )
+		button.btn Filter

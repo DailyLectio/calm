@@ -1,0 +1,18 @@
+.navbar-search
+	.navbar-search-container
+		form.navbar-search-form( action='search-results.html', method='GET', data-rd-search!={
+			output:      '.navbar-search-results',
+			mode:        'live',
+			liveResults: 3,
+			template: '<h5 class="search-title"><a target="_top" href="#{href}" class="search-link">#{title}</a></h5><p>...#{token}...</p>'
+		})
+			input.navbar-search-input( type='text', placeholder='Enter search terms...', autocomplete='off', name='s' )
+			button.navbar-search-btn.int-search.novi-icon
+			button.navbar-search-close.search-switch.int-close.novi-icon( type='button', data-multi-switch!= {
+				targets: '.rd-navbar',
+				scope:   '.rd-navbar',
+				class:   'navbar-search-active',
+				isolate: '[data-multi-switch]:not(.search-switch)'
+			})
+
+.navbar-search-results No results

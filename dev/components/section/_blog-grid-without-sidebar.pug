@@ -1,0 +1,61 @@
+include ../post/_post
+include ../pagination/_pagination
+
+// Blog grid
+section.section-md.bg-transparent
+	.container
+		.row.row-40.justify-content-xxl-between
+			.col-12
+				.row.row-30.row-xl-60.justify-content-center
+					.col-md-6
+						+post-line({
+							img:   'image-18-368x228',
+							tag:   'Finance',
+							title: 'Lawyers Collective Women\'s Rights Initiative',
+							date:  'November 12, 2023'
+						})
+					.col-md-6
+						+post-line({
+							img:   'image-15-368x228',
+							tag:   'Finance',
+							title: 'Legal Documents Every Landlord Needs in 2020',
+							date:  'November 12, 2023'
+						})
+
+					.col-md-6
+						+post-line({
+							img:   'image-12-370x257',
+							tag:   'Finance',
+							title: 'Help Us Make the Law More Accessible to Everyone',
+							date:  'November 12, 2023'
+						})
+					.col-md-6
+						+post-line({
+							img:   'image-9-370x257',
+							tag:   'Finance',
+							title: '5 Legal Documents for Military Service Representatives',
+							date:  'November 12, 2023'
+						})
+
+					.col-md-6
+						+post-line({
+							img:   'image-2-370x266',
+							tag:   'Finance',
+							title: 'Recent National Employment Law Updates',
+							date:  'November 12, 2023'
+						})
+					.col-md-6
+						+post-line({
+							img:   'image-1-370x266',
+							tag:   'Finance',
+							title: 'Tips for Managing Workers’ Compensation Claims',
+							date:  'November 12, 2023'
+						})
+
+				+pagination([
+					{ prev: true, actionClass: 'disabled' },
+					{ value: '1', actionClass: 'active' },
+					{ value: '2' },
+					{ value: '3' },
+					{ next: true }
+				]).justify-content-center

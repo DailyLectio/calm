@@ -1,0 +1,10 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+
+// Base
+[data-multi-switch]:before {
+	pointer-events: none;
+}

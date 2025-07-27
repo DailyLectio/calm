@@ -1,0 +1,92 @@
+//- Post shadow
+	@param {object} data - post data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - post title
+	@param {string} data.tag - post tag
+	@param {string} data.date - post date
+mixin post-shadow( data )
+	// Post
+	.post.post-shadow&attributes( attributes )
+		a.post-media( href= data.link ? data.link : 'blog-post.html' )
+			+img( data.img )
+			.post-hover-btn View
+		.post-content
+			.post-tags.group-5.text-small
+				a.post-tag( href= data.link ? data.link : 'sermons.html' )= data.tag
+			h4.post-title.text-divider: a( href= data.link ? data.link : 'blog-post.html' )= data.title
+			.post-date= data.date
+
+//- Post classic
+	@param {object} data - post data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - post title
+	@param {string} data.tag - post tag
+	@param {string} data.date - post date
+mixin post-classic( data )
+	// Post
+	.post.post-classic&attributes( attributes )
+		if ( block )
+			.post-embed
+				block
+		.post-content
+			h3.h3-big.post-title: a( href='blog-post.html' )= data.title
+			.post-meta.list.list-inline-divided
+				.list-item
+					.post-tags: a.post-tag( href='sermons.html' )= data.tag
+				.list-item
+					a.post-date( href='sermons.html' )= data.date
+				.list-item
+					a.post-comments( href='blog-post.html' )= `${data.comments} comments`
+			.post-text= data.text
+
+//- Post line
+	@param {object} data - post data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - post title
+	@param {string} data.tag - post tag
+	@param {string} data.date - post date
+mixin post-line( data )
+	// Post
+	.post.post-line&attributes( attributes )
+		.post-tags.text-small
+			if(data.subtitle)
+				.post-tag!=data.subtitle 
+			else
+				a.post-tag( href= data.tagLink ? data.tagLink : 'classic-blog.html' )= data.tag
+		a.post-media( href= data.link ? data.link : 'blog-post.html' )
+			+img( data.img )
+			.post-hover-btn.mdi-link-variant
+		.post-content
+			h4.post-title: a( href= data.link ? data.link : 'blog-post.html' )= data.title
+			.post-date.text-small= data.date
+
+//- Post small
+	@param {object} data - post data object
+	@param {string} data.title - post title
+	@param {string} data.img - post image
+	@param {string} data.link - post main link
+	@param {string} data.date - post publication date
+mixin post-small( data )
+	// Post small
+	.post.post-small&attributes( attributes )
+		a.post-img-link( href= data.link ? data.link : 'blog-post.html' )
+			+img( data.img )
+		.post-body
+			h5.post-title: a( href= data.link ? data.link : 'blog-post.html' )= data.title
+			.post-date.text-small= data.date
+
+//- Post minimal
+	@param {object} data - post data object
+	@param {string} data.title - post title
+	@param {string} data.img - post image
+	@param {string} data.link - post main link
+	@param {string} data.date - post publication date
+mixin post-minimal( data )
+	// Post minimal
+	.post.post-minimal&attributes( attributes )
+		h6.post-title: a( href= data.link ? data.link : 'blog-post.html' )= data.title
+		.post-meta.list.list-inline-divided
+			.list-item
+				a.post-date( href='#' )= data.date
+			.list-item
+				.post-tags: a.post-tag( href='#' )= data.tag

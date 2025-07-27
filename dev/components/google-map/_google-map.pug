@@ -1,0 +1,5 @@
+//- Google map
+	@param {object} data - google map data object
+mixin google-map ( data )
+	// Google map
+	.google-map&attributes({ 'data-settings': ( data ? data : null ) })&attributes( attributes )

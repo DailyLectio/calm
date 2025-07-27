@@ -1,0 +1,56 @@
+// Base
+.quote-line {
+	padding-left: px-to-rem( 15px );
+
+	.quote-text {
+		display: block;
+		position: relative;
+		line-height: 1.45;
+
+		&::before {
+			display: block;
+			position: absolute;
+			left: -14px;
+			top: .4em;
+			bottom: .4em;
+			width: 2px;
+			content: '';
+			background-color: $primary;
+		}
+	}
+
+	* + .quote-person { margin-top: px-to-rem( 10px ) }
+}
+
+
+.context-dark {
+	.quote-line {
+		.quote-text {
+			color: inherit;
+		}
+
+		.quote-author {
+			color: $white;
+		}
+		
+		.quote-position {
+			color: $gray-100;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.quote-line {
+		padding-left: px-to-rem( 22px );
+
+		.quote-text {
+			&::before {
+				left: -22px;
+			}
+		}
+
+		* + .quote-person { margin-top: px-to-rem( 16px ) }
+	}
+}

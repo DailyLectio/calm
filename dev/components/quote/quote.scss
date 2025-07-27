@@ -1,0 +1,44 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Variables
+$quote-icon-color: $primary;
+
+
+// Base
+q {
+	&::before,
+	&::after {
+		display: none;
+	}
+}
+
+cite {
+	font-style: normal;
+}
+
+.quote-person {
+	display: flex;
+	align-items: center;
+
+	.quote-img {
+		border-radius: 50%;
+	}
+
+	.quote-cite {
+		margin-left: px-to-rem( 18px );
+	}
+}
+
+
+
+// Layouts
+@import "quote-default";
+@import "quote-large";
+@import "quote-md";
+@import "quote-line";

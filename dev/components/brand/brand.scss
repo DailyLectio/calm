@@ -1,0 +1,50 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.brand {
+	display: inline-block;
+}
+
+.brand-hover {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 50px;
+	min-height: 120px;
+	padding: px-to-rem( 20px, 15px );
+	transition: $transition-base;
+
+	&:hover {
+		background-color: rgba( $gray-900, .1 );
+	}
+}
+
+
+// Context dark
+.context-dark {
+	.brand-hover {
+		&:hover {
+			background-color: $gray-800;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( md ) {
+	.brand-hover {
+		min-height: 193px;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.brand-hover {
+		min-width: 283px;
+	}
+}

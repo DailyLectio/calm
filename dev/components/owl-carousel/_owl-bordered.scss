@@ -1,0 +1,64 @@
+// Base
+.owl-carousel-bordered {
+	&::before {
+		position: absolute;
+		left: 50%;
+		top: -1px;
+		width: 100vw;
+		content: '';
+		border-top: 1px solid $border-color;
+		transform: translateX( -50% );
+	}
+
+	.owl-stage {
+		display: flex;
+		margin-left: -1px;
+	}
+
+	.owl-item {
+		display: flex;
+
+		&.active {
+			border-left: 1px solid $border-color;
+		}
+	}
+}
+
+
+// Spacing
+* + .owl-carousel-bordered { margin-top: px-to-rem( 25px ) }
+
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	* + .owl-carousel-bordered { margin-top: px-to-rem( 57px ) }
+}
+
+@media ( min-width: 1920px ) {
+	.owl-carousel-bordered {
+		&.owl-nav-lg {
+			.owl-nav {
+				left: -60px;
+				right: -60px;
+				width: auto;
+				padding: 0;
+			}
+
+			.owl-prev,
+			.owl-next {
+				color: $gray-400;
+
+				&:hover {
+					color: $white;
+					background-color: $owl-primary;
+				}
+
+				&.disabled {
+					color: $owl-primary;
+					opacity: .3;
+				}
+			}
+		}
+	}
+}

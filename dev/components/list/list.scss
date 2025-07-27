@@ -1,0 +1,254 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Base
+.list-item + .list-item {
+	margin-top: px-to-rem( 5px );
+}
+
+.list-sm {
+	.list-item + .list-item {
+		margin-top: px-to-rem( 13px );
+	}
+}
+
+
+// List inline
+.list-inline-item {
+	vertical-align: middle;
+}
+
+
+// List marked
+.list-marked {
+	color: $gray-900;
+
+	> .list-item {
+		position: relative;
+		padding-left: 1.7em;
+
+		&::before {
+			position: absolute;
+			left: 0;
+			font-size: 1.15em;
+			line-height: 1.55em;
+			font-family: 'Material Design Icons';
+			content: '\f222';
+			color: $primary;
+		}
+	}
+
+	.list-marked {
+		margin-left: 2em;
+	}
+}
+
+
+// List ordered
+.list-ordered {
+	color: $gray-900;
+	counter-reset: li;
+
+	> .list-item {
+		&::before {
+			content: counter(li)'.';
+			counter-increment: li;
+			margin-right: .3em;
+		}
+	}
+
+	.list-ordered {
+		margin-left: 2em;
+	}
+}
+
+* + .list-ordered { margin-top: px-to-rem( 25px ) }
+
+
+// List divided
+.list-divided {
+	> .list-item {
+		margin-top: 0;
+		padding: px-to-rem( 10px ) 0;
+		border-bottom: 1px solid $gray-400;
+
+		&:first-child { padding-top: 0 }
+	}
+}
+
+* + .list-divided { margin-top: px-to-rem( 20px ) }
+
+.context-dark {
+	.list-divided {
+		> .list-item {
+			border-bottom-color: rgba( $white, .1 );
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.list-divided {
+		> .list-item {
+			padding: px-to-rem( 19px ) 0;
+		}
+	}
+
+	.list-divided-sm {
+		> .list-item {
+			padding: px-to-rem( 15px ) 0;
+		}
+	}
+}
+
+// List divided double
+.list-divided-double {
+	> .list-item {
+		display: block;
+		margin-top: 0;
+		padding: px-to-rem( 8px ) 0;
+		border-top: 1px solid transparent;
+		border-bottom: 1px solid;
+		border-bottom-color: inherit;
+		transition: $transition-base;
+
+		&:first-child {
+			border-top-color: inherit;
+		}
+
+		&:not(:first-child) {
+			margin-top: -1px;
+		}
+
+		&:hover {
+			color: $gray-900;
+			border-top-color: inherit;
+		}
+	}
+}
+
+* + .list-divided { margin-top: px-to-rem( 20px ) }
+
+.context-dark {
+	.list-divided-double {
+		> .list-item {
+			color: $context-light;
+			border-bottom-color: rgba( $white, .1 );
+
+			&:first-child {
+				border-top-color: rgba( $white, .1 );
+			}
+
+			&:hover {
+				color: $white;
+				border-color: $white;
+			}
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.list-divided-double {
+		> .list-item {
+			padding: px-to-rem( 13px ) 0;
+		}
+	}
+}
+
+
+// List inline divided
+$list-inline-divided-offset: 30px;
+
+.list-inline-divided {
+	display: flex;
+	flex-wrap: wrap;
+
+	> .list-item {
+		position: relative;
+		margin-top: 0;
+		vertical-align: middle;
+	}
+
+	> .list-item:not(:last-child) {
+		padding-right: 18px;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 50%;
+			right: 9px;
+			width: 1px;
+			height: 1em;
+			background: $body-color;
+			transform: translate( 50%, -50% );
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( md ) {
+	.list-inline-divided {
+		> .list-item:not( :last-child ) {
+			padding-right: $list-inline-divided-offset;
+
+			&:after {
+				right: $list-inline-divided-offset/2;
+			}
+		}
+	}
+}
+
+
+// List vertical
+.list-vertical {
+	> .list-item {
+		margin-top: 0;
+	}
+
+	> .list-item:not(:last-child) {
+		margin-bottom: px-to-rem( 10px );
+		padding-bottom: px-to-rem( 10px );
+		border-bottom: 1px solid $border-color;
+	}
+}
+
+* + .list-vertical {
+	margin-top: px-to-rem( 20px );
+}
+
+.context-dark {
+	.list-vertical {
+		> .list-item:not(:last-child) {
+			border-color: rgba( $white, .1 );
+		}
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.list-vertical {
+		display: flex;
+
+		> .list-item:not(:last-child) {
+			margin-right: px-to-rem( 40px );
+			margin-bottom: 0;
+			padding-right: px-to-rem( 34px );
+			padding-bottom: 0;
+			border-bottom: none;
+			border-right: 1px solid $border-color;
+		}
+	}
+
+	* + .list-vertical {
+		margin-top: px-to-rem( 46px );
+	}
+}
+
+
+// list 2 column
+.list-two-column {
+	columns: 2;
+}

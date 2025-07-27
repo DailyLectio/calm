@@ -1,0 +1,53 @@
+.post-classic {
+	.post-meta {
+		@include text-small;
+	}
+
+	.post-img {
+		transition: $transition-base;
+
+		&:hover {
+			opacity: .8;
+		}
+	}
+
+	* + .post-content { margin-top: px-to-rem( 15px ) }
+	* + .post-meta { margin-top: px-to-rem( 7px ) }
+	* + .post-text { margin-top: px-to-rem( 6px ) }
+}
+
+
+// Spacing
+* + .post-classic { margin-top: px-to-rem( 40px ) }
+
+
+// Modifying
+.post-classic-boxed {
+	.post-content {
+		padding: px-to-rem( 20px, 15px );
+		background-color: $gray-100;
+		border: 1px solid $border-color;
+	}
+}
+
+// Media
+@include media-breakpoint-up( lg ) {
+	* + .post-classic { margin-top: px-to-rem( 50px ) }
+}
+
+// Media
+@include media-breakpoint-up( xl ) {
+	.post-classic {
+		* + .post-content { margin-top: px-to-rem( 30px ) }
+		* + .post-meta { margin-top: px-to-rem( 14px ) }
+		* + .post-text { margin-top: px-to-rem( 12px ) }
+	}
+
+	.post-classic-boxed {
+		.post-content {
+			padding: px-to-rem( 35px, 40px, 36px, 46px );
+		}
+	}
+
+	* + .post-classic { margin-top: px-to-rem( 71px ) }
+}

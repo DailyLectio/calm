@@ -1,0 +1,64 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Variables
+$progress-circle-bg: $white;
+$progress-circle-fg: $gray-600;
+
+
+// Base
+.progress-circle {
+	display: inline-block;
+	max-width: 260px;
+}
+
+.progress-circle-inner {
+	position: relative;
+	display: inline-block;
+}
+
+.progress-circle-counter-value {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: $h3-font-size;
+	font-weight: $headings-font-weight;
+	line-height: 1;
+	color: $headings-color;
+}
+
+.progress-circle-bar {
+	.bg,
+	.fg {
+		stroke-width: 10px;
+		fill: transparent;
+	}
+
+	.bg {
+		stroke: $progress-circle-bg;
+	}
+
+	.fg {
+		stroke: $progress-circle-fg;
+	}
+}
+
+
+* + .progress-circle-title { margin-top: px-to-rem( 18px ); }
+* + .progress-circle-text { margin-top: px-to-rem( 6px ); }
+
+
+// Media
+@include media-breakpoint-up(lg) {
+	* + .progress-circle-title { margin-top: px-to-rem( 34px ); }
+	* + .progress-circle-text { margin-top: px-to-rem( 11px ); }
+}

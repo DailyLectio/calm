@@ -1,0 +1,66 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Base
+.video {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: $white;
+	cursor: pointer;
+}
+
+.video-image {
+	width: 100%;
+	transition: .3s;
+}
+
+.video-link {
+	position: absolute;
+}
+
+.video-icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: px-to-rem( 60px );
+	height: px-to-rem( 60px );
+	font-size: px-to-rem( 18px );
+	color: $white;
+	background-color: $primary;
+	border-radius: 50%;
+}
+
+
+// Spacing
+* + .video {
+	margin-top: px-to-rem( 40px );
+}
+
+
+// Contexts
+.desktop {
+	.video:hover {
+		.video-image {
+			opacity: .8;
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up(lg) {
+	* + .video {
+		margin-top: px-to-rem( 50px );
+	}
+}
+
+@include media-breakpoint-up(xxl) {
+	* + .video {
+		margin-top: px-to-rem( 65px );
+	}
+}

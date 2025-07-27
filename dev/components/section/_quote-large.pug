@@ -1,0 +1,26 @@
+include ../quote/_quote
+
+// Practice
+section.section-md.bg-900.context-dark
+	.container
+		.owl-carousel.owl-quote( data-owl= { dots: true }, data-items='1' )
+			+quote-large({
+				quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+				authorImg: 'person/person-9-53x53',
+				authorName: 'John Doe',
+				authorPosition: 'Parishioner'
+			})
+
+			+quote-large({
+				quote: 'Tempor orci dapibus ultrices in iaculis nunc sed augue lacus. Sed sed risus pretium quam vulputate dignissim suspendisse in. Scelerisque.',
+				authorImg: 'person/person-5-53x53',
+				authorName: 'Jane Smith',
+				authorPosition: 'Parishioner'
+			})
+
+			+quote-large({
+				quote: 'Scelerisque viverra mauris in aliquam sem fringilla. Elementum curabitur vitae nunc sed velit. Sit amet consectetur adipiscing elit. Ac turp.',
+				authorImg: 'person/person-10-53x53',
+				authorName: 'Edward Harrison',
+				authorPosition: 'Parishioner'
+			})

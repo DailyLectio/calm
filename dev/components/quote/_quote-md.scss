@@ -1,0 +1,76 @@
+// Variables
+$quote-cite-color: $primary;
+$quote-icon-color: $gray-900;
+
+
+// Base
+.quote-md {
+	position: relative;
+
+	.quote-icon-face {
+		position: absolute;
+		width: 50px;
+		height: auto;
+		fill: rgba( $quote-icon-color, .05 );
+	}
+
+	.quote-body {
+		padding: px-to-rem( 30px, 15px, 0 );
+	}
+
+	.quote-cite {
+		color: $quote-cite-color;
+	}
+
+	.quote-text {
+		display: block;
+		line-height: 1.45;
+	}
+
+	* + .quote-text { margin-top: px-to-rem( 8px ) }
+}
+
+
+// Context dark
+.context-dark {
+	.quote-md {
+		color: rgba($white, .6);
+
+		.quote-icon-face {
+			fill: rgba($white, .05);
+		}
+
+		.quote-text {
+			color: inherit;
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( md ) {
+	.quote-md {
+		.quote-icon-face {
+			left: px-to-rem( 15px );
+			width: 80px;
+		}
+	}
+}
+
+@include media-breakpoint-up(lg) {
+	.quote-md {
+		padding-left: px-to-rem( 75px );
+
+		.quote-icon-face {
+			top: px-to-rem( 47px );
+			width: 99px;
+		}
+
+		* + .quote-text { margin-top: px-to-rem( 35px ) }
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.quote-md {
+
+	}
+}

@@ -1,0 +1,203 @@
+html {
+	font-size: 14px;
+
+	@include media-breakpoint-up( md ) {
+		font-size: 15px;
+	}
+
+	@include media-breakpoint-up( xxl ) {
+		font-size: 16px;
+	}
+}
+
+// Headings
+#{headings()} {
+	margin: 0;
+	font-family: $font-family-base;
+	letter-spacing: normal;
+
+	a {
+		color: inherit;
+
+		&:hover {
+			color: $primary;
+		}
+	}
+}
+
+h1, .h1 {
+	font-size: px-to-rem( 28px );
+	font-weight: 900;
+	font-family: $font-family-base;
+	text-transform: uppercase;
+	letter-spacing: 0.01em;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h1-font-size;
+		line-height: $h1-line-height;
+	}
+}
+
+h2, .h2 {
+	font-size: px-to-rem( 26px );
+	line-height: 1.3;
+	text-transform: uppercase;
+	font-weight: 700;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h2-font-size;
+		line-height: $h2-line-height;
+
+		&.text-magnifier {
+			font-size: $h2-font-size * 1.14;
+		}
+
+		&.text-magnifier-2 {
+			font-size: $h2-font-size * 1.28;
+			line-height: 1.09;
+		}
+	}
+}
+
+h3, .h3 {
+	font-size: px-to-rem( 24px );
+	line-height: 1.35;
+	letter-spacing: -0.01em;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h3-font-size;
+		line-height: $h3-line-height;
+		
+		&.h3-big {
+			font-size: px-to-rem( 36px );
+			font-weight: 600;
+		}
+	}
+}
+
+h4, .h4 {
+	font-size: px-to-rem( 21px );
+	line-height: 1.3;
+	font-weight: 600;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h4-font-size;
+		line-height: $h4-line-height;
+	}
+}
+
+h5, .h5 {
+	font-size: px-to-rem( 18px );
+	font-family: $font-family-base;
+	letter-spacing: 0.03em;
+	line-height: 1.5;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h5-font-size;
+		line-height: $h5-line-height;
+	}
+}
+
+h6, .h6 {
+	font-family: $font-family-base;
+	letter-spacing: 0.03em;
+	line-height: 1.6;
+
+	@include media-breakpoint-up( xl ) {
+		font-size: $h6-font-size;
+		line-height: $h6-line-height;
+	}
+}
+
+.big {
+	font-size: $font-size-lg;
+	line-height: $line-height-lg;
+}
+
+.big2 {
+	font-size: $font-size-base * 1.6;
+}
+
+// Emphasis
+mark,
+.mark {
+	color: color-yiq( $mark-bg );
+}
+
+// Text large
+.text-large {
+	padding-top: .2em;
+	font-size: px-to-rem( 200px );
+	font-family: $font-family-secondary;
+	font-style: italic;
+	line-height: .7;
+	color: $gray-400;
+
+	// Media
+	@include media-breakpoint-up( lg ) {
+		padding-top: 0;
+		line-height: .9;
+	}
+}
+
+// Text small
+.text-small {
+	@include text-small;
+}
+
+// Context Dark
+.context-dark {
+	color: $context-light;
+
+	#{headings()} {
+		color: $white;
+	}
+}
+
+// Text blocks
+.text-block-1 {
+	h2 + p { margin-top: px-to-rem( 20px ) }
+	* + .row { margin-top: px-to-rem( 30px ) }
+}
+
+.text-block-2 {
+	h2 + p { margin-top: px-to-rem( 20px ) }
+}
+
+// Media
+@include media-breakpoint-up( md ) {
+	.text-block-1 {
+		.text-divider-wide {
+			margin-left: 20%;
+		}
+
+		.text-divider-wide + p { margin-top: px-to-rem( 40px ) }
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.text-block-1 {
+		* + p { margin-top: px-to-rem( 20px ) }
+		* + .btn { margin-top: px-to-rem( 34px ) }
+		* + .row { margin-top: px-to-rem( 34px ) }
+		h2 + p { margin-top: px-to-rem( 34px ) }
+	}
+}
+@include media-breakpoint-up( xxl ) {
+	.text-block-1 {
+		.text-divider-wide {
+			margin-left: 44%;
+		}
+
+		* + p { margin-top: px-to-rem( 25px ) }
+		* + .btn { margin-top: px-to-rem( 41px ) }
+		* + .row { margin-top: px-to-rem( 52px ) }
+		h2 + p { margin-top: px-to-rem( 43px ) }
+		.text-divider-wide + p { margin-top: px-to-rem( 85px ) }
+	}
+
+	.text-block-2 {
+		h2 + p { margin-top: px-to-rem( 38px ) }
+		.text-divider + p { margin-top: px-to-rem( 29px ) }
+	}
+}

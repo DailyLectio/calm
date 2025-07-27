@@ -1,0 +1,138 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import '../base/mixins';
+
+// Variables
+$navbar-color: $white;
+$navbar-hover: $primary-light;
+$navbar-background: rgba( $gray-900, .9 );
+$navbar-zindex: $zindex-fixed;
+$navbar-shadow: 0 0 28px rgba( $gray-600, 0.1 );
+
+$navbar-dropdown-color: $context-light;
+
+
+// Base
+.rd-navbar {
+	position: relative;
+	z-index: $navbar-zindex;
+	color: $navbar-color;
+
+	li {
+		list-style: none;
+	}
+}
+
+
+.navbar-button {
+	position: relative;
+	display: block;
+	border: none;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 1;
+	opacity: 1;
+	visibility: visible;
+	background: none;
+	color: inherit;
+	transition: .25s ease-in-out;
+
+	&::before,
+	&::after {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transition: .25s, color 0s;
+	}
+
+	&::before {
+		transform: translate( -50%, -50% ) rotate(0) scale(1);
+		opacity: 1;
+	}
+
+	&::after {
+		content: '\ec2a';
+		transform: translate( -50%, -50% ) rotate(90deg)  scale(0);
+		font-family: 'Linearicons';
+		opacity: 0;
+	}
+
+	&:hover {
+		color: rgba( $white, .5 );
+	}
+
+	&.navbar-info-active,
+	&.navbar-search-active,
+	&.navbar-cart-active,
+	&.navbar-contact-active,
+	&.navbar-navigation-active,
+	&.navbar-social-active,
+	&.navbar-list-active,
+	&.active {
+		&::before {
+			transform: translate( -50%, -50% ) rotate(-90deg)  scale(0);
+			opacity: 0;
+		}
+
+		&::after {
+			transform: translate( -50%, -50% ) rotate(0deg)  scale(1);
+			opacity: 1;
+		}
+
+		.navbar-button-badge {
+			transform: rotate(-90deg)  scale(0);
+			opacity: 0;
+		}
+	}
+}
+
+.navbar-button-badge {
+	position: absolute;
+	top: -3px;
+	right: -10px;
+	width: 16px;
+	height: 16px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: $font-size-sm;
+	color: $navbar-color;
+	background-color: $primary;
+	border-radius: 50%;
+	transition: .25s, color 0s;
+}
+
+
+// Logo
+.navbar-logo {
+	//padding: 10px;
+}
+
+.navbar-logo-link {
+	display: block;
+}
+
+.navbar-logo-default,
+.navbar-logo-inverse {
+	margin: 0;
+}
+
+.navbar-logo-inverse {
+	display: none;
+}
+
+
+// Navbar list
+.navbar-list {
+	display: flex;
+	align-items: center;
+}
+
+
+// Layouts
+@import 'rd-navbar-fixed';
+@import 'rd-navbar-fullwidth';

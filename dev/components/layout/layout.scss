@@ -1,0 +1,146 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Base
+.layout {
+	position: relative;
+}
+
+.layout-media {
+	min-height: 300px;
+}
+
+.layout-content {
+	padding: px-to-rem( 20px, 15px );
+}
+
+.layout-2 {
+	.layout-content {
+		padding: px-to-rem( 30px, 15px, 50px );
+	}
+}
+
+.layout-3 {
+	.layout-media {
+		min-height: 200px;
+	}
+
+	.layout-content {
+		position: relative;
+		z-index: 1;
+		max-width: 522px;
+		padding: px-to-rem( 30px, 15px );
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.layout {
+		display: flex;
+	}
+
+	.layout-1 {
+		padding: px-to-rem( 90px, 0 );
+
+		.layout-media {
+			position: absolute;
+			left: 19%;
+			top: 0;
+			bottom: 0;
+			width: calc(100vw - 19% - (100vw - 960px) / 2);
+		}
+
+		.layout-content {
+			position: relative;
+			z-index: 1;
+			max-width: 420px;
+			padding: px-to-rem(55px, 40px, 55px, 0);
+
+			&::before {
+				position: absolute;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				z-index: -1;
+				width: 100vw;
+				background-color: inherit;
+				content: '';
+			}
+		}
+	}
+
+	.layout-2 {
+		justify-content: flex-end;
+
+		.layout-media {
+			position: absolute;
+			right: 60%;
+			top: px-to-rem( 65px );
+			bottom: px-to-rem( 65px );
+			z-index: 1;
+			width: calc( 100vw - 60% - (100vw - 960px) / 2 );
+		}
+
+		.layout-content {
+			position: relative;
+			z-index: 0;
+			max-width: 860px;
+			width: 100%;
+			padding: px-to-rem(55px, 0, 55px);
+			padding-left: 38%;
+
+			&::before {
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				z-index: -1;
+				width: 100vw;
+				background-color: inherit;
+				content: '';
+			}
+		}
+	}
+
+	.layout-3 {
+		display: block;
+		padding-top: 60%;
+
+		.layout-media {
+			position: absolute;
+			right: 0;
+			top: 0;
+			bottom: 50px;
+			width: 80%;
+		}
+
+		.layout-content {
+			padding: px-to-rem( 30px, 40px, 45px );
+		}
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.layout-1 {
+		.layout-media {
+			width: calc(100vw - 19% - (100vw - 1200px) / 2);
+		}
+	}
+
+	.layout-2 {
+		.layout-media {
+			width: calc( 100vw - 60% - (100vw - 1200px) / 2 );
+		}
+
+		.layout-content {
+			padding: px-to-rem( 114px, 0, 134px );
+			padding-left: 25%;
+		}
+	}
+}

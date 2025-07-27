@@ -1,0 +1,37 @@
+include ../quote/_quote
+
+// Practice
+section.section-md.bg-100
+	.container
+		.row.row-40.justify-content-between.align-items-center
+			.col-md-5( data-animate!={ class: 'fadeInLeftBig' } )
+				.text-block-1
+					h2 Bringing Faith To Your Life for over 20 years
+					p.big Calm Church is a caring, Christian family committed to sharing the love of Christ.
+					p.big To have a better understanding about how we impact the lives of our parishioners, read these recently submitted testimonials.
+					a.btn.btn-outline( href='#consultation-form', data-anchor-link ) Learn More
+			.col-md-7.col-xl-6( data-animate!={ class: 'fadeInRightBig' } )
+				.layout.layout-3
+					.layout-media.bg-image( style='background-image: url( images/image-16-470x600.jpg )' )
+					.layout-content.bg-900.context-dark
+						.owl-carousel.owl-quote-3( data-owl= { dots: true }, data-items='1' )
+							+quote-line({
+								quote:          'I first came to this church when visiting my sister. For me, Calm is an oasis where I can be refreshed with living water. Every Sunday I come with expectation of what message I will receive from our Lord.',
+								authorImg:      'person/person-9-53x53',
+								authorName:     'Edward Harrison',
+								authorPosition: 'Parishioner'
+							})
+
+							+quote-line({
+								quote:          'For the first time in many years I have found a place at Calm Church. It\'s like coming home again where the people are so warm and friendly and are genuinely concerned about you.',
+								authorImg:      'person/person-5-53x53',
+								authorName:     'Kate Adams',
+								authorPosition: 'Parishioner'
+							})
+
+							+quote-line({
+								quote:          'We attended our first Sunday here and we knew right away there was a uniqueness about this church. God used Calm Church to develop in us a stronger passion for him and a deeper relationship with him.',
+								authorImg:      'person/person-10-53x53',
+								authorName:     'James Wilson',
+								authorPosition: 'Parishioner'
+							})

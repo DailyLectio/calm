@@ -1,0 +1,61 @@
+//- Blurb
+	@param {object} data - blurb data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - blurb title
+	@param {string} data.text - blurb description
+mixin blurb-icon-left( data )
+	// Blurb hover
+	.blurb.blurb-icon-left&attributes( attributes )
+		.blurb-header
+			.blurb-icon( class= data.iconClass )
+			.blurb-title.h4= data.title
+		.blurb-text= data.text
+
+//- Blurb info
+	@param {object} data - blurb data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - blurb title
+mixin blurb-info( data )
+	// Blurb info
+	.blurb.blurb-info&attributes( attributes )
+		.blurb-header
+			.blurb-icon( class= data.iconClass )
+			.blurb-title.h4= data.title
+		if ( block )
+			.blurb-embed
+				block
+
+//- Blurb link
+	@param {object} data - blurb data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - blurb title
+	@param {string} data.link - blurb link
+mixin blurb-link( data )
+	// Blurb link
+	.blurb.blurb-link&attributes( attributes )
+		.blurb-icon( class= data.iconClass )
+		h4.blurb-title: a( href= data.link ? data.link : '#' )= data.title
+
+//- Blurb link 2
+	@param {object} data - blurb data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - blurb title
+mixin blurb-link-2( data )
+	// Blurb link
+	.blurb.blurb-link-2&attributes( attributes )
+		.blurb-icon( class= data.iconClass )
+		.blurb-content
+			h4.blurb-title: a( href='#' )= data.title
+			.blurb-subtitle= data.subtitle
+
+//- Blurb hover
+	@param {object} data - blurb data object
+	@param {string} data.iconClass - icon class
+	@param {string} data.title - blurb title
+	@param {string} data.text - blurb description
+mixin blurb-hover( data )
+	// Blurb hover
+	.blurb.blurb-hover&attributes( attributes )
+		.blurb-icon( class= data.iconClass )
+		.blurb-title.h4= data.title
+		.blurb-text= data.text

@@ -1,0 +1,78 @@
+// Quote default
+.quote-default {
+	display: flex;
+
+	.quote-text,
+	.quote-cite {
+		display: block;
+	}
+
+	.quote-icon {
+		flex-shrink: 0;
+		width: 1.1em;
+		margin-top: 0.2em;
+		fill: $quote-icon-color;
+	}
+
+	.quote-body {
+		padding-left: px-to-rem( 15px );
+	}
+
+	.quote-cite {
+		color: $quote-icon-color;
+	}
+
+	* + .quote-cite { margin-top: px-to-rem( 12px ) }
+}
+
+
+// Modifying
+.quote-default-light {
+	.quote-text {
+		font-style: italic;
+		color: $gray-700;
+		font-family: $font-family-secondary;
+	}
+}
+
+.quote-default-small {
+	.quote-text + .quote-text { margin-top: px-to-rem( 5px ) }
+}
+
+
+// Media
+@include media-breakpoint-up( xl ) {
+	.quote-default {
+
+		.quote-icon {
+			width: 2.1em;
+			margin-top: 0.5em;
+		}
+
+		.quote-body {
+			padding-left: px-to-rem( 26px );
+		}
+
+		* + .quote-cite { margin-top: px-to-rem( 18px ) }
+	}
+
+	.quote-default-light {
+		.quote-body {
+			padding-left: px-to-rem( 9px );
+		}
+
+		* + .quote-cite { margin-top: px-to-rem( 6px ) }
+	}
+
+	.quote-default-small {
+		.quote-icon {
+			width: px-to-rem( 27px );
+		}
+
+		.quote-body {
+			padding-left: px-to-rem( 18px );
+		}
+
+		.quote-text + .quote-text { margin-top: px-to-rem( 10px ) }
+	}
+}

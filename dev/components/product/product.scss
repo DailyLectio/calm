@@ -1,0 +1,33 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+// Base
+.product-media {
+	display: inline-block;
+	transition: $transition-base;
+	box-shadow: $box-shadow-sm;
+
+	&:hover {
+		transform: translateY( -5px );
+	}
+}
+
+.product-price {
+	color: $primary;
+}
+
+* + .product-title { margin-top: px-to-rem( 13px ) }
+
+
+// Large ≥992px
+@include media-breakpoint-up(lg) {
+	* + .product-title { margin-top: px-to-rem( 21px ) }
+}
+
+
+// Layout
+@import "product-small";

@@ -1,0 +1,17 @@
+//- Countdown
+	@param {object} data - countdown data object
+	@param {string} data.to - end date
+	@param {string} data.from - start date
+mixin countdown( data )
+	// Countdown
+	.countdown( data-countdown!={ from: data.from, to: data.to } )&attributes( attributes )
+		each item in [ 'days', 'hours', 'minutes', 'seconds' ]
+			- var attrCounter = {}; attrCounter[ 'data-counter-'+ item ] = '';
+			- var circleAttr = {}; circleAttr[ 'data-progress-'+ item ] = '';
+			.countdown-block( class= 'countdown-block-' + item )
+				svg.countdown-circle( x='0', y='0', width='120', height='120', viewbox='0 0 120 120' )&attributes( circleAttr )
+					circle.countdown-circle-bg( cx=60, cy=60, r=58 )
+					circle.countdown-circle-fg.clipped( cx=60, cy=60, r=58 )
+				.countdown-wrap
+					.countdown-counter&attributes( attrCounter ) 00
+					.countdown-title= item

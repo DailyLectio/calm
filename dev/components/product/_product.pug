@@ -1,0 +1,27 @@
+//- Product
+	@param {object} data - product data object
+	@param {string} data.img - image name|path
+	@param {string} data.title - product title
+	@param {string} data.price - product price
+mixin product-simple( data )
+	// Product
+	.product.product-simple&attributes( attributes )
+		a.product-media( href='single-product.html' )
+			+img( data.img )
+		h4.product-title: a( href='single-product.html' )= data.title
+		.h4.product-price= `$${data.price}`
+
+//- Product small
+	@param {object} data - product data object
+	@param {string} data.title - product title
+	@param {string} data.img - product image
+	@param {string} data.link - product link
+	@param {string} data.price - product price
+mixin product-small( data )
+	// Product small
+	.product.product-small&attributes( attributes )
+		a.product-img-link( href= data.link ? data.link : 'single-product.html' )
+			+img( data.img )
+		.product-body
+			h5.product-title: a( href= data.link ? data.link : 'single-product.html' )= data.title
+			.product-price= `$${data.price}`

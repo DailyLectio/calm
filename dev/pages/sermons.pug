@@ -1,0 +1,16 @@
+extends ../components/base/_skeleton
+include ../components/rd-navbar/_rd-navbar
+include ../components/page-title/_page-title
+
+block variables
+	- pageName = 'Sermons';
+
+block page
+	+page-title({
+		bgImage: 'images/background/bg-1-1-1920x496.jpg',
+		title: 'Sermons'
+	})
+		+rd-navbar
+
+	include ../components/section/_blog-grid-2
+	include ../components/footer/_footer-contact

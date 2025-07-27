@@ -1,0 +1,30 @@
+include ../blurb/_blurb
+
+// Practice
+section.section-sm
+	.container
+		.layout.layout-2
+			.layout-media.bg-image( style='background-image: url(images/image-13-837x551.jpg)', data-animate!={ class: 'fadeInUpBig' } )
+			.layout-content.bg-100( data-animate!={ class: 'fadeInUpBig', delay: '.2s' } )
+				.text-block-1
+					h2 Download the App
+					p.big To stay connected with our church and receive the latest news and updates from us, download the free Calm Church app that offers:
+					
+					.row.row-15
+						.col-sm-auto
+							ul.list-marked
+								li.list-item Simple Donations
+								li.list-item Sermons
+								li.list-item Event Notifications
+								
+						.col-sm-6
+							ul.list-marked
+								li.list-item Prayer Requests
+								li.list-item The Bible
+					.mt-5.group-20
+						a.btn.btn-outline.btn-icon( href='#' )
+							span.mdi-apple.icon
+							| Apple Store
+						a.btn.btn-outline.btn-icon.mt-0( href='#' )
+							span.icon.mdi-google-play
+							| Apple Store

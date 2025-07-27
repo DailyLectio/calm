@@ -1,0 +1,50 @@
+//- Person
+	@param {object} data - person data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - person title
+	@param {string} data.description - person description
+	@param {string} data.position - person meta
+mixin person-poster( data )
+	// Person
+	a.person.person-poster( href='team-member.html' )&attributes( attributes )
+		.person-media.bg-image( style=`background-image: url(images/${data.img})` )
+			.person-btn.mdi.mdi-arrow-right
+		.person-content
+			h3.person-title
+				span= data.author
+				span.person-meta= ` - ${data.position}`
+			.person-text.text-decorated.text-decorated-3= data.description
+
+//- Person boxed
+	@param {object} data - person data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - person title
+	@param {string} data.description - person description
+	@param {string} data.position - person meta
+mixin person-boxed( data )
+	// Person
+	.person.person-boxed&attributes( attributes )
+		+img( data.img ).person-img
+		.person-inner
+			.person-inner-item.person-content
+				h4.person-title: a( href='team-member.html' )= data.author
+				p.person-text= data.description
+				.person-divider
+				.person-meta= data.position
+			.person-inner-item
+				a.person-button( href='team-member.html' ): span.mdi.mdi-arrow-right
+
+
+//- Person simple
+	@param {object} data - person data object
+	@param {string} data.img - image name|path
+	@param {string} data.author - person title
+	@param {string} data.description - person description
+	@param {string} data.position - person meta
+mixin person-simple( data )
+	// Person
+	.person.person-simple&attributes( attributes )
+		+img( data.img ).person-img
+		.person-inner
+			.person-meta= data.position
+			h4.person-title: a( href='team-member.html' )= data.author

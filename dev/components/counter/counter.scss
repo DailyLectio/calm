@@ -1,0 +1,84 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+
+// Variables
+$counter-color: $gray-900;
+$counter-icon-color: $primary;
+$counter-size: px-to-rem( 60px );
+
+
+// Base
+.counter-value {
+	font-family: $font-family-secondary;
+	font-size: $counter-size * .6;
+	font-weight: 400;
+	line-height: 1;
+	color: $counter-color;
+
+	> * {
+		display: inline-block;
+	}
+}
+
+.counter-icon {
+	margin-top: .2em;
+	margin-left: .23em;
+	font-size: .53em;
+	color: $counter-icon-color;
+	vertical-align: top;
+}
+
+.counter-title {
+	text-transform: uppercase;
+	font-size: $font-size-sm;
+	line-height: 1.16;
+	letter-spacing: 0.06em;
+}
+
+
+// Spacing
+* + .counter-title { margin-top: px-to-rem( 8px ) }
+
+
+// Modifying
+.counter-bordered {
+	padding-left: px-to-rem( 24px );
+	border-left: 1px solid $gray-400;
+}
+
+
+// Context dark
+.context-dark {
+	.counter-value {
+		color: $white;
+	}
+
+	.counter-title {
+		color: rgba( $white, .6 );
+	}
+
+	.counter-bordered {
+		border-left-color: rgba( $white, .1 );
+	}
+}
+
+// Media
+@include media-breakpoint-up( md ) {
+	.counter-value {
+		font-size: $counter-size * .8;
+		line-height: .7;
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.counter-value {
+		font-size: $counter-size;
+		line-height: .7;
+	}
+
+	* + .counter-title { margin-top: px-to-rem( 22px ) }
+}

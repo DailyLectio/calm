@@ -1,0 +1,13 @@
+//- Page title
+	@param {Array} path - navigation path
+mixin page-title ( data )
+	// Page title
+	section.section.page-title.bg-image.context-dark( style=`background-image: url(${data.bgImage});` )&attributes( attributes )
+		if ( block )
+			block
+		.container
+			.row
+				.col-md-10.col-xl-8
+					h2.page-title-text= data.title ? data.title : pageName
+					if ( data.subtitle )
+						h4.page-title-exeption= data.subtitle

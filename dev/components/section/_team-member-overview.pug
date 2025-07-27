@@ -1,0 +1,45 @@
+include ../counter/_counter
+
+// Team member overview
+section.section-md.bg-transparent
+	.container
+		.row.row-30.justify-content-center.justify-content-sm-between
+			.col-8.col-8.col-md-6.col-lg-5.text-center.text-md-start
+				.image-block
+					+img( 'person/person-7-469x565' )
+					.image-block-embed
+						+counter({
+							value: '85',
+							unit: '',
+							title: 'Sermons'
+						})
+			.col-md-6
+				.group-5.d-flex.flex-wrap.align-items-center.justify-content-between
+					h3.h3-big Jane Peters
+					ul.list.list-inline
+						li.list-inline-item: a.icon.icon-md.icon-link-gray.mdi.mdi-facebook(href='#')
+						li.list-inline-item: a.icon.icon-md.icon-link-gray.mdi.mdi-youtube-play(href='#')
+						li.list-inline-item: a.icon.icon-md.icon-link-gray.mdi.mdi-twitter(href='#')
+				p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam sed do eiusmod tempor.
+				.address
+					table
+						tr
+							td.address-title Phone:
+							td.big: a.link.link-inherit( href='tel:#' ) 800.567.1234
+						tr
+							td.address-title E-Mail:
+							td: a.link.link-inherit( href='mailto:#' ) info@demolink.org
+						tr
+							td.address-title Address:
+							td 355 S Grand Ave, Los Angeles, CA 90071
+				.row.row-content.row-5.h4
+					.col-sm-6
+						ul.list.list-divided.list-divided-sm
+							li.list-item Character
+							li.list-item Christian Life
+							li.list-item Healing
+					.col-sm-6
+						ul.list.list-divided.list-divided-sm
+							li.list-item Holy Spirit
+							li.list-item Hope
+							li.list-item Prayer

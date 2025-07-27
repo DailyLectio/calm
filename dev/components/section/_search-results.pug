@@ -1,0 +1,11 @@
+// Search results
+section.section.section-md.bg-transparent( data-preset!={ title:'Search Results', category:'service', reload:true, id:'search-results' } )
+	.container
+		form.form-inline.group-15( action='search-results.html', method='GET', data-rd-search!={
+			output: '.rd-search-results',
+			mode:   'submit'
+		} )
+			.form-inline-group
+				input.form-control( type='text', placeholder='Enter a keyword', autocomplete='off', name='s' )
+			button.btn.btn-lg.btn-primary Search
+		.rd-search-results

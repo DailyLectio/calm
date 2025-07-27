@@ -1,0 +1,55 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../base/mixins";
+@import "../bootstrap/scss/mixins";
+
+
+// Base
+.snackbar {
+	margin-bottom: 0;
+	padding: 15px;
+	font-size: $font-size-sm;
+	border-radius: $border-radius;
+}
+
+.snackbar-inner {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	@include group( 10px, 10px );
+}
+
+.snackbar-title {
+	font-weight: $headings-font-weight;
+}
+
+.snackbar-icon {
+	margin-right: .5em;
+	font-size: 1.3em;
+}
+
+
+// Theming
+@each $color, $value in $theme-colors {
+	.snackbar-#{$color} {
+		background-color: theme-color-level( $color, -10 );
+		.snackbar-title {
+			color: $value;
+		}
+	}
+}
+
+
+// Spacing
+.snackbar + .snackbar { margin-top: 30px; }
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.snackbar {
+		padding: 17px 20px 17px;
+	}
+}

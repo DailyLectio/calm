@@ -1,0 +1,15 @@
+.navbar-contact
+	form.rd-mailform.rd-form( data-form-output='form-navbar', data-form-type='contact', method='post', action='components/rd-mailform/rd-mailform.php' )
+		.row.row-20.row-gutters-20
+			.col-xl-6
+				.form-group
+					input.form-control( type='text', name='name', placeholder='Your Name*', data-constraints='@Required' )
+			.col-xl-6
+				.form-group
+					input.form-control( type='email', name='email', placeholder='Your E-mail*', data-constraints='@Email @Required' )
+			.col-md-12
+				.form-group
+					textarea.form-control( name='comment', placeholder='Message' )
+			.col-sm-12
+				button.btn( type='submit' ) Send message
+	#form-navbar.form-output.snackbar.snackbar-primary

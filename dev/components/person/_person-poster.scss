@@ -1,0 +1,137 @@
+// Base
+.person-poster {
+	position: relative;
+	display: block;
+	max-width: 370px;
+	min-height: 370px;
+	margin-left: auto;
+	margin-right: auto;
+	color: $context-light;
+	box-shadow: $box-shadow;
+	will-change: transform;
+
+	.person-media {
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		transition: $transition-base;
+		overflow: hidden;
+	}
+
+	.person-btn {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		z-index: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 40px;
+		height: 40px;
+		font-size: 24px;
+		color: $primary;
+		background-color: $white;
+		will-change: transform;
+	}
+
+	.person-content {
+		position: absolute;
+		bottom: 0;
+		padding: 7px 44px 38px 20px;
+	}
+
+	.person-title {
+		color: $white;
+	}
+
+	.person-meta {
+		font-style: italic;
+		font-family: $font-family-secondary;
+		letter-spacing: -0.02em;
+		opacity: .6;
+	}
+
+	.person-text {
+		color: rgba($white, .6);
+	}
+
+	&:hover {
+		color: $context-light;
+	}
+
+	* + .person-text { margin-top: 14px }
+}
+
+.person-poster-container {
+	> [class*='col-']:hover {
+		z-index: 1;
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( sm ) {
+	.person-poster {
+		padding-bottom: 117%;
+		max-width: 100%;
+		min-height: 0;
+	}
+}
+
+@include media-breakpoint-up(xl) {
+	.person-poster {
+		.person-btn {
+			width: 60px;
+			height: 60px;
+		}
+	}
+
+	.desktop {
+		.person-poster {
+			box-shadow: none;
+			transition: 0.4s;
+
+			.person-title {
+				transform: translateY( 47px );
+				transition: $transition-base;
+			}
+
+			.person-text {
+				transform: translateY( 20px );
+				transition: $transition-base;
+				opacity: 0;
+			}
+
+			.person-btn {
+				transition: 0.15s;
+				transform: translate( 100%, 100% );
+			}
+
+			&:hover {
+				z-index: 1;
+				box-shadow: 0 20px 30px rgba( $black, 0.8 );
+
+				.person-media {
+					transform: scale( 1.05 );
+				}
+
+				.person-title {
+					transform: translateY( 0 );
+				}
+
+				.person-text {
+					transform: translateY( 0 );
+					transition: 0.4s 0.15s;
+					opacity: 1;
+				}
+
+				.person-btn {
+					transition: 0.4s 0.25s;
+					transform: translate( 2%, 2% );
+				}
+			}
+		}
+	}
+}

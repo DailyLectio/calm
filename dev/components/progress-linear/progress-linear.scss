@@ -1,0 +1,46 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Variables
+$progress-bg-active: $primary;
+$progress-bg: $gray-200;
+
+
+// Base
+.progress-linear-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.progress-linear-body {
+	height: 4px;
+	margin-top: 8px;
+	overflow: hidden;
+	background: $progress-bg;
+}
+
+.progress-linear-bar {
+	height: 100%;
+	width: 0;
+	max-width: 100%;
+	transition: 1s;
+	background: $progress-bg-active;
+}
+
+
+// Spacing
+* + .progress-linear { margin-top: px-to-rem( 18px ) }
+.progress-linear + .progress-linear { margin-top: px-to-rem( 17px ) }
+
+
+// Media
+@include media-breakpoint-up(xl) {
+	* + .progress-linear { margin-top: px-to-rem( 18px ) }
+	.progress-linear + .progress-linear { margin-top: px-to-rem( 30px ) }
+}

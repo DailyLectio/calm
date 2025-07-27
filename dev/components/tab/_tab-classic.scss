@@ -1,0 +1,29 @@
+$tab-border-color: $border-color;
+
+// Base
+.tab-classic {
+	border: 1px solid $tab-border-color;
+
+	.tab-header {
+		padding: px-to-rem( 20px, 15px );
+		border-bottom: 1px solid $tab-border-color;
+	}
+
+	.tab-content {
+		padding: px-to-rem( 20px, 15px );
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.tab-classic {
+		.tab-header {
+			padding: px-to-rem( 26px, 37px );
+		}
+
+		.tab-content {
+			padding: px-to-rem( 24px, 37px );
+		}
+	}
+}

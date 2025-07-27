@@ -1,0 +1,109 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+@import "../base/mixins";
+
+
+// Context dark
+.context-dark {
+	.line-item {
+		&::before {
+			border-bottom-color: rgba( $white, .1 );
+		}
+	}
+}
+
+
+// Media
+@include media-breakpoint-up(md) {
+	.line {
+		position: relative;
+		display: inline-flex;
+		padding-bottom: px-to-rem( 20px );
+	}
+
+	.line-item {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+
+		&::before,
+		&::after {
+			position: absolute;
+			right: px-to-rem( 25px );
+			content: '';
+		}
+
+		&::before {
+			bottom: 3px;
+			width: 100vw;
+			border-bottom: 1px solid $border-color;
+		}
+
+		&::after {
+			bottom: 0;
+			width: 7px;
+			height: 7px;
+			background-color: $primary;
+		}
+	}
+}
+
+@include media-breakpoint-up( lg ) {
+	.line {
+		padding-bottom: px-to-rem( 32px );
+
+		.line-item {
+			&::before,
+			&::after {
+				right: px-to-rem( 75px );
+			}
+		}
+	}
+
+	.line-2  {
+		padding-bottom: px-to-rem( 75px );
+
+		.line-item {
+			&::before,
+			&::after {
+				right: px-to-rem( 6px );
+			}
+		}
+	}
+
+	.line-4 {
+		padding-bottom: px-to-rem( 38px );
+
+		.line-item {
+			&::before,
+			&::after {
+				right: 0;
+			}
+		}
+	}
+}
+
+@include media-breakpoint-up( xxl ) {
+	.line-3 {
+		padding-bottom: 0;
+
+		.line-item {
+			&::before,
+			&::after {
+				top: 27px;
+				right: calc( 100% + 30px );
+				bottom: auto;
+			}
+
+			&::before {
+				top: 30px;
+			}
+		}
+	}
+}

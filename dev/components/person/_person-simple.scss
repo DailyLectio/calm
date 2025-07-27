@@ -1,0 +1,48 @@
+// Thumbnail simple
+.person-simple {
+	position: relative;
+	max-width: 270px;
+	margin-left: auto;
+	margin-right: auto;
+	box-shadow: 0 4px 10px rgba( $gray-900, 0.25 );
+
+	.person-inner {
+		padding: px-to-rem( 20px, 15px, 20px, 40px );
+	}
+
+	.person-meta {
+		position: relative;
+		color: $primary;
+
+		&::before {
+			position: absolute;
+			top: .79em;
+			right: 100%;
+			content: '';
+			width: 15px;
+			height: 1px;
+			background-color: $primary;
+			transform: translateX( -7px );
+		}
+	}
+
+	* + .person-title { margin-top: px-to-rem( 0 ); }
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.person-simple {
+		.person-inner {
+			padding: px-to-rem( 17px, 10px, 19px, 67px );
+		}
+
+		.person-meta {
+			&::before {
+				top: .83em;
+				width: 30px;
+				transform: translateX( -10px );
+			}
+		}
+	}
+}

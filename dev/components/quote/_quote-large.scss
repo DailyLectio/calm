@@ -1,0 +1,100 @@
+// Variables
+$quote-cite-color: $primary;
+$quote-icon-color: $gray-900;
+
+
+// Base
+.quote-large {
+	position: relative;
+
+	.quote-icon-face,
+	.quote-icon-shadow {
+		position: absolute;
+		width: 50px;
+		height: auto;
+		fill: none;
+		stroke-width: 5px;
+	}
+
+	.quote-cite {
+		margin-left: px-to-rem( 18px );
+		color: $primary;
+	}
+
+	.quote-icon-face {
+		stroke: rgba( $quote-icon-color, .3 );
+	}
+
+	.quote-icon-shadow {
+		stroke: rgba( $quote-icon-color, .1 );
+	}
+
+	.quote-body {
+		padding: px-to-rem( 30px, 15px, 0 );
+	}
+
+	.quote-text {
+		font-weight: 300;
+	}
+
+	* + .quote-person { margin-top: px-to-rem( 15px ) }
+}
+
+
+// Context dark
+.context-dark {
+	.quote-large {
+		color: $context-light;
+
+		.quote-text {
+			color: inherit;
+		}
+
+		.quote-icon-face {
+			stroke: rgba($white, .3);
+		}
+
+		.quote-icon-shadow {
+			stroke: rgba($white, .1);
+		}
+	}
+}
+
+// Media
+@include media-breakpoint-up( md ) {
+	.quote-large {
+		.quote-icon-face,
+		.quote-icon-shadow {
+			width: 100px;
+			stroke-width: 2px;
+		}
+
+		.quote-icon-face {
+			left: px-to-rem( 15px );
+		}
+
+		.quote-body {
+			padding: px-to-rem( 60px, 70px, 0 );
+		}
+	}
+}
+
+@include media-breakpoint-up(lg) {
+	.quote-large {
+		.quote-icon-face,
+		.quote-icon-shadow {
+			width: 266px;
+			stroke-width: 1px;
+		}
+
+		.quote-body {
+			padding: px-to-rem( 102px, 30px, 0, 195px );
+		}
+	}
+}
+
+@include media-breakpoint-up( xl ) {
+	.quote-large {
+		* + .quote-person { margin-top: px-to-rem( 24px ) }
+	}
+}

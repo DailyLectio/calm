@@ -1,0 +1,96 @@
+@import "../bootstrap/scss/functions";
+@import "../base/functions";
+@import "../base/variables";
+@import "../bootstrap/scss/variables";
+
+$table-border-color:          $gray-200;
+
+@import "../bootstrap/scss/mixins";
+@import "../bootstrap/scss/tables";
+
+
+// Base
+.table {
+	font-weight: 400;
+	margin-bottom: 0;
+
+	th,
+	td {
+		padding: px-to-rem( 17px, 15px );
+	}
+}
+
+
+// Spacing
+* + .table,
+* + .table-container { margin-top: px-to-rem( 20px ) }
+
+
+// Table filled
+.table-filled {
+	color: $gray-900;
+	background-color: $gray-100;
+	border: $table-border-width solid $table-border-color;
+
+	tr:not( :last-child ) {
+		border-bottom: $table-border-width solid $table-border-color;
+	}
+
+	thead th {
+		border-bottom: 0;
+	}
+
+	td, th {
+		border: none;
+	}
+}
+
+
+// Table cart
+.table-cart {
+	min-width: 450px;
+
+	td, th {
+		&:first-child {padding-left: 0; }
+		&:last-child { padding-right: 0; }
+	}
+
+	.table-cart-spinner {
+		min-width: 99px;
+	}
+}
+
+
+// Table text align
+.table-align-center {
+	th, td {
+		vertical-align: middle;
+	}
+}
+
+.table-align-1 {
+	td, th {
+		&:last-child { text-align: right }
+	}
+}
+
+
+// Media
+@include media-breakpoint-up( lg ) {
+	.table {
+		th,
+		td {
+			padding: px-to-rem( 17px, 27px );
+		}
+	}
+
+	.table-cart {
+		th,
+		td {
+			padding: px-to-rem( 36px, 27px );
+		}
+	}
+
+	* + .table,
+	* + .table-container { margin-top: px-to-rem( 27px ) }
+}

@@ -1,0 +1,27 @@
+include ../logo/_logo
+include ../rights/_rights
+
+// Footer contact
+footer.footer-contact.context-dark.bg-900.text-center
+	.container
+		.footer-row
+			.footer-logo
+				a.logo-link( href= 'index.html' )
+					+img( logo.inverse2, { retina: true } )
+		.footer-row
+			ul.footer-menu
+				li: a( href='about-us.html' ) About
+				li: a( href='donations.html' ) Donations
+				li: a( href='sermons.html' ) Events
+				li: a( href='sermons.html' ) Sermons
+				li: a( href='contact-us.html' ) Contact us
+		.footer-row
+			h4 Call us 24\7
+			a.link.link-large( href='tel:#' ) 800.567.1234
+			ul.social.social-bordered.footer-social
+				li: a.social-icon.icon.icon-md.mdi-youtube-play( href='#' )
+				li: a.social-icon.icon.icon-md.mdi-linkedin( href='#' )
+				li: a.social-icon.icon.icon-md.mdi-twitter( href='#' )
+		.footer-row
+			.h6 355 S Grand Ave, Los Angeles, CA 90071
+			+rights
