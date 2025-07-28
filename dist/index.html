@@ -1,192 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>FaithLinks Daily | Daily Lectio</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="images/favicon.ico" />
-    <link rel="stylesheet" href="components/base/base.css" />
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet" />
-    <style>
-      body {
-        font-family: 'EB Garamond', serif;
-        background: #fff;
-        color: #222;
-        margin: 0 auto;
-        padding: 0;
+<head>
+  <meta charset="utf-8" />
+  <title>FaithLinks Daily | Daily Lectio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <!-- Calm base CSS -->
+  <link rel="stylesheet" href="components/base/base.css" />
+  <!-- Google Font EB Garamond -->
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'EB Garamond', serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Navbar styling */
+    nav.navbar {
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 0.5rem 1rem;
+      min-height: 60px;
+    }
+    nav.navbar .navbar-brand img {
+      height: 60px;
+      width: auto;
+      display: block;
+    }
+    nav.navbar ul.navbar-nav {
+      display: flex;
+      gap: 1.5rem;
+      font-family: 'EB Garamond', serif;
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    nav.navbar a.nav-link {
+      color: #115293;
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+      display: block;
+    }
+    nav.navbar a.nav-link:hover,
+    nav.navbar a.nav-link:focus {
+      color: #1a5da3;
+      text-decoration: underline;
+    }
+    /* Quote Hero Section */
+    .quote-hero {
+      background: rgba(26, 93, 163, 0.11); /* Soft Marian Blue */
+      margin-bottom: 3rem;
+      padding: 3rem 1rem;
+    }
+    .quote-text {
+      font-family: 'EB Garamond', serif;
+      font-size: 3.4rem;
+      font-style: italic;
+      font-weight: 500;
+      color: #193865;
+      line-height: 1.2;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+      user-select: text;
+    }
+    .quote-citation {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.3rem;
+      font-style: normal;
+      font-weight: 400;
+      max-width: 900px;
+      margin: 0.6rem auto 0 auto;
+      color: #193865;
+      user-select: text;
+    }
+    /* Main feed container */
+    .container-main {
+      max-width: 1080px;
+      margin: 0 auto 3rem auto;
+      padding: 0 1rem;
+    }
+    /* Alternating card sections */
+    .section-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    /* A version: image right, text left */
+    .section-row.a-version {
+      flex-direction: row-reverse;
+    }
+    /* B version: image left, text right */
+    .section-row.b-version {
+      flex-direction: row;
+    }
+    /* Column text */
+    .section-text {
+      flex: 1 1 60%;
+      background: #f7f8fc;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+      color: #1a5da3;
+      font-weight: 600;
+    }
+    .section-text h2 {
+      margin-top: 0;
+      font-family: 'EB Garamond', serif;
+      font-weight: 700;
+      font-size: 1.7rem;
+      margin-bottom: 0.5rem;
+    }
+    .section-text p {
+      color: #193865;
+      font-weight: 400;
+      font-family: 'EB Garamond', serif;
+      font-size: 1.12rem;
+      margin: 0;
+      white-space: pre-line; /* preserve line breaks from JSON */
+    }
+    /* Column image */
+    .section-image {
+      flex: 1 1 35%;
+      max-width: 350px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+    .section-image img {
+      width: 100%;
+      border-radius: 8px;
+      display: block;
+    }
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 2rem 1rem;
+      border-top: 1px solid #ccc;
+      font-family: 'EB Garamond', serif;
+      color: #666;
+      font-size: 0.95rem;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .section-row {
+        flex-direction: column !important;
       }
-      .card img {
+      .section-image {
         max-width: 100%;
-        height: auto;
-        display: block;
+        margin-bottom: 1rem;
       }
-      .card-title {
-        font-weight: 500;
-        font-size: 1.25rem;
-        color: #1a5da3;
+      .section-text {
+        width: 100%;
       }
-      .card {
-        border: none;
-        border-radius: 6px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        margin-bottom: 2rem;
-      }
-      .section-header, blockquote {
-        font-family: 'EB Garamond', serif;
-        font-weight: 500;
-        font-style: italic;
-        font-size: 1.75rem;
+      .quote-text, .quote-citation {
+        max-width: 100%;
+        font-size: 2.2rem;
         text-align: center;
-        margin: 2rem auto 1rem;
       }
-      .nav-bar {
-        text-align: center;
-        padding: 1rem;
-        background: #f9f9f9;
+      .quote-hero {
+        padding: 2rem 1rem;
       }
-      .nav-bar a {
-        margin: 0 1rem;
-        text-decoration: none;
-        color: #1a5da3;
-        font-weight: 500;
-      }
-      .footer {
-        text-align: center;
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 1px solid #ccc;
-        font-size: 0.95rem;
-        color: #666;
-      }
-    </style>
-    <script src="components/base/core.min.js"></script>
-    <script src="components/base/script.js"></script>
-  </head>
-  <body>
-    <div class="nav-bar">
-      <a id="btn-daily-scripture" href="#" target="_blank">Daily Scripture</a>
-      <a href="exegesis.html">Deep Dive</a>
-      <a href="shop.html">Shop</a>
-      <a href="donations.html">Donate</a>
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar with logo left, nav right -->
+  <nav class="navbar" role="navigation" aria-label="Main menu">
+    <div class="container-fluid" style="display:flex; align-items:center; justify-content:space-between;">
+      <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
+        <img src="images/logo/logo.png" alt="FaithLinks logo" loading="lazy" />
+      </a>
+      <ul class="navbar-nav">
+        <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
+        <li><a href="shop.html" class="nav-link">Shop</a></li>
+        <li><a href="donations.html" class="nav-link">Donate</a></li>
+        <li><a href="past-reflections.html" class="nav-link">Past Reflections</a></li>
+      </ul>
     </div>
+  </nav>
 
-    <blockquote id="quote">Loading quote...</blockquote>
-    <p class="section-header" id="summary">Loading summary...</p>
-
-    <div class="container" style="max-width: 1080px; margin: auto;">
-      <div class="card" id="theological_synthesis">
-        <img src="images/image-27-368x228.jpg" alt="Theological Synthesis" />
-        <div class="card-body">
-          <h5 class="card-title">Theological Synthesis</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="psalm_summary">
-        <img src="images/image-15-368x228.jpg" alt="Psalm Summary" />
-        <div class="card-body">
-          <h5 class="card-title">Psalm Summary</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="second_reading">
-        <img src="images/image-20-370x257.jpg" alt="Second Reading" />
-        <div class="card-body">
-          <h5 class="card-title">Second Reading</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="gospel_summary">
-        <img src="images/image-11-357x494.jpg" alt="Gospel Summary" />
-        <div class="card-body">
-          <h5 class="card-title">Gospel Summary</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="saint_reflection">
-        <img src="images/image-1-349x358.jpg" alt="Saint Reflection" />
-        <div class="card-body">
-          <h5 class="card-title">Saint Reflection</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="daily_prayer">
-        <img src="images/image-1-370x266.jpg" alt="Daily Prayer" />
-        <div class="card-body">
-          <h5 class="card-title">Daily Prayer</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <div class="card" id="summary_card">
-        <img src="images/image-28-368x228.jpg" alt="Daily Summary" />
-        <div class="card-body">
-          <h5 class="card-title">Scripture Summary</h5>
-          <div class="card-text"></div>
-        </div>
-      </div>
-
-      <!-- Exegesis Teaser -->
-      <div class="card" id="exegesis">
-        <img src="images/image-23-368x228.jpg" alt="Exegesis" />
-        <div class="card-body">
-          <h5 class="card-title">Exegesis</h5>
-          <div class="card-text"></div>
-          <a href="exegesis.html" class="btn btn-outline-primary mt-3">Deep Dive &rsaquo;</a>
-        </div>
-      </div>
+  <!-- Quote Hero Section -->
+  <section class="quote-hero" aria-label="Daily Quote">
+    <div class="container" style="max-width:1080px;">
+      <blockquote id="quote" class="quote-text" tabindex="0">
+        Loading daily quote...
+      </blockquote>
+      <p id="quote-citation" class="quote-citation" tabindex="0"></p>
     </div>
+  </section>
 
-    <div class="footer">
-      <p>
-        <a href="about-us.html">About</a> |
-        <a href="past-reflections.html">Past Reflections</a>
-      </p>
-      <p>© 2025 Daily Lectio Media LLC | FaithLinks™ - Wear the Word. Grow in Grace.</p>
-    </div>
+  <!-- Main content sections -->
+  <main class="container-main" role="main">
 
-    <script>
-      (async () => {
-        try {
-          const res = await fetch('./devotions.json');
-          const data = await res.json();
-          const today = new Date().toISOString().split('T')[0];
-          let entry = data[today] || (Array.isArray(data) ? data.find(d => d.date === today) : null);
-          if (!entry) return;
+    <!-- Lectio Links (summary) A version image right -->
+    <section class="section-row a-version" aria-labelledby="lectio-links-title">
+      <div class="section-text">
+        <h2 id="lectio-links-title">Lectio Links</h2>
+        <p id="summary">Loading summary...</p>
+      </div>
+      <div class="section-image">
+        <img src="images/image-28-368x228.jpg" alt="Lectio Links image" />
+      </div>
+    </section>
 
-          document.getElementById('btn-daily-scripture').href = entry.usccb_link || "#";
-          document.getElementById('quote').textContent = entry.quote || '';
-          document.getElementById('summary').textContent = entry.summary || '';
+    <!-- Psalm Summary B version image left -->
+    <section class="section-row b-version" aria-labelledby="psalm-summary-title">
+      <div class="section-image">
+        <img src="images/image-15-368x228.jpg" alt="Psalm Summary image" />
+      </div>
+      <div class="section-text">
+        <h2 id="psalm-summary-title">Psalm Summary</h2>
+        <p id="psalm_summary">Loading Psalm summary...</p>
+      </div>
+    </section>
 
-          function updateCard(id, value) {
-            const card = document.getElementById(id);
-            if (!card) return;
-            const text = card.querySelector('.card-text');
-            if (value) {
-              text.innerHTML = value;
-              card.classList.remove('d-none');
-            } else {
-              card.classList.add('d-none');
-            }
-          }
+    <!-- Gospel Summary A version -->
+    <section class="section-row a-version" aria-labelledby="gospel-summary-title">
+      <div class="section-text">
+        <h2 id="gospel-summary-title">Gospel Summary</h2>
+        <p id="gospel_summary">Loading Gospel summary...</p>
+      </div>
+      <div class="section-image">
+        <img src="images/image-11-357x494.jpg" alt="Gospel Summary image" />
+      </div>
+    </section>
 
-          updateCard('theological_synthesis', entry.theological_synthesis);
-          updateCard('psalm_summary', entry.psalm_summary);
-          updateCard('second_reading', entry.second_reading);
-          updateCard('gospel_summary', entry.gospel_summary);
-          updateCard('saint_reflection', entry.saint_reflection);
-          updateCard('daily_prayer', entry.daily_prayer);
-          updateCard('summary_card', entry.summary);
-          updateCard('exegesis', entry.exegesis?.substring(0, 300) + '…');
-        } catch (err) {
-          console.error('Error loading devotions:', err);
-        }
-      })();
-    </script>
-  </body>
+    <!-- Saint Reflection B version -->
+    <section class="section-row b-version" aria-labelledby="saint-reflection-title">
+      <div class="section-image">
+        <img src="images/image-1-349x358.jpg" alt="Saint Reflection image" />
+      </div>
+      <div class="section-text">
+        <h2 id="saint-reflection-title">Saint Reflection</h2>
+        <p id="saint_reflection">Loading saint reflection...</p>
+      </div>
+    </section>
+
+    <!-- Daily Prayer A version -->
+    <section class="section-row a-version" aria-labelledby="daily-prayer-title">
+      <div class="section-text">
+        <h2 id="daily-prayer-title">Daily Prayer</h2>
+        <p id="daily_prayer">Loading daily prayer...</p>
+      </div>
+      <div class="section-image">
+        <img src="images/image-1-370x266.jpg" alt="Daily Prayer image" />
+      </div>
+    </section>
+
+    <!-- Theological Synthesis B version -->
+    <section class="section-row b-version" aria-labelledby="theological-synthesis-title">
+      <div class="section-image">
+        <img src="images/image-1-425x338.jpg" alt="Theological Synthesis image" />
+      </div>
+      <div class="section-text">
+        <h2 id="theological-synthesis-title">Theological Synthesis</h2>
+        <p id="theological_synthesis">Loading theological synthesis...</p>
+      </div>
+    </section>
+
+    <!-- Second Reading A version -->
+    <section class="section-row a-version" aria-labelledby="second-reading-title">
+      <div class="section-text">
+        <h2 id="second-reading-title">Second Reading</h2>
+        <p id="second_reading">Loading second reading...</p>
+      </div>
+      <div class="section-image">
+        <img src="images/image-20-370x257.jpg" alt="Second Reading image" />
+      </div>
+    </section>
+
+    <!-- Exegesis Teaser B version -->
+    <section class="section-row b-version" aria-labelledby="exegesis-title">
+      <div class="section-image">
+        <img src="images/image-23-368x228.jpg" alt="Exegesis image" />
+      </div>
+      <div class="section-text">
+        <h2 id="exegesis-title">Exegesis</h2>
+        <p id="exegesis">Loading exegesis teaser...</p>
+        <a href="exegesis.html" class="btn btn-outline-primary" style="margin-top:1rem;">Deep Dive &rsaquo;</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
+  </footer>
+
+  <script>
+  (async () => {
+    try {
+      const res = await fetch('./devotions.json');
+      const data = await res.json();
+      const today = new Date().toISOString().slice(0, 10);
+
+      let entry = Array.isArray(data)
+        ? data.find(d => d.date === today)
+        : data[today];
+      
+      if (!entry) {
+        // Clear all fields gracefully
+        document.getElementById('quote').textContent = "Today's reflection is coming soon.";
+        document.getElementById('quote-citation').textContent = "";
+        ['summary','psalm_summary','gospel_summary','saint_reflection','daily_prayer','theological_synthesis','second_reading','exegesis'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.textContent = "";
+        });
+        return;
+      }
+
+      // Extract quote and citation from the quote field
+      const quoteMatch = entry.quote.match(/(.*?)(\s*\([A-Za-z0-9 :]+\))\s*$/);
+      let mainQuote = entry.quote;
+      let citation = "";
+
+      if (quoteMatch) {
+        mainQuote = quoteMatch[1].trim();
+        citation = quoteMatch[2].trim();
+      }
+
+      document.getElementById('quote').textContent = `"${mainQuote}"`;
+      document.getElementById('quote-citation').textContent = citation;
+
+      // Fill main content feeds
+      document.getElementById('summary').textContent = entry.summary || '';
+      document.getElementById('psalm_summary').textContent = entry.psalm_summary || '';
+      document.getElementById('gospel_summary').textContent = entry.gospel_summary || '';
+      document.getElementById('saint_reflection').textContent = entry.saint_reflection || '';
+      document.getElementById('daily_prayer').textContent = entry.daily_prayer || '';
+      document.getElementById('theological_synthesis').textContent = entry.theological_synthesis || '';
+      document.getElementById('second_reading').textContent = entry.second_reading || '';
+      // Show only first 300 chars for exegesis teaser
+      let exegesisEl = document.getElementById('exegesis');
+      if (entry.exegesis) {
+        exegesisEl.textContent = entry.exegesis.substring(0, 300) + "…";
+      } else {
+        exegesisEl.textContent = "";
+      }
+
+    } catch (err) {
+      console.error('Failed to load devotions.json:', err);
+      document.getElementById('quote').textContent = "Welcome to FaithLinks Daily Reflections.";
+      document.getElementById('quote-citation').textContent = "";
+    }
+  })();
+  </script>
+</body>
 </html>
