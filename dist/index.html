@@ -1,204 +1,192 @@
-<body>
-  <!-- HEADER WITH LOGO -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="index.html">
-        <img src="images/logo/logo.png" alt="FaithLinks Logo" width="60" height="60" style="margin-right:14px;"> 
-        <span class="fw-bold" style="font-family:'EB Garamond',serif; font-size:1.5rem; color:#1A5DA3;">FaithLinks</span>
-      </a>
-      <div>
-        <a class="nav-link d-inline fw-bold" id="btn-daily-scripture" target="_blank" href="#">Daily Scripture</a>
-        <a class="nav-link d-inline fw-bold" href="exegesis.html">Deep Dive</a>
-        <a class="nav-link d-inline fw-bold" href="shop.html">Shop</a>
-        <a class="nav-link d-inline fw-bold" href="donations.html">Donate</a>
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FaithLinks Daily | Daily Lectio</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="components/base/base.css" />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'EB Garamond', serif;
+        background: #fff;
+        color: #222;
+        margin: 0 auto;
+        padding: 0;
+      }
+      .card img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      .card-title {
+        font-weight: 500;
+        font-size: 1.25rem;
+        color: #1a5da3;
+      }
+      .card {
+        border: none;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+      }
+      .section-header, blockquote {
+        font-family: 'EB Garamond', serif;
+        font-weight: 500;
+        font-style: italic;
+        font-size: 1.75rem;
+        text-align: center;
+        margin: 2rem auto 1rem;
+      }
+      .nav-bar {
+        text-align: center;
+        padding: 1rem;
+        background: #f9f9f9;
+      }
+      .nav-bar a {
+        margin: 0 1rem;
+        text-decoration: none;
+        color: #1a5da3;
+        font-weight: 500;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #ccc;
+        font-size: 0.95rem;
+        color: #666;
+      }
+    </style>
+    <script src="components/base/core.min.js"></script>
+    <script src="components/base/script.js"></script>
+  </head>
+  <body>
+    <div class="nav-bar">
+      <a id="btn-daily-scripture" href="#" target="_blank">Daily Scripture</a>
+      <a href="exegesis.html">Deep Dive</a>
+      <a href="shop.html">Shop</a>
+      <a href="donations.html">Donate</a>
     </div>
-  </nav>
 
-  <!-- QUOTE HERO -->
-  <section class="py-4 my-4 rounded" style="background:rgba(26,93,163,0.11);">
-    <blockquote class="text-center" id="quote" style="
-      font-family:'EB Garamond',serif;
-      font-size:2.3rem;
-      font-style:italic;
-      color:#193865;
-      margin: 0;
-      font-weight: 500;
-    "></blockquote>
-  </section>
+    <blockquote id="quote">Loading quote...</blockquote>
+    <p class="section-header" id="summary">Loading summary...</p>
 
-  <!-- CARD SECTIONS START -->
-
-  <div class="container" style="max-width:1080px;">
-
-    <!-- LECTIO LINKS (SUMMARY) - A VERSION: Image Right -->
-    <div class="row align-items-center mb-4 flex-row-reverse">
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f7f8fc;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Lectio Links</h5>
-            <div class="card-text" id="summary"></div>
-          </div>
+    <div class="container" style="max-width: 1080px; margin: auto;">
+      <div class="card" id="theological_synthesis">
+        <img src="images/image-27-368x228.jpg" alt="Theological Synthesis" />
+        <div class="card-body">
+          <h5 class="card-title">Theological Synthesis</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-28-368x228.jpg" alt="Lectio Links" class="img-fluid rounded shadow-sm">
-      </div>
-    </div>
 
-    <!-- PSALM SUMMARY - B VERSION: Image Left -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-15-368x228.jpg" alt="Psalm Summary" class="img-fluid rounded shadow-sm">
-      </div>
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f8fafb;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Psalm Summary</h5>
-            <div class="card-text" id="psalm_summary"></div>
-          </div>
+      <div class="card" id="psalm_summary">
+        <img src="images/image-15-368x228.jpg" alt="Psalm Summary" />
+        <div class="card-body">
+          <h5 class="card-title">Psalm Summary</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-    </div>
 
-    <!-- GOSPEL SUMMARY - A VERSION: Image Right -->
-    <div class="row align-items-center mb-4 flex-row-reverse">
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f7f8fc;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Gospel Summary</h5>
-            <div class="card-text" id="gospel_summary"></div>
-          </div>
+      <div class="card" id="second_reading">
+        <img src="images/image-20-370x257.jpg" alt="Second Reading" />
+        <div class="card-body">
+          <h5 class="card-title">Second Reading</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-11-357x494.jpg" alt="Gospel Summary" class="img-fluid rounded shadow-sm">
-      </div>
-    </div>
 
-    <!-- SAINT REFLECTION - B VERSION: Image Left -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-1-349x358.jpg" alt="Saint Reflection" class="img-fluid rounded shadow-sm">
-      </div>
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f8fafb;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Saint Reflection</h5>
-            <div class="card-text" id="saint_reflection"></div>
-          </div>
+      <div class="card" id="gospel_summary">
+        <img src="images/image-11-357x494.jpg" alt="Gospel Summary" />
+        <div class="card-body">
+          <h5 class="card-title">Gospel Summary</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-    </div>
 
-    <!-- DAILY PRAYER - A VERSION: Image Right -->
-    <div class="row align-items-center mb-4 flex-row-reverse">
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f7f8fc;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Daily Prayer</h5>
-            <div class="card-text" id="daily_prayer"></div>
-          </div>
+      <div class="card" id="saint_reflection">
+        <img src="images/image-1-349x358.jpg" alt="Saint Reflection" />
+        <div class="card-body">
+          <h5 class="card-title">Saint Reflection</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-1-370x266.jpg" alt="Daily Prayer" class="img-fluid rounded shadow-sm">
-      </div>
-    </div>
 
-    <!-- THEOLOGICAL SYNTHESIS - B VERSION: Image Left -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-1-425x338.jpg" alt="Theological Synthesis" class="img-fluid rounded shadow-sm">
-      </div>
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f8fafb;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Theological Synthesis</h5>
-            <div class="card-text" id="theological_synthesis"></div>
-          </div>
+      <div class="card" id="daily_prayer">
+        <img src="images/image-1-370x266.jpg" alt="Daily Prayer" />
+        <div class="card-body">
+          <h5 class="card-title">Daily Prayer</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-    </div>
 
-    <!-- SECOND READING - A VERSION: Image Right -->
-    <div class="row align-items-center mb-4 flex-row-reverse">
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f7f8fc;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Second Reading</h5>
-            <div class="card-text" id="second_reading"></div>
-          </div>
+      <div class="card" id="summary_card">
+        <img src="images/image-28-368x228.jpg" alt="Daily Summary" />
+        <div class="card-body">
+          <h5 class="card-title">Scripture Summary</h5>
+          <div class="card-text"></div>
         </div>
       </div>
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-20-370x257.jpg" alt="Second Reading" class="img-fluid rounded shadow-sm">
-      </div>
-    </div>
 
-    <!-- EXEGESIS TEASER - B VERSION: Image Left -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-5 mb-3 mb-md-0">
-        <img src="images/image-23-368x228.jpg" alt="Exegesis" class="img-fluid rounded shadow-sm">
-      </div>
-      <div class="col-md-7">
-        <div class="card border-0 shadow" style="background:#f8fafb;">
-          <div class="card-body">
-            <h5 class="card-title mb-2 fw-bold" style="color:#1A5DA3;">Exegesis</h5>
-            <div class="card-text" id="exegesis"></div>
-            <a href="exegesis.html" class="btn btn-outline-primary mt-3">Deep Dive &rsaquo;</a>
-          </div>
+      <!-- Exegesis Teaser -->
+      <div class="card" id="exegesis">
+        <img src="images/image-23-368x228.jpg" alt="Exegesis" />
+        <div class="card-body">
+          <h5 class="card-title">Exegesis</h5>
+          <div class="card-text"></div>
+          <a href="exegesis.html" class="btn btn-outline-primary mt-3">Deep Dive &rsaquo;</a>
         </div>
       </div>
     </div>
 
-  </div>
+    <div class="footer">
+      <p>
+        <a href="about-us.html">About</a> |
+        <a href="past-reflections.html">Past Reflections</a>
+      </p>
+      <p>© 2025 Daily Lectio Media LLC | FaithLinks™ - Wear the Word. Grow in Grace.</p>
+    </div>
 
-  <!-- FOOTER  -->
-  <footer class="text-center py-3 border-top" style="margin-top:2rem;">
-    <p>
-      <a href="about-us.html">About</a> |
-      <a href="past-reflections.html">Past Reflections</a>
-    </p>
-    <small class="text-muted">© 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.</small>
-  </footer>
+    <script>
+      (async () => {
+        try {
+          const res = await fetch('./devotions.json');
+          const data = await res.json();
+          const today = new Date().toISOString().split('T')[0];
+          let entry = data[today] || (Array.isArray(data) ? data.find(d => d.date === today) : null);
+          if (!entry) return;
 
-  <!-- JS: JSON LOADER TO FILL EACH ID -->
-  <script>
-    (async () => {
-      try {
-        const res = await fetch('./devotions.json');
-        const data = await res.json();
-        const today = new Date().toISOString().split('T')[0];
-        let entry = data[today] || (Array.isArray(data) ? data.find(d => d.date === today) : null);
-        if (!entry) return;
+          document.getElementById('btn-daily-scripture').href = entry.usccb_link || "#";
+          document.getElementById('quote').textContent = entry.quote || '';
+          document.getElementById('summary').textContent = entry.summary || '';
 
-        document.getElementById('btn-daily-scripture').href = entry.usccb_link || "#";
-        document.getElementById('quote').innerHTML = "“" + (entry.quote||"") + "”";
-        document.getElementById('summary').textContent = entry.summary || '';
-        [
-          ['psalm_summary','psalm_summary'],
-          ['gospel_summary','gospel_summary'],
-          ['saint_reflection','saint_reflection'],
-          ['daily_prayer','daily_prayer'],
-          ['theological_synthesis','theological_synthesis'],
-          ['second_reading','second_reading'],
-          ['exegesis','exegesis']
-        ].forEach(([id, field]) => {
-          const card = document.getElementById(id);
-          if (card) {
+          function updateCard(id, value) {
+            const card = document.getElementById(id);
+            if (!card) return;
             const text = card.querySelector('.card-text');
-            if (entry[field]) {
-              text.innerHTML = id==="exegesis" ? entry[field].substring(0,320)+'…' : entry[field];
-              card.parentElement.parentElement.classList.remove('d-none');
+            if (value) {
+              text.innerHTML = value;
+              card.classList.remove('d-none');
             } else {
-              card.parentElement.parentElement.classList.add('d-none');
+              card.classList.add('d-none');
             }
           }
-        });
-      } catch (err) {
-        document.getElementById('quote').textContent = "Welcome to FaithLinks: Daily Reflections.";
-      }
-    })();
-  </script>
-</body>
+
+          updateCard('theological_synthesis', entry.theological_synthesis);
+          updateCard('psalm_summary', entry.psalm_summary);
+          updateCard('second_reading', entry.second_reading);
+          updateCard('gospel_summary', entry.gospel_summary);
+          updateCard('saint_reflection', entry.saint_reflection);
+          updateCard('daily_prayer', entry.daily_prayer);
+          updateCard('summary_card', entry.summary);
+          updateCard('exegesis', entry.exegesis?.substring(0, 300) + '…');
+        } catch (err) {
+          console.error('Error loading devotions:', err);
+        }
+      })();
+    </script>
+  </body>
+</html>

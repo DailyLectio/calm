@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FaithLinks Daily — Deep Dive Exegesis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="components/base/base.css" />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'EB Garamond', serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Navbar adjusted for header */
+    nav.navbar {
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 0.5rem 1rem;
+      min-height: 60px;
+    }
+    nav.navbar a.navbar-brand img {
+      height: 50px;
+      width: auto;
+    }
+    nav.navbar ul.navbar-nav {
+      gap: 1.5rem;
+      font-weight: 600;
+      font-family: 'EB Garamond', serif;
+    }
+    main.container {
+      flex: 1;
+      max-width: 1100px;
+      margin: 2rem auto;
+      display: flex;
+      gap: 2rem;
+      padding: 0 1rem;
+    }
+    section.content {
+      flex: 3;
+    }
+    section.sidebar {
+      flex: 1;
+      border-left: 1px solid #ddd;
+      padding-left: 1rem;
+      font-size: 1.1rem;
+    }
+
+    section.sidebar h4 {
+      margin-bottom: 1rem;
+      color: #1A5DA3;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+    section.sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    section.sidebar ul li {
+      margin-bottom: 0.8rem;
+    }
+    section.sidebar ul li a {
+      text-decoration: none;
+      color: #115293;
+      font-family: 'EB Garamond', serif;
+    }
+    section.sidebar ul li a:hover {
+      text-decoration: underline;
+    }
+
+    .banner-image {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      margin-bottom: 2rem;
+    }
+    .exegesis-content {
+      font-size: 1.15rem;
+      line-height: 1.6;
+    }
+    .exegesis-content p {
+      margin-bottom: 1.25rem;
+    }
+
+    footer.footer {
+      max-width: 1100px;
+      margin: 3rem auto;
+      padding: 1rem 1rem;
+      font-size: 0.9rem;
+      color: #666;
+      border-top: 1px solid #ccc;
+      text-align: center;
+      font-family: 'EB Garamond', serif;
+    }
+
+    @media (max-width: 768px) {
+      main.container {
+        flex-direction: column;
+        margin: 1rem;
+      }
+      section.sidebar {
+        border-left: none;
+        padding-left: 0;
+        margin-top: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header / Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid" style="display:flex; align-items:center; justify-content:space-between;">
+      <a class="navbar-brand" href="index.html" aria-label="FaithLinks Home">
+        <img src="images/logo/logo.png" alt="FaithLinks logo" />
+      </a>
+      <ul class="navbar-nav d-flex flex-row gap-4">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="shop.html" class="nav-link">Shop</a></li>
+        <li><a href="donations.html" class="nav-link">Donate</a></li>
+        <li><a href="past-reflections.html" class="nav-link">Past Reflections</a></li>
+      </ul>
+    </div>
+  </nav>
+
+<div class="tags" aria-label="Liturgical Tags">
+  <span>Cycle: <strong id="cycle-tag">...</strong></span>
+  <span>Weekday Cycle: <strong id="weekday-cycle-tag">...</strong></span>
+  <span>Feast: <strong id="feast-tag">...</strong></span>
+  <span>Gospel: <strong id="gospel-tag">...</strong></span>
+</div>
+
+  <!-- Main Content -->
+  <main class="container" role="main">
+    <!-- Exegesis content -->
+    <section class="content" aria-labelledby="exegesis-title">
+      <img
+        src="images/image-23-368x228.jpg"
+        alt="Exegesis banner"
+        class="banner-image"
+      />
+      <h1 id="exegesis-title" style="color:#1A5DA3; font-weight: 700; font-family:'EB Garamond', serif; margin-bottom:1rem;">Daily Exegesis</h1>
+      <article class="exegesis-content" id="exegesis-text">
+        Loading exegesis content...
+      </article>
+    </section>
+
+    <!-- Sidebar with current week days -->
+    <aside class="sidebar" aria-label="Weekly Navigation">
+      <h4>This Week's Reflections</h4>
+      <ul id="weekdays-list">
+        <!-- Populated by JS -->
+      </ul>
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
+  </footer>
+
+  <script>
+    (async () => {
+      try {
+        // Load all devotions
+        const res = await fetch('./devotions.json');
+        const data = await res.json();
+
+        // Get today's date string in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+
+        // Retrieve today's entry
+        let entry = data[today] || (Array.isArray(data) ? data.find(d => d.date === today) : null);
+        if (!entry) {
+          document.getElementById('exegesis-text').textContent = "No exegesis available today.";
+          return;
+
+          document.getElementById('cycle-tag').textContent = entry.cycle || 'N/A';
+          document.getElementById('weekday-cycle-tag').textContent = entry.weekday_cycle || 'N/A';
+          document.getElementById('feast-tag').textContent = entry.feast || 'None';
+          document.getElementById('gospel-tag').textContent = entry.gospel_reference || 'Unknown';
+
+        }
+
+        // Display today's exegesis
+        document.getElementById('exegesis-text').textContent = entry.exegesis || "No exegesis for today.";
+
+        // Populate sidebar with the current week's days (Monday to Sunday)
+        // Determine the current week Monday
+        const todayDate = new Date();
+        const dayOfWeek = todayDate.getDay(); // Sunday = 0
+        const mondayOffset = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek; // shift Sunday to previous Monday
+        const monday = new Date(todayDate);
+        monday.setDate(todayDate.getDate() + mondayOffset);
+
+        const weekdaysList = document.getElementById('weekdays-list');
+        weekdaysList.innerHTML = '';
+
+        // Helper to get day name by index (0=Sunday)
+        const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+        // Build list for Monday to Sunday
+        for (let i = 0; i < 7; i++) {
+          let dateIter = new Date(monday);
+          dateIter.setDate(monday.getDate() + i);
+          const yyyy = dateIter.getFullYear();
+          const mm = (dateIter.getMonth() + 1).toString().padStart(2, '0');
+          const dd = dateIter.getDate().toString().padStart(2, '0');
+          const dateStr = `${yyyy}-${mm}-${dd}`;
+
+          // Link to Past Reflections page with date query parameter (to be handled later)
+          const link = `past-reflections.html?date=${dateStr}`;
+
+          // Highlight today
+          const isToday = dateStr === today;
+
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = link;
+          a.textContent = dayNames[(1 + i) % 7];  // Show Monday as index 0, etc.
+          a.style.fontWeight = isToday ? '700' : 'normal';
+          a.style.color = isToday ? '#1A5DA3' : '#115293';
+          a.style.textDecoration = 'none';
+          li.appendChild(a);
+          weekdaysList.appendChild(li);
+        }
+      } catch (err) {
+        console.error('Failed to load exegesis:', err);
+        document.getElementById('exegesis-text').textContent =
+          'Sorry, could not load today’s exegesis.';
+      }
+    })();
+  </script>
+</body>
+</html>
