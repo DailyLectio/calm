@@ -4,23 +4,42 @@
   <meta charset="utf-8" />
   <title>Faithful Links | Daily Reflections</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Daily Scripture reflections and devotions curated at Faithful Links." />
+  
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  
+  <!-- Preconnects for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- Base CSS -->
   <link rel="stylesheet" href="components/base/base.css" />
+  
+  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <style>
-    /* … your existing CSS styles … */
-  </style>
+  
+  <!-- Luxon library -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- Navigation omitted for brevity -->
-
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="exegesis.html">Deep Dive</a></li>
+      <!-- Add more links as needed -->
+    </ul>
+  </nav>
+  
+  <!-- Daily quote section -->
   <section aria-label="Daily quote">
     <blockquote id="quote" tabindex="0" class="quote-text">Loading quote...</blockquote>
     <p id="quote-citation" tabindex="0" class="quote-citation"></p>
     <div id="tags" class="tags-container"></div>
   </section>
-
-  <!-- Your other sections with IDs matching camelCase converted to dash-case -->
+  
+  <!-- Content placeholders -->
   <p id="summary"></p>
   <p id="psalm-summary"></p>
   <p id="gospel-summary"></p>
@@ -29,7 +48,7 @@
   <p id="theological-synthesis"></p>
   <p id="second-reading"></p>
   <p id="exegesis"></p>
-
+  
   <!-- Liturgical tags -->
   <div>
     <span>Cycle: <strong id="cycle-tag"></strong></span>
@@ -38,69 +57,71 @@
     <span>Gospel: <strong id="gospel-tag"></strong></span>
     <span>USCCB Link: <a href="#" id="usccb-link" target="_blank" rel="noopener noreferrer">Open Readings</a></span>
   </div>
-
-<script>
-(async () => {
-  try {
-    const DateTime = luxon.DateTime;
-    const today = DateTime.now().setZone("America/New_York").toISODate();
-
-    const res = await fetch('./devotions.json');
-    const data = await res.json();
-
-    let entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
-
-    if (!entry) {
-      document.getElementById("quote").textContent = "Today's reflection coming soon";
-      document.getElementById("quote-citation").textContent = "";
-      document.getElementById("tags").textContent = "";
-      ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id => {
-        document.getElementById(id).textContent = "";
-      });
-      document.getElementById("cycle-tag").textContent = "N/A";
-      document.getElementById("weekday-cycle").textContent = "N/A";
-      document.getElementById("feast-tag").textContent = "None";
-      document.getElementById("gospel-tag").textContent = "Unknown";
-      document.getElementById("usccb-link").href = "#";
-      return;
-    }
-
-    document.getElementById("quote").textContent = entry.quote || "";
-    document.getElementById("quote-citation").textContent = entry.quoteCitation || "";
-
-    if (entry.tags && Array.isArray(entry.tags) && entry.tags.length > 0) {
-      document.getElementById("tags").textContent = "Tags: " + entry.tags.join(", ");
-    } else {
-      document.getElementById("tags").textContent = "Tags: None";
-    }
-
-    document.getElementById("summary").textContent = entry.summary || "";
-    document.getElementById("psalm-summary").textContent = entry.psalmSummary || "";
-    document.getElementById("gospel-summary").textContent = entry.gospelSummary || "";
-    document.getElementById("saint-reflection").textContent = entry.saintReflection || "";
-    document.getElementById("daily-prayer").textContent = entry.dailyPrayer || "";
-    document.getElementById("theological-synthesis").textContent = entry.theologicalSynthesis || "";
-    document.getElementById("second-reading").textContent = entry.secondReading || "";
-    document.getElementById("exegesis").textContent = entry.exegesis || "";
-
-    document.getElementById("cycle-tag").textContent = entry.cycle || "N/A";
-    document.getElementById("weekday-cycle").textContent = entry.weekdayCycle || "N/A";
-    document.getElementById("feast-tag").textContent = entry.feast || "None";
-    document.getElementById("gospel-tag").textContent = entry.gospelReference || "Unknown";
-
-    if (entry.usccbLink) {
-      const usccbLinkEl = document.getElementById("usccb-link");
-      usccbLinkEl.href = entry.usccbLink;
-      usccbLinkEl.textContent = "Read Today's Scriptures";
-    } else {
-      document.getElementById("usccb-link").href = "#";
-      document.getElementById("usccb-link").textContent = "";
-    }
-  } catch (e) {
-    console.error("Error loading daily devotions:", e);
-    // Fallback UI omitted for brevity
-  }
-})();
-</script>
+  
+  <script>
+    (async () => {
+      try {
+        const DateTime = luxon.DateTime;
+        const today = DateTime.now().setZone("America/New_York").toISODate();
+        
+        // Fetch devotions
+        const response = await fetch('./devotions.json', {cache: "no-store"});
+        if (!response.ok) throw new Error(`Could not load devotions.json: ${response.status}`);
+        
+        const data = await response.json();
+        
+        // Support array or object format
+        const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
+        
+        if (!entry) {
+          document.getElementById("quote").textContent = "Today's reflection coming soon";
+          document.getElementById("quote-citation").textContent = "";
+          document.getElementById("tags").textContent = "";
+          ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id => {
+            document.getElementById(id).textContent = "";
+          });
+          document.getElementById("cycle-tag").textContent = "N/A";
+          document.getElementById("weekday-cycle").textContent = "N/A";
+          document.getElementById("feast-tag").textContent = "None";
+          document.getElementById("gospel-tag").textContent = "Unknown";
+          const usccbLinkEl = document.getElementById("usccb-link");
+          usccbLinkEl.href = "#";
+          usccbLinkEl.textContent = "";
+          return;
+        }
+        
+        // Populate content
+        document.getElementById("quote").textContent = entry.quote || "";
+        document.getElementById("quote-citation").textContent = entry.quoteCitation || "";
+        document.getElementById("tags").textContent = (entry.tags && entry.tags.length > 0)
+          ? "Tags: " + entry.tags.join(", ") : "Tags: None";
+        document.getElementById("summary").textContent = entry.summary || "";
+        document.getElementById("psalm-summary").textContent = entry.psalmSummary || "";
+        document.getElementById("gospel-summary").textContent = entry.gospelSummary || "";
+        document.getElementById("saint-reflection").textContent = entry.saintReflection || "";
+        document.getElementById("daily-prayer").textContent = entry.dailyPrayer || "";
+        document.getElementById("theological-synthesis").textContent = entry.theologicalSynthesis || "";
+        document.getElementById("second-reading").textContent = entry.secondReading || "";
+        document.getElementById("exegesis").textContent = entry.exegesis || "";
+        
+        document.getElementById("cycle-tag").textContent = entry.cycle || "N/A";
+        document.getElementById("weekday-cycle").textContent = entry.weekdayCycle || "N/A";
+        document.getElementById("feast-tag").textContent = entry.feast || "None";
+        document.getElementById("gospel-tag").textContent = entry.gospelReference || "Unknown";
+        
+        const usccbLinkEl = document.getElementById("usccb-link");
+        if (entry.usccbLink) {
+          usccbLinkEl.href = entry.usccbLink;
+          usccbLinkEl.textContent = "Read Today's Scriptures";
+        } else {
+          usccbLinkEl.href = "#";
+          usccbLinkEl.textContent = "";
+        }
+      } catch (error) {
+        console.error("Error loading devotions:", error);
+        document.getElementById("quote").textContent = "Error loading daily devotions.";
+      }
+    })();
+  </script>
 </body>
 </html>
