@@ -4,12 +4,23 @@
   <meta charset="utf-8" />
   <title>Faithful Links | Daily Reflections</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Daily Scripture reflections and devotions curated at Faithful Links." />
+
+  <!-- Favicon to avoid 404 -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Base CSS: adjust path if needed -->
   <link rel="stylesheet" href="components/base/base.css" />
+
+  <!-- Google Font EB Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <style>
-    /* Your CSS styles */
-  </style>
+
+  <!-- Luxon date/time library -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <!-- Navigation omitted for brevity -->
@@ -41,20 +52,20 @@
     (async () => {
       try {
         const DateTime = luxon.DateTime;
+        // Get today's ISO date string in America/New_York timezone
         const today = DateTime.now().setZone("America/New_York").toISODate();
 
-        // Make sure your devotions.json is accessible at the specified path
-        const res = await fetch('./devotions.json', {cache: "no-store"});
-        if (!res.ok) throw new Error("JSON file not found or fetch error");
+        // Fetch devotions.json, no cache to always get fresh data
+        const res = await fetch('./devotions.json', { cache: "no-store" });
+        if (!res.ok) throw new Error(`Failed to fetch devotions.json: ${res.status} ${res.statusText}`);
 
         const data = await res.json();
 
-        // Supports both array & object formats
-        let entry = Array.isArray(data)
-          ? data.find(d => d.date === today)
-          : data[today];
+        // Support both data as array or object keyed by date
+        const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
 
         if (!entry) {
+          // Entry for today not found, clear content with message
           document.getElementById("quote").textContent = "Today's reflection coming soon";
           document.getElementById("quote-citation").textContent = "";
           document.getElementById("tags").textContent = "";
@@ -66,18 +77,15 @@
           document.getElementById("feast-tag").textContent = "None";
           document.getElementById("gospel-tag").textContent = "Unknown";
           document.getElementById("usccb-link").href = "#";
+          document.getElementById("usccb-link").textContent = "";
           return;
         }
 
+        // Populate page content with today's entry
         document.getElementById("quote").textContent = entry.quote || "";
         document.getElementById("quote-citation").textContent = entry.quoteCitation || "";
-
-        if (entry.tags && Array.isArray(entry.tags) && entry.tags.length > 0) {
-          document.getElementById("tags").textContent = "Tags: " + entry.tags.join(", ");
-        } else {
-          document.getElementById("tags").textContent = "Tags: None";
-        }
-
+        document.getElementById("tags").textContent = (entry.tags && Array.isArray(entry.tags) && entry.tags.length > 0) ? 
+          "Tags: " + entry.tags.join(", ") : "Tags: None";
         document.getElementById("summary").textContent = entry.summary || "";
         document.getElementById("psalm-summary").textContent = entry.psalmSummary || "";
         document.getElementById("gospel-summary").textContent = entry.gospelSummary || "";
@@ -92,17 +100,19 @@
         document.getElementById("feast-tag").textContent = entry.feast || "None";
         document.getElementById("gospel-tag").textContent = entry.gospelReference || "Unknown";
 
+        const usccbLinkEl = document.getElementById("usccb-link");
         if (entry.usccbLink) {
-          const usccbLinkEl = document.getElementById("usccb-link");
           usccbLinkEl.href = entry.usccbLink;
           usccbLinkEl.textContent = "Read Today's Scriptures";
         } else {
-          document.getElementById("usccb-link").href = "#";
-          document.getElementById("usccb-link").textContent = "";
+          usccbLinkEl.href = "#";
+          usccbLinkEl.textContent = "";
         }
       } catch (e) {
+        // On error, clear content and display error message
         document.getElementById("quote").textContent = "Error loading daily devotions.";
         document.getElementById("quote-citation").textContent = "";
+        document.getElementById("tags").textContent = "";
         ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id => {
           document.getElementById(id).textContent = "";
         });
@@ -110,7 +120,9 @@
         document.getElementById("weekday-cycle").textContent = "N/A";
         document.getElementById("feast-tag").textContent = "None";
         document.getElementById("gospel-tag").textContent = "Unknown";
-        document.getElementById("usccb-link").href = "#";
+        const usccbLinkEl = document.getElementById("usccb-link");
+        usccbLinkEl.href = "#";
+        usccbLinkEl.textContent = "";
         console.error("Error loading daily devotions:", e);
       }
     })();
