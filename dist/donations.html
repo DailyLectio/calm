@@ -10,12 +10,11 @@
   <style>
     body {
       font-family: 'EB Garamond', serif;
-      margin: 0;
-      padding: 0;
       background: #fff;
       color: #222;
       display: flex;
       flex-direction: column;
+      margin: 0;
       min-height: 100vh;
     }
     nav.navbar {
@@ -43,35 +42,74 @@
       color: #115293;
       font-size: 1rem;
       padding: 0.5rem 0.75rem;
+      display: block;
     }
     nav.navbar a:hover {
       color: #1a5da3;
       text-decoration: underline;
     }
+    /* Gold highlight for Daily Scripture */
+    .scripture-link {
+      color: #c39a53 !important;
+      font-weight: 700 !important;
+      background: rgba(245,217,125,0.16);
+      border-radius: 22px;
+      padding: 0.5em 1.2em;
+      margin-right: 0.7em;
+      display: inline-block;
+      transition: box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(226,186,84,0.07);
+    }
+    .scripture-link:hover,
+    .scripture-link:focus {
+      box-shadow: 0 6px 18px rgba(226,186,84,0.17);
+      background: rgba(245,217,125,0.28);
+      color: #a67719 !important;
+      text-decoration: underline;
+    }
+
+    /* Centered/narrow main donation content */
     main {
       flex: 1;
-      max-width: 900px;
-      margin: 3rem auto;
-      padding: 0 1rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .donation-center {
+      max-width: 520px;
+      width: 100%;
+      margin: 3.5rem auto 2.5rem auto;
+      background: #f7f8fc;
+      border-radius: 16px;
+      padding: 2.5rem 1.3rem 2.1rem;
+      box-shadow: 0 6px 18px rgba(26,93,163,0.07);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
       color: #1A5DA3;
       font-weight: 700;
-      margin-bottom: 1rem;
-      font-size: 2.5rem;
+      margin-bottom: 0.9rem;
+      font-size: 2.2rem;
+      text-align: center;
+      line-height: 1.13;
     }
-    p {
-      font-size: 1.12rem;
+    .donation-center p {
+      font-size: 1.13rem;
       line-height: 1.6;
       color: #193865;
-      margin-bottom: 2rem;
+      margin-bottom: 1.4rem;
+      text-align: center;
     }
     .donate-btn {
       background-color: #1A5DA3;
       color: #fff;
       border: none;
       padding: 1rem 2rem;
-      font-size: 1.1rem;
+      font-size: 1.11rem;
       font-family: 'EB Garamond', serif;
       font-weight: 700;
       border-radius: 30px;
@@ -79,20 +117,69 @@
       transition: background-color 0.3s ease;
       text-decoration: none;
       display: inline-block;
+      margin-bottom: 2.4rem;
     }
     .donate-btn:hover {
       background-color: #193865;
     }
+    .stripe-section {
+      width: 100%;
+      margin: 0 0 2rem 0;
+      padding: 1.35rem 1.1rem 1.5rem 1.1rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(26,93,163,0.09);
+      text-align: center;
+    }
+    .stripe-section label {
+      color: #1A5DA3;
+      font-weight: 600;
+      font-size: 1.13rem;
+      display: block;
+      margin-bottom: 1.13rem;
+    }
+    .stripe-section stripe-buy-button {
+      display: block;
+      margin: 0 auto;
+      max-width: 340px;
+      min-height: 52px;
+    }
+    .donation-center small {
+      color: #888;
+      font-size: .98rem;
+      margin-top: 1.5rem;
+      display: block;
+      text-align: center;
+    }
     footer {
       text-align: center;
-      padding: 1.5rem 1rem;
+      padding: 2rem 1rem 1rem 1rem;
       border-top: 1px solid #ccc;
       font-family: 'EB Garamond', serif;
       color: #666;
       font-size: 0.95rem;
       margin-top: auto;
+      user-select: none;
+    }
+    footer div {
+      margin-top: 1rem;
+      font-size: 1.04rem;
+    }
+    footer div a {
+      color: #115293;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+    footer div a:hover,
+    footer div a:focus {
+      text-decoration: underline;
+      color: #1a5da3;
+    }
+    @media (max-width: 600px) {
+      .donation-center { max-width: 96vw; padding: 1.4rem 0.5rem; }
     }
   </style>
+  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
 </head>
 <body>
 
@@ -101,32 +188,63 @@
       <img src="images/logo/logo.png" alt="FaithLinks logo" loading="lazy" />
     </a>
     <ul class="navbar-nav">
-      <li><a href="index.html">Home</a></li>
+      <li>
+        <a href="https://bible.usccb.org/daily-bible-reading" 
+           target="_blank" rel="noopener" class="scripture-link">
+          Daily Scripture
+        </a>
+      </li>
       <li><a href="shop.html">Shop</a></li>
-      <li><a href="past-reflections.html">Past Reflections</a></li>
+      <li><a href="donations.html">Donate</a></li>
       <li><a href="exegesis.html">Deep Dive</a></li>
     </ul>
   </nav>
 
   <main>
-    <h1>Support FaithLinks</h1>
-    <p>
-      Thank you for considering a donation to Daily Lectio Media LLC and FaithLinks.
-      Your support helps us deliver daily scriptural reflections and grow our mission of connecting people to the Word of God.
-    </p>
+    <div class="donation-center">
+      <h1>Support FaithLinks</h1>
+      <p>
+        Thank you for considering a donation to Daily Lectio Media LLC and FaithLinks.<br>
+        Your support helps us deliver daily scriptural reflections and grow our mission of connecting people to the Word of God.
+      </p>
 
-    <p>
-      To donate, please click the button below to make a secure contribution. Every gift, big or small, blesses countless lives and helps us continue this ministry.
-    </p>
+      <!-- Stripe Payment Link Button -->
+      <a
+        href="https://donate.stripe.com/00wcN66pd1CkbyPdwA2sM00"
+        target="_blank"
+        rel="noopener"
+        class="donate-btn"
+        aria-label="Donate to FaithLinks (Stripe)"
+      >
+        Donate Now via Stripe
+      </a>
 
-    <!-- Placeholder link for donate action -->
-    <a href="https://www.paypal.com/donate/your-link" target="_blank" rel="noopener" class="donate-btn" aria-label="Donate to FaithLinks">
-      Donate Now
-    </a>
+      <!-- Embedded Stripe Buy Button -->
+      <section class="stripe-section" aria-label="Donate securely via Stripe on this page">
+        <label>Or make your gift instantly below:</label>
+        <stripe-buy-button
+          buy-button-id="buy_btn_1RqH0wIwDNregInzsY89mxGm"
+          publishable-key="pk_live_51KXZDzIwDNregInzZSnkm3h4XU8KH429tKtmgVSySFsTSDUyzp7WyI2K4elvyQaxWa5z0FVy5Afqz6zreLp5CGbj00AtpOenxt"
+        >
+        </stripe-buy-button>
+      </section>
+
+      <p>
+        Every gift, big or small, blesses countless lives and helps us continue this ministry.
+        <br>
+        If you’d like to direct your support to a specific project or give in another way, please <a href="contact-us.html" style="color:#1a5da3;">contact us here</a>.
+      </p>
+      <small>FaithLinks is a ministry of Daily Lectio Media LLC.</small>
+    </div>
   </main>
 
   <footer>
     © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
+    <div>
+      <a href="about-us.html">About</a> |
+      <a href="contact-us.html">Contact</a> |
+      <a href="past-reflections.html">Past Reflections</a>
+    </div>
   </footer>
 
 </body>

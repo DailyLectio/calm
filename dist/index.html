@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="components/base/base.css" />
   <!-- Google Font EB Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
+  <!-- Luxon for Eastern Time -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <style>
     body {
       font-family: 'EB Garamond', serif;
@@ -19,7 +21,6 @@
       display: flex;
       flex-direction: column;
     }
-    /* Navbar styling */
     nav.navbar {
       background: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -52,7 +53,25 @@
       color: #1a5da3;
       text-decoration: underline;
     }
-    /* Quote Hero Section */
+    /* Gold highlight for Daily Scripture */
+    .scripture-link {
+      color: #c39a53 !important;
+      font-weight: 700 !important;
+      background: rgba(245,217,125,0.16);
+      border-radius: 22px;
+      padding: 0.5em 1.2em;
+      margin-right: 0.7em;
+      display: inline-block;
+      transition: box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(226,186,84,0.07);
+    }
+    .scripture-link:hover,
+    .scripture-link:focus {
+      box-shadow: 0 6px 18px rgba(226,186,84,0.17);
+      background: rgba(245,217,125,0.28);
+      color: #a67719 !important;
+      text-decoration: underline;
+    }
     .quote-hero {
       background: rgba(26, 93, 163, 0.11); /* Soft Marian Blue */
       margin-bottom: 3rem;
@@ -80,13 +99,11 @@
       color: #193865;
       user-select: text;
     }
-    /* Main feed container */
     .container-main {
       max-width: 1080px;
       margin: 0 auto 3rem auto;
       padding: 0 1rem;
     }
-    /* Alternating card sections */
     .section-row {
       display: flex;
       align-items: center;
@@ -94,15 +111,8 @@
       gap: 2rem;
       flex-wrap: wrap;
     }
-    /* A version: image right, text left */
-    .section-row.a-version {
-      flex-direction: row-reverse;
-    }
-    /* B version: image left, text right */
-    .section-row.b-version {
-      flex-direction: row;
-    }
-    /* Column text */
+    .section-row.a-version { flex-direction: row-reverse; }
+    .section-row.b-version { flex-direction: row; }
     .section-text {
       flex: 1 1 60%;
       background: #f7f8fc;
@@ -125,9 +135,8 @@
       font-family: 'EB Garamond', serif;
       font-size: 1.12rem;
       margin: 0;
-      white-space: pre-line; /* preserve line breaks from JSON */
+      white-space: pre-line;
     }
-    /* Column image */
     .section-image {
       flex: 1 1 35%;
       max-width: 350px;
@@ -139,7 +148,6 @@
       border-radius: 8px;
       display: block;
     }
-    /* Footer */
     footer {
       text-align: center;
       margin-top: auto;
@@ -149,26 +157,12 @@
       color: #666;
       font-size: 0.95rem;
     }
-    /* Responsive */
     @media (max-width: 768px) {
-      .section-row {
-        flex-direction: column !important;
-      }
-      .section-image {
-        max-width: 100%;
-        margin-bottom: 1rem;
-      }
-      .section-text {
-        width: 100%;
-      }
-      .quote-text, .quote-citation {
-        max-width: 100%;
-        font-size: 2.2rem;
-        text-align: center;
-      }
-      .quote-hero {
-        padding: 2rem 1rem;
-      }
+      .section-row { flex-direction: column !important; }
+      .section-image { max-width: 100%; margin-bottom: 1rem; }
+      .section-text { width: 100%; }
+      .quote-text, .quote-citation { max-width: 100%; font-size: 2.2rem; text-align: center; }
+      .quote-hero { padding: 2rem 1rem; }
     }
   </style>
 </head>
@@ -180,10 +174,15 @@
         <img src="images/logo/logo.png" alt="FaithLinks logo" loading="lazy" />
       </a>
       <ul class="navbar-nav">
-        <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
+        <li>
+          <a href="https://bible.usccb.org/daily-bible-reading" 
+             target="_blank" rel="noopener" class="scripture-link">
+            Daily Scripture
+          </a>
+        </li>
         <li><a href="shop.html" class="nav-link">Shop</a></li>
         <li><a href="donations.html" class="nav-link">Donate</a></li>
-        <li><a href="past-reflections.html" class="nav-link">Past Reflections</a></li>
+        <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
       </ul>
     </div>
   </nav>
@@ -200,7 +199,6 @@
 
   <!-- Main content sections -->
   <main class="container-main" role="main">
-
     <!-- Lectio Links (summary) A version image right -->
     <section class="section-row a-version" aria-labelledby="lectio-links-title">
       <div class="section-text">
@@ -289,70 +287,98 @@
         <a href="exegesis.html" class="btn btn-outline-primary" style="margin-top:1rem;">Deep Dive &rsaquo;</a>
       </div>
     </section>
-
   </main>
 
   <footer>
-    © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
+    © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.<br>
+    <div style="margin-top:1rem; font-size:1.04rem;">
+      <a href="about-us.html" style="color:#115293; margin-right:1em;">About</a> |
+      <a href="contact-us.html" style="color:#115293; margin-right:1em;">Contact</a> |
+      <a href="past-reflections.html" style="color:#115293;">Past Reflections</a>
+    </div>
   </footer>
 
-  <script>
-  (async () => {
-    try {
-      const res = await fetch('./devotions.json');
-      const data = await res.json();
-      const today = new Date().toISOString().slice(0, 10);
+<script>
+(async () => {
+  try {
+    // Use Luxon to get the current date in Eastern Time
+    const DateTime = luxon.DateTime;
+    const today = DateTime.now().setZone("America/New_York").toISODate();
 
-      let entry = Array.isArray(data)
-        ? data.find(d => d.date === today)
-        : data[today];
-      
-      if (!entry) {
-        // Clear all fields gracefully
-        document.getElementById('quote').textContent = "Today's reflection is coming soon.";
-        document.getElementById('quote-citation').textContent = "";
-        ['summary','psalm_summary','gospel_summary','saint_reflection','daily_prayer','theological_synthesis','second_reading','exegesis'].forEach(id => {
-          let el = document.getElementById(id);
-          if(el) el.textContent = "";
-        });
-        return;
-      }
+    // Fetch the JSON data
+    const res = await fetch('./devotions.json');
+    const data = await res.json();
 
-      // Extract quote and citation from the quote field
-      const quoteMatch = entry.quote.match(/(.*?)(\s*\([A-Za-z0-9 :]+\))\s*$/);
-      let mainQuote = entry.quote;
-      let citation = "";
+    // Find entry by date - handles both array and object forms of JSON
+    let entry = Array.isArray(data)
+      ? data.find(d => d.date === today)
+      : data[today];
 
-      if (quoteMatch) {
-        mainQuote = quoteMatch[1].trim();
-        citation = quoteMatch[2].trim();
-      }
-
-      document.getElementById('quote').textContent = `"${mainQuote}"`;
-      document.getElementById('quote-citation').textContent = citation;
-
-      // Fill main content feeds
-      document.getElementById('summary').textContent = entry.summary || '';
-      document.getElementById('psalm_summary').textContent = entry.psalm_summary || '';
-      document.getElementById('gospel_summary').textContent = entry.gospel_summary || '';
-      document.getElementById('saint_reflection').textContent = entry.saint_reflection || '';
-      document.getElementById('daily_prayer').textContent = entry.daily_prayer || '';
-      document.getElementById('theological_synthesis').textContent = entry.theological_synthesis || '';
-      document.getElementById('second_reading').textContent = entry.second_reading || '';
-      // Show only first 300 chars for exegesis teaser
-      let exegesisEl = document.getElementById('exegesis');
-      if (entry.exegesis) {
-        exegesisEl.textContent = entry.exegesis.substring(0, 300) + "…";
-      } else {
-        exegesisEl.textContent = "";
-      }
-
-    } catch (err) {
-      console.error('Failed to load devotions.json:', err);
-      document.getElementById('quote').textContent = "Welcome to FaithLinks Daily Reflections.";
-      document.getElementById('quote-citation').textContent = "";
+    // If no entry found for today, update DOM accordingly and exit
+    if (!entry) {
+      document.getElementById('quote').textContent = "Today's reflection is coming soon.";
+      document.getElementById('quote_citation').textContent = "";
+      document.getElementById('summary').textContent = "";
+      document.getElementById('psalm_summary').textContent = "";
+      document.getElementById('gospel_summary').textContent = "";
+      document.getElementById('saint_reflection').textContent = "";
+      document.getElementById('daily_prayer').textContent = "";
+      document.getElementById('theological_synthesis').textContent = "";
+      document.getElementById('exegesis').textContent = "";
+      document.getElementById('second_reading').textContent = "";
+      document.getElementById('cycle-tag').textContent = "N/A";
+      document.getElementById('weekday-cycle-tag').textContent = "N/A";
+      document.getElementById('feast-tag').textContent = "None";
+      document.getElementById('gospel-tag').textContent = "Unknown";
+      return;
     }
-  })();
-  </script>
+
+    // Extract quote and citation from the quote field
+    const quoteMatch = entry.quote.match(/(.*?)(\s*\([A-Za-z0-9 :]+\))\s*$/);
+    let mainQuote = entry.quote;
+    let citation = "";
+
+    if (quoteMatch) {
+      mainQuote = quoteMatch[1].trim();
+      citation = quoteMatch[2].trim();
+    }
+
+    // Update daily quote and citation
+    document.getElementById('quote').textContent = `"${mainQuote}"`;
+    document.getElementById('quote_citation').textContent = citation;
+
+    // Update liturgical tags
+    document.getElementById('cycle-tag').textContent = entry.cycle || "N/A";
+    document.getElementById('weekday-cycle-tag').textContent = entry.weekday_cycle || "N/A";
+    document.getElementById('feast-tag').textContent = entry.feast || "None";
+    document.getElementById('gospel-tag').textContent = entry.gospel_reference || "Unknown";
+
+    // Fill the content fields — summary, psalm, gospel, etc.
+    document.getElementById('summary').textContent = entry.summary || "";
+    document.getElementById('psalm_summary').textContent = entry.psalm_summary || "";
+    document.getElementById('gospel_summary').textContent = entry.gospel_summary || "";
+    document.getElementById('saint_reflection').textContent = entry.saint_reflection || "";
+    document.getElementById('daily_prayer').textContent = entry.daily_prayer || "";
+    document.getElementById('theological_synthesis').textContent = entry.theological_synthesis || "";
+    document.getElementById('second_reading').textContent = entry.second_reading || "";
+
+    // For exegesis, set only first 300 chars for teaser
+    const exegesisEl = document.getElementById('exegesis');
+    if (entry.exegesis) {
+      exegesisEl.textContent = entry.exegesis.length > 300
+        ? entry.exegesis.substring(0, 300) + "…"
+        : entry.exegesis;
+    } else {
+      exegesisEl.textContent = "";
+    }
+
+  } catch (err) {
+    console.error("Failed to load devotions.json:", err);
+    // Provide fallback content if fetch or parsing fails
+    document.getElementById('quote').textContent = "Welcome to FaithLinks Daily.";
+    document.getElementById('quote_citation').textContent = "";
+  }
+})();
+</script>
 </body>
 </html>
