@@ -5,74 +5,98 @@
   <title>Faithful Links | Daily Reflections</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Daily Scripture reflections and devotions curated at Faithful Links." />
-  
+
   <!-- Favicon -->
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  
-  <!-- Preconnects for Google Fonts -->
+
+  <!-- Preconnect to Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  
+
   <!-- Base CSS -->
   <link rel="stylesheet" href="components/base/base.css" />
-  
-  <!-- Google Font -->
+
+  <!-- Google Font EB Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet" />
-  
-  <!-- Luxon library -->
+
+  <!-- Luxon date/time lib -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
+
+  <!-- Minimal inline styles if you want to add later -->
+  <style>
+    /* Example: you can add critical inline styles here if needed */
+  </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="exegesis.html">Deep Dive</a></li>
-      <!-- Add more links as needed -->
-    </ul>
+  <!-- Navigation matching exegesis -->
+  <nav class="navbar" role="navigation" aria-label="Main menu">
+    <div class="container-fluid" style="display:flex; align-items:center; justify-content:space-between;">
+      <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
+        <img src="images/logo/logo.png" alt="FaithLinks logo" loading="lazy" />
+      </a>
+      <ul class="navbar-nav">
+        <li>
+          <a href="https://bible.usccb.org/daily-bible-reading" target="_blank" rel="noopener" class="scripture-link">
+            Daily Scripture
+          </a>
+        </li>
+        <li><a href="shop.html" class="nav-link">Shop</a></li>
+        <li><a href="donations.html" class="nav-link">Donate</a></li>
+        <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
+      </ul>
+    </div>
   </nav>
-  
-  <!-- Daily quote section -->
-  <section aria-label="Daily quote">
-    <blockquote id="quote" tabindex="0" class="quote-text">Loading quote...</blockquote>
-    <p id="quote-citation" tabindex="0" class="quote-citation"></p>
-    <div id="tags" class="tags-container"></div>
-  </section>
-  
-  <!-- Content placeholders -->
-  <p id="summary"></p>
-  <p id="psalm-summary"></p>
-  <p id="gospel-summary"></p>
-  <p id="saint-reflection"></p>
-  <p id="daily-prayer"></p>
-  <p id="theological-synthesis"></p>
-  <p id="second-reading"></p>
-  <p id="exegesis"></p>
-  
-  <!-- Liturgical tags -->
-  <div>
-    <span>Cycle: <strong id="cycle-tag"></strong></span>
-    <span>Weekday Cycle: <strong id="weekday-cycle"></strong></span>
-    <span>Feast: <strong id="feast-tag"></strong></span>
-    <span>Gospel: <strong id="gospel-tag"></strong></span>
-    <span>USCCB Link: <a href="#" id="usccb-link" target="_blank" rel="noopener noreferrer">Open Readings</a></span>
-  </div>
-  
+
+  <main class="container" role="main">
+    <section aria-label="Daily quote" class="quote-section">
+      <blockquote id="quote" tabindex="0" class="quote-text">Loading quote...</blockquote>
+      <p id="quote-citation" tabindex="0" class="quote-citation"></p>
+      <div id="tags" class="tags-row" aria-label="Content Tags"></div>
+    </section>
+
+    <!-- Liturgical tags -->
+    <div id="liturgical-tags" style="max-width:900px; margin:1rem auto; font-family:'EB Garamond', serif; color:#115293; text-align:center;">
+      <span>Cycle: <strong id="cycle-tag">N/A</strong></span> |
+      <span>Weekday Cycle: <strong id="weekday-cycle">N/A</strong></span> |
+      <span>Feast: <strong id="feast-tag">None</strong></span> |
+      <span>Gospel: <strong id="gospel-tag">Unknown</strong></span>
+    </div>
+
+    <!-- Content summary sections -->
+    <p id="summary" class="fs-5 mb-3"></p>
+    <p id="psalm-summary" class="fs-5 mb-3 text-muted"></p>
+    <p id="gospel-summary" class="fs-5 mb-3"></p>
+    <p id="saint-reflection" class="fs-5 mb-3"></p>
+    <p id="daily-prayer" class="fs-5 mb-3 text-body"></p>
+    <p id="theological-synthesis" class="fs-5 mb-3"></p>
+    <p id="second-reading" class="fs-5 mb-3"></p>
+    <p id="exegesis" class="fs-5 mb-3"></p>
+
+    <!-- Recent reflections carousel -->
+    <section class="carousel-section" aria-label="Recent Reflections Carousel">
+      <h2 class="carousel-header">Recent Reflections</h2>
+      <div id="carousel-inner" class="carousel-inner" role="list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
+  </footer>
+
   <script>
     (async () => {
       try {
         const DateTime = luxon.DateTime;
         const today = DateTime.now().setZone("America/New_York").toISODate();
-        
-        // Fetch devotions
-        const response = await fetch('./devotions.json', {cache: "no-store"});
-        if (!response.ok) throw new Error(`Could not load devotions.json: ${response.status}`);
-        
-        const data = await response.json();
-        
-        // Support array or object format
+
+        const res = await fetch('./devotions.json', { cache: "no-store" });
+        if (!res.ok) throw new Error(`Failed to fetch devotions.json: ${res.status}`);
+
+        const data = await res.json();
+
+        // Support array or object forms
         const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
-        
+
         if (!entry) {
           document.getElementById("quote").textContent = "Today's reflection coming soon";
           document.getElementById("quote-citation").textContent = "";
@@ -85,16 +109,20 @@
           document.getElementById("feast-tag").textContent = "None";
           document.getElementById("gospel-tag").textContent = "Unknown";
           const usccbLinkEl = document.getElementById("usccb-link");
-          usccbLinkEl.href = "#";
-          usccbLinkEl.textContent = "";
+          if (usccbLinkEl) {
+            usccbLinkEl.href = "#";
+            usccbLinkEl.textContent = "";
+          }
+          document.getElementById("carousel-inner").innerHTML = `<div style="color:#999; padding:1rem;">No recent reflections available.</div>`;
           return;
         }
-        
-        // Populate content
+
+        // Populate today's devotion content
         document.getElementById("quote").textContent = entry.quote || "";
         document.getElementById("quote-citation").textContent = entry.quoteCitation || "";
         document.getElementById("tags").textContent = (entry.tags && entry.tags.length > 0)
           ? "Tags: " + entry.tags.join(", ") : "Tags: None";
+
         document.getElementById("summary").textContent = entry.summary || "";
         document.getElementById("psalm-summary").textContent = entry.psalmSummary || "";
         document.getElementById("gospel-summary").textContent = entry.gospelSummary || "";
@@ -103,23 +131,55 @@
         document.getElementById("theological-synthesis").textContent = entry.theologicalSynthesis || "";
         document.getElementById("second-reading").textContent = entry.secondReading || "";
         document.getElementById("exegesis").textContent = entry.exegesis || "";
-        
+
         document.getElementById("cycle-tag").textContent = entry.cycle || "N/A";
         document.getElementById("weekday-cycle").textContent = entry.weekdayCycle || "N/A";
         document.getElementById("feast-tag").textContent = entry.feast || "None";
         document.getElementById("gospel-tag").textContent = entry.gospelReference || "Unknown";
-        
-        const usccbLinkEl = document.getElementById("usccb-link");
-        if (entry.usccbLink) {
-          usccbLinkEl.href = entry.usccbLink;
-          usccbLinkEl.textContent = "Read Today's Scriptures";
+
+        // Build recent reflections carousel (last 6 past entries)
+        const pastEntries = (Array.isArray(data) ? data : Object.values(data))
+          .filter(d => d.exegesis && d.date < today)
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 6);
+
+        const carouselEl = document.getElementById("carousel-inner");
+        carouselEl.innerHTML = "";
+
+        if (pastEntries.length === 0) {
+          carouselEl.innerHTML = `<div style="color:#999; padding:1rem;">No recent reflections available.</div>`;
         } else {
-          usccbLinkEl.href = "#";
-          usccbLinkEl.textContent = "";
+          pastEntries.forEach(post => {
+            const excerpt = post.exegesis.length > 160 
+              ? post.exegesis.substring(0, 157) + '…' 
+              : post.exegesis;
+            const displayTitle = (post.feast && post.feast !== "None") ? post.feast : (post.gospelReference || post.date);
+            carouselEl.innerHTML += `
+              <a href="exegesis.html?date=${post.date}" class="carousel-item" role="listitem" tabindex="0" aria-label="Reflection for ${post.date}">
+                <div class="date">${post.date}</div>
+                <div class="title">${displayTitle}</div>
+                <div class="excerpt">${excerpt}</div>
+                <div class="cta">Read &rsaquo;</div>
+              </a>`;
+          });
         }
+
       } catch (error) {
         console.error("Error loading devotions:", error);
         document.getElementById("quote").textContent = "Error loading daily devotions.";
+        document.getElementById("quote-citation").textContent = "";
+        document.getElementById("tags").textContent = "";
+        ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("cycle-tag").textContent = "N/A";
+        document.getElementById("weekday-cycle").textContent = "N/A";
+        document.getElementById("feast-tag").textContent = "None";
+        document.getElementById("gospel-tag").textContent = "Unknown";
+        const carouselEl = document.getElementById("carousel-inner");
+        if (carouselEl) {
+          carouselEl.innerHTML = `<div style="color:#999; padding: 1rem;">Failed to load recent reflections.</div>`;
+        }
       }
     })();
   </script>
