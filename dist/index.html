@@ -3,8 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <title>Faithful Links | Daily Reflections</title>
-
-  <!-- keeps existing viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Daily Scripture reflections and devotions curated at Faithful Links." />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
@@ -20,9 +18,7 @@
   <!-- Luxon -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
 
-  <!-- ============ ORIGINAL + NEW MOBILE STYLES ============ -->
   <style>
-    /* ---------- original CSS stays intact ---------- */
     body {
       font-family: 'EB Garamond', serif;
       background: #fff;
@@ -30,37 +26,250 @@
       margin: 0;
       padding: 0;
     }
-    /* … (all original rules unchanged) … */
+    /* Header bar consistent with exegesis */
+    .navbar {
+      background: #fff;
+      min-height: 64px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 0.5rem 1.2rem 0.5rem 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+    .navbar-brand img {
+      height: 50px;
+      width: auto;
+      border-radius: 6px;
+      display: block;
+    }
+    .navbar-nav {
+      display: flex;
+      gap: 1.4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.12rem;
+      font-weight: 600;
+      align-items: center;
+    }
+    .navbar-nav a {
+      text-decoration: none;
+      color: #115293;
+      padding: 0.33em 0.75em;
+      border-radius: 5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .navbar-nav a:hover,
+    .navbar-nav a:focus {
+      background: #e6f0fa;
+      color: #193865;
+      text-decoration: underline;
+    }
 
-    /* ensure long quotations never cause horizontal scroll */
-    .quote-text { overflow-wrap: anywhere; word-wrap: break-word; }
+    /* Hero video area */
+    .hero-video-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 370px;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .hero-video-wrapper video {
+      position: absolute;
+      top: 50%; left: 50%;
+      min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      filter: brightness(0.65);
+      z-index: 1;
+    }
+    .hero-video-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,20,0.27);
+      z-index: 2;
+    }
+    /* Blue bar and quote block matching exegesis */
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      max-width: 900px;
+      margin: 0 auto;
+      min-height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .quote-bar-section {
+      display: flex;
+      align-items: flex-start;
+      background: none;
+      width: 100%;
+      padding: 2.5rem 2.5rem 2.2rem 0;
+    }
+    .blue-bar {
+      width: 8px;
+      background: #115293;
+      min-height: 110px;
+      border-radius: 4px;
+      margin-right: 2rem;
+      margin-top: 0.13em;
+    }
+    .quote-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      color: #115293;
+    }
+    .quote-text {
+      font-size: 2.3rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #115293;
+      letter-spacing: 0.01em;
+      line-height: 1.16;
+      margin-bottom: 0.3em;
+      margin-top: 0;
+      text-align: left;
+      text-shadow: 0 1px 7px rgba(0,0,0,0.12);
+    }
+    .quote-citation {
+      font-size: 1.07rem;
+      font-weight: 400;
+      color: #194578;
+      margin-top: 0.1em;
+      margin-left: 0.1em;
+      text-align: left;
+      font-style: normal;
+      opacity: 0.82;
+      letter-spacing: .01em;
+    }
+    #todays-reflection {
+      margin: 2.2rem auto 1.7rem 58px;
+      color: #222c3c;
+      font-size: 1.23rem;
+      font-weight: 500;
+      text-align: left;
+      max-width: 740px;
+      letter-spacing: .01em;
+    }
 
-    /* ---------- MOBILE-FIRST FIXES ---------- */
+    /* Let Us Pray */
+    #let-us-pray {
+      max-width: 900px;
+      margin: 0.7rem auto 0.7rem 67px;
+      background: #fcf4ec;
+      border: 1px solid #e0d2b9;
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      font-size: 1.17rem;
+      color: #4a3c23;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(26,93,163,0.045);
+    }
+
+    /* Carousel for reflections with matching style */
+    .carousel-section {
+      max-width: 1100px;
+      margin: 3rem auto 2.4rem 67px;
+      padding: 0 1rem;
+    }
+    .carousel-header {
+      font-family: 'EB Garamond', serif;
+      font-weight: 700;
+      font-size: 1.28rem;
+      margin-bottom: 1rem;
+      color: #1A5DA3;
+      text-align: left;
+      user-select: none;
+      margin-left: 0.15rem;
+    }
+    .carousel-row {
+      display: flex;
+      gap: 1.38rem;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    .carousel-cell {
+      background: #f7fafd;
+      border-radius: 9px;
+      box-shadow: 0 0 10px rgba(26, 93, 163, 0.08);
+      padding: 0.98rem 1.2rem;
+      flex: 1 1 200px;
+      max-width: 227px;
+      color: #193865;
+      min-width: 170px;
+      min-height: 110px;
+      margin-bottom: 1.2rem;
+    }
+    .carousel-cell h3 {
+      font-weight: 760;
+      font-size: 1.05rem;
+      color: #115293;
+      margin-bottom: 0.35em;
+      margin-top: 0.11em;
+      text-align: left;
+      letter-spacing: .01em;
+    }
+    .carousel-cell p {
+      font-size: 1.03rem;
+      line-height: 1.37;
+      color: #193865;
+      margin: 0;
+      min-height: 60px;
+      text-align: left;
+    }
+
+    /* Lectio Links Section */
+    #lectio-links-section {
+      max-width: 920px;
+      margin: 2.4rem auto 1.85rem 67px;
+      background: #eaf2f7;
+      border-radius: 8px;
+      padding: 1.2rem 1.25rem 1.08rem 1.15rem;
+      color: #194578;
+      text-align: left;
+      font-size: 1.18rem;
+      box-shadow: 0 4px 14px rgba(26,93,163,0.045);
+    }
+    #lectio-links-header {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #115293;
+      margin-bottom: 0.45em;
+      letter-spacing: .01em;
+    }
+
+    footer.footer {
+      max-width: 1100px;
+      margin: 2.2rem auto 1rem 0;
+      padding: 1rem 1rem;
+      font-size: 0.93rem;
+      color: #666;
+      border-top: 1px solid #ccc;
+      text-align: center;
+      font-family: 'EB Garamond', serif;
+      user-select: none;
+    }
+    @media (max-width: 950px) {
+      .carousel-row { flex-wrap: wrap; }
+    }
     @media (max-width: 650px) {
-      /* remove large left margins that forced horizontal scrolling */
-      #todays-reflection,
-      .carousel-section,
-      #let-us-pray,
-      #lectio-links-section {
-        margin-left: 12px;
-        margin-right: 12px;
-      }
-
-      /* tighten hero padding so quote fits easily */
-      .hero-content     { padding: 1.2rem 0.35rem; }
-      .quote-bar-section{ padding: 1rem 0.4rem; }
-
-      /* slightly larger mobile font already declared; keep but wrap words */
-      .quote-text {
-        font-size: 1.25rem;   /* stays readable but no overflow */
-        overflow-wrap: anywhere;
-      }
+      .hero-content { min-height: 215px; padding: 1.2rem 0.2rem; }
+      .quote-text { font-size: 1.2rem; }
+      #todays-reflection, .carousel-cell h3, .carousel-header { font-size: 1rem;}
+      .carousel-cell { min-width: 96vw; max-width: 100vw; margin-bottom:1.1rem; }
+      #let-us-pray, #lectio-links-section { margin-left: 12px; }
+      .blue-bar { margin-right: 0.88rem; }
+      .navbar-brand img { height: 32px; }
     }
   </style>
 </head>
-
 <body>
-  <!-- ===================== ORIGINAL HTML ===================== -->
+  <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main menu">
     <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
       <img src="images/logo/logo.png" alt="FaithLinks logo" />
@@ -122,14 +331,13 @@
   <!-- Lectio Links section -->
   <section id="lectio-links-section">
     <div id="lectio-links-header">Lectio Links</div>
-    <div id="lectio-links-content">Loading …</div>
+    <div id="lectio-links-content">Loading ...</div>
   </section>
 
   <footer class="footer">
     © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
   </footer>
 
-  <!-- ========== original JavaScript unchanged ========== -->
   <script>
     (async () => {
       try {
@@ -141,23 +349,37 @@
         const data = await res.json();
         const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
 
-        document.getElementById('quote').textContent            = (entry && entry.quote)           || "Today's reflection coming soon";
-        document.getElementById('quote-citation').textContent   = (entry && entry.quoteCitation)   || "";
-        document.getElementById('todays-reflection').textContent= (entry && entry.summary)         || "";
-        document.getElementById('let-us-pray').textContent      = (entry && entry.dailyPrayer)     || "Let us pray …";
+        // HERO QUOTE & CITATION
+        document.getElementById('quote').textContent = (entry && entry.quote) || "Today's reflection coming soon";
+        document.getElementById('quote-citation').textContent = (entry && entry.quoteCitation) || "";
 
-        document.getElementById('second-reading-content').textContent = (entry && entry.secondReading)  || "";
+        // Today's Reflection
+        document.getElementById('todays-reflection').textContent = (entry && entry.summary) || "";
+
+        // Let Us Pray
+        document.getElementById('let-us-pray').textContent = (entry && entry.dailyPrayer) || "Let us pray ...";
+
+        // Carousel content
+        document.getElementById('second-reading-content').textContent   = (entry && entry.secondReading)   || "";
         document.getElementById('psalm-summary-content').textContent   = (entry && entry.psalmSummary)   || "";
         document.getElementById('gospel-summary-content').textContent  = (entry && entry.gospelSummary)  || "";
-        document.getElementById('saint-reflection-content').textContent= (entry && entry.saintReflection)|| "";
-        document.getElementById('lectio-links-content').textContent    = (entry && entry.theologicalSynthesis) || "";
+        document.getElementById('saint-reflection-content').textContent = (entry && entry.saintReflection) || "";
+
+        // Lectio Links
+        document.getElementById('lectio-links-content').textContent = (entry && entry.theologicalSynthesis) || "";
       } catch (error) {
         console.error("Error loading devotions:", error);
+        document.getElementById('quote').textContent = "Error loading quote.";
+        document.getElementById('quote-citation').textContent = "";
+        document.getElementById('todays-reflection').textContent = "";
+        document.getElementById('let-us-pray').textContent = "";
+        document.getElementById('second-reading-content').textContent = "";
+        document.getElementById('psalm-summary-content').textContent = "";
+        document.getElementById('gospel-summary-content').textContent = "";
+        document.getElementById('saint-reflection-content').textContent = "";
+        document.getElementById('lectio-links-content').textContent = "";
       }
     })();
   </script>
 </body>
 </html>
-  <!-- ========== end of original JavaScript ========== -->
-
-  <!-- Additional scripts can be added here -->
