@@ -15,202 +15,295 @@
   <!-- Base CSS -->
   <link rel="stylesheet" href="components/base/base.css" />
 
-  <!-- Luxon for date/time handling -->
+  <!-- Luxon -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
 
   <style>
+    body {
+      font-family: 'EB Garamond', serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    /* Header bar consistent with exegesis */
+    .navbar {
+      background: #fff;
+      min-height: 64px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 0.5rem 1.2rem 0.5rem 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+    }
+    .navbar-brand img {
+      height: 50px;
+      width: auto;
+      border-radius: 6px;
+      display: block;
+    }
+    .navbar-nav {
+      display: flex;
+      gap: 1.4rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 1.12rem;
+      font-weight: 600;
+      align-items: center;
+    }
+    .navbar-nav a {
+      text-decoration: none;
+      color: #115293;
+      padding: 0.33em 0.75em;
+      border-radius: 5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .navbar-nav a:hover,
+    .navbar-nav a:focus {
+      background: #e6f0fa;
+      color: #193865;
+      text-decoration: underline;
+    }
+
+    /* Hero video area */
     .hero-video-wrapper {
       position: relative;
       width: 100%;
-      min-height: 400px;
+      min-height: 370px;
       overflow: hidden;
+      z-index: 1;
     }
     .hero-video-wrapper video {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
+      top: 50%; left: 50%;
+      min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
       transform: translate(-50%, -50%);
       object-fit: cover;
-      filter: brightness(0.6);
+      filter: brightness(0.65);
       z-index: 1;
     }
     .hero-video-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,20,0.27);
       z-index: 2;
     }
+    /* Blue bar and quote block matching exegesis */
     .hero-content {
       position: relative;
       z-index: 3;
-      color: #fff;
       max-width: 900px;
-      padding: 2.5rem 1.5rem 1.2rem 1.5rem;
       margin: 0 auto;
-      min-height: 400px;
+      min-height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .quote-bar-section {
+      display: flex;
+      align-items: flex-start;
+      background: none;
+      width: 100%;
+      padding: 2.5rem 2.5rem 2.2rem 0;
+    }
+    .blue-bar {
+      width: 8px;
+      background: #115293;
+      min-height: 110px;
+      border-radius: 4px;
+      margin-right: 2rem;
+      margin-top: 0.13em;
+    }
+    .quote-block {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+      align-items: flex-start;
+      color: #115293;
     }
-    blockquote.quote-text {
-      font-size: 2.5rem;
+    .quote-text {
+      font-size: 2.3rem;
+      font-weight: 700;
       font-style: italic;
-      margin: 0 0 1rem 0;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.22);
+      color: #115293;
+      letter-spacing: 0.01em;
+      line-height: 1.16;
+      margin-bottom: 0.3em;
+      margin-top: 0;
+      text-align: left;
+      text-shadow: 0 1px 7px rgba(0,0,0,0.12);
     }
-    p.quote-citation {
-      font-size: 1.2rem;
-      margin: 0 0 0.5rem 0;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    .quote-citation {
+      font-size: 1.07rem;
+      font-weight: 400;
+      color: #194578;
+      margin-top: 0.1em;
+      margin-left: 0.1em;
+      text-align: left;
+      font-style: normal;
+      opacity: 0.82;
+      letter-spacing: .01em;
     }
     #todays-reflection {
-      font-size: 1.25rem;
-      margin-top: 1rem;
+      margin: 2.2rem auto 1.7rem 58px;
+      color: #222c3c;
+      font-size: 1.23rem;
       font-weight: 500;
-      color: #edeed5;
-      text-shadow: 0 1px 6px rgba(0,0,0,0.14);
+      text-align: left;
+      max-width: 740px;
+      letter-spacing: .01em;
     }
 
+    /* Let Us Pray */
     #let-us-pray {
       max-width: 900px;
-      margin: 2rem auto 0 auto;
+      margin: 0.7rem auto 0.7rem 67px;
       background: #fcf4ec;
       border: 1px solid #e0d2b9;
       border-radius: 8px;
-      padding: 1.5rem 2rem;
-      font-family: 'EB Garamond', serif;
-      font-size: 1.23rem;
+      padding: 1.1rem 1.3rem;
+      font-size: 1.17rem;
       color: #4a3c23;
-      text-align: center;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(26,93,163,0.045);
     }
 
+    /* Carousel for reflections with matching style */
     .carousel-section {
       max-width: 1100px;
-      margin: 3rem auto 2rem auto;
+      margin: 3rem auto 2.4rem 67px;
       padding: 0 1rem;
     }
     .carousel-header {
       font-family: 'EB Garamond', serif;
       font-weight: 700;
-      font-size: 1.45rem;
+      font-size: 1.28rem;
       margin-bottom: 1rem;
       color: #1A5DA3;
-      text-align: center;
+      text-align: left;
       user-select: none;
+      margin-left: 0.15rem;
     }
     .carousel-row {
       display: flex;
-      gap: 1.5rem;
-      justify-content: center;
+      gap: 1.38rem;
+      justify-content: flex-start;
       flex-wrap: wrap;
     }
     .carousel-cell {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(26, 93, 163, 0.09);
-      padding: 1rem 1.25rem;
-      flex: 1 1 220px;
-      max-width: 240px;
-      font-family: 'EB Garamond', serif;
+      background: #f7fafd;
+      border-radius: 9px;
+      box-shadow: 0 0 10px rgba(26, 93, 163, 0.08);
+      padding: 0.98rem 1.2rem;
+      flex: 1 1 200px;
+      max-width: 227px;
       color: #193865;
-      cursor: default;
-      min-width: 180px;
-      min-height: 130px;
+      min-width: 170px;
+      min-height: 110px;
+      margin-bottom: 1.2rem;
     }
     .carousel-cell h3 {
-      font-weight: 700;
-      font-size: 1rem;
-      color: #1a5da3;
-      margin-bottom: 0.65rem;
-      text-align: center;
+      font-weight: 760;
+      font-size: 1.05rem;
+      color: #115293;
+      margin-bottom: 0.35em;
+      margin-top: 0.11em;
+      text-align: left;
+      letter-spacing: .01em;
     }
     .carousel-cell p {
-      font-size: 1rem;
-      line-height: 1.4;
-      min-height: 70px;
-      text-align: center;
+      font-size: 1.03rem;
+      line-height: 1.37;
+      color: #193865;
+      margin: 0;
+      min-height: 60px;
+      text-align: left;
     }
 
-    /* Lectio Links section */
+    /* Lectio Links Section */
     #lectio-links-section {
-      max-width: 950px;
-      margin: 3rem auto 2rem auto;
-      background: #f5f7f9;
-      border-radius: 9px;
-      padding: 1.6rem 1.5rem;
-      font-family: 'EB Garamond', serif;
+      max-width: 920px;
+      margin: 2.4rem auto 1.85rem 67px;
+      background: #eaf2f7;
+      border-radius: 8px;
+      padding: 1.2rem 1.25rem 1.08rem 1.15rem;
       color: #194578;
-      text-align: center;
-      font-size: 1.22rem;
-      box-shadow: 0 4px 16px rgba(26,93,163,0.055);
+      text-align: left;
+      font-size: 1.18rem;
+      box-shadow: 0 4px 14px rgba(26,93,163,0.045);
     }
     #lectio-links-header {
-      font-size: 1.25rem;
+      font-size: 1.13rem;
       font-weight: 700;
       color: #115293;
-      margin-bottom: .5rem;
+      margin-bottom: 0.45em;
       letter-spacing: .01em;
     }
 
     footer.footer {
       max-width: 1100px;
-      margin: 2rem auto 1rem auto;
+      margin: 2.2rem auto 1rem 0;
       padding: 1rem 1rem;
-      font-size: 0.9rem;
+      font-size: 0.93rem;
       color: #666;
       border-top: 1px solid #ccc;
       text-align: center;
       font-family: 'EB Garamond', serif;
       user-select: none;
     }
-    @media (max-width: 700px) {
-      .hero-video-wrapper, .hero-content { min-height: 220px; }
-      .carousel-row { gap: 1rem; }
-      .carousel-cell { min-width: 85vw; max-width: 95vw; margin-bottom: 1rem;}
-      .carousel-header { font-size: 1.1rem; }
-      #lectio-links-section { font-size: 1rem; padding: 1rem 0.25rem;}
+    @media (max-width: 950px) {
+      .carousel-row { flex-wrap: wrap; }
+    }
+    @media (max-width: 650px) {
+      .hero-content { min-height: 215px; padding: 1.2rem 0.2rem; }
+      .quote-text { font-size: 1.2rem; }
+      #todays-reflection, .carousel-cell h3, .carousel-header { font-size: 1rem;}
+      .carousel-cell { min-width: 96vw; max-width: 100vw; margin-bottom:1.1rem; }
+      #let-us-pray, #lectio-links-section { margin-left: 12px; }
+      .blue-bar { margin-right: 0.88rem; }
+      .navbar-brand img { height: 32px; }
     }
   </style>
 </head>
 <body>
   <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main menu">
-    <div class="container-fluid" style="display:flex; align-items:center; justify-content:space-between;">
-      <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
-        <img src="images/logo/logo.png" alt="FaithLinks logo" loading="lazy" />
-      </a>
-      <ul class="navbar-nav">
-        <li><a href="https://bible.usccb.org/daily-bible-reading" target="_blank" rel="noopener" class="scripture-link">Daily Scripture</a></li>
-        <li><a href="shop.html" class="nav-link">Shop</a></li>
-        <li><a href="donations.html" class="nav-link">Donate</a></li>
-        <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
-      </ul>
-    </div>
+    <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
+      <img src="images/logo/logo.png" alt="FaithLinks logo" />
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="https://bible.usccb.org/daily-bible-reading" target="_blank" rel="noopener" class="scripture-link">Daily Scripture</a></li>
+      <li><a href="shop.html" class="nav-link">Shop</a></li>
+      <li><a href="donations.html" class="nav-link">Donate</a></li>
+      <li><a href="exegesis.html" class="nav-link">Deep Dive</a></li>
+    </ul>
   </nav>
 
-  <!-- Hero Video + Quote Overlay -->
+  <!-- Hero Video + Quote Bar -->
   <section class="hero-video-wrapper" aria-label="Background video of flickering candles" role="presentation">
     <video autoplay muted loop playsinline aria-hidden="true">
       <source src="candle-video.mp4" type="video/mp4" />
     </video>
     <div class="hero-video-overlay"></div>
     <div class="hero-content" role="region" aria-live="polite" aria-atomic="true">
-      <blockquote id="quote" class="quote-text">Loading quote...</blockquote>
-      <p id="quote-citation" class="quote-citation"></p>
-      <div id="todays-reflection"></div>
+      <div class="quote-bar-section">
+        <div class="blue-bar"></div>
+        <div class="quote-block">
+          <blockquote id="quote" class="quote-text">Loading quote...</blockquote>
+          <div id="quote-citation" class="quote-citation"></div>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- Today's Reflection -->
+  <div id="todays-reflection"></div>
+
   <!-- Let Us Pray -->
-  <section id="let-us-pray" aria-label="Let Us Pray section">
-    Loading prayer...
-  </section>
+  <section id="let-us-pray" aria-label="Let Us Pray section">Loading prayer...</section>
 
   <!-- Carousel with 4 content cells -->
   <section class="carousel-section" aria-label="Content summary carousel">
@@ -250,15 +343,13 @@
       try {
         const DateTime = luxon.DateTime;
         const today = DateTime.now().setZone("America/New_York").toISODate();
-
         const res = await fetch('./devotions.json', { cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch devotions.json: ${res.status}`);
 
         const data = await res.json();
         const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
 
-        // Populate or fallback for all sections
-        // Hero quote and citation
+        // HERO QUOTE & CITATION
         document.getElementById('quote').textContent = (entry && entry.quote) || "Today's reflection coming soon";
         document.getElementById('quote-citation').textContent = (entry && entry.quoteCitation) || "";
 
@@ -268,7 +359,7 @@
         // Let Us Pray
         document.getElementById('let-us-pray').textContent = (entry && entry.dailyPrayer) || "Let us pray ...";
 
-        // Carousel (4 feeds)
+        // Carousel content
         document.getElementById('second-reading-content').textContent   = (entry && entry.secondReading)   || "";
         document.getElementById('psalm-summary-content').textContent   = (entry && entry.psalmSummary)   || "";
         document.getElementById('gospel-summary-content').textContent  = (entry && entry.gospelSummary)  || "";
@@ -276,7 +367,6 @@
 
         // Lectio Links
         document.getElementById('lectio-links-content').textContent = (entry && entry.theologicalSynthesis) || "";
-
       } catch (error) {
         console.error("Error loading devotions:", error);
         document.getElementById('quote').textContent = "Error loading quote.";
