@@ -15,11 +15,171 @@
   <!-- Base CSS -->
   <link rel="stylesheet" href="components/base/base.css" />
 
-  <!-- Luxon for date handling -->
+  <!-- Luxon for date/time handling -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    .hero-video-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 400px;
+      overflow: hidden;
+    }
+    .hero-video-wrapper video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      filter: brightness(0.6);
+      z-index: 1;
+    }
+    .hero-video-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 2;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      color: #fff;
+      max-width: 900px;
+      padding: 2.5rem 1.5rem 1.2rem 1.5rem;
+      margin: 0 auto;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    blockquote.quote-text {
+      font-size: 2.5rem;
+      font-style: italic;
+      margin: 0 0 1rem 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.22);
+    }
+    p.quote-citation {
+      font-size: 1.2rem;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    #todays-reflection {
+      font-size: 1.25rem;
+      margin-top: 1rem;
+      font-weight: 500;
+      color: #edeed5;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.14);
+    }
+
+    #let-us-pray {
+      max-width: 900px;
+      margin: 2rem auto 0 auto;
+      background: #fcf4ec;
+      border: 1px solid #e0d2b9;
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      font-family: 'EB Garamond', serif;
+      font-size: 1.23rem;
+      color: #4a3c23;
+      text-align: center;
+    }
+
+    .carousel-section {
+      max-width: 1100px;
+      margin: 3rem auto 2rem auto;
+      padding: 0 1rem;
+    }
+    .carousel-header {
+      font-family: 'EB Garamond', serif;
+      font-weight: 700;
+      font-size: 1.45rem;
+      margin-bottom: 1rem;
+      color: #1A5DA3;
+      text-align: center;
+      user-select: none;
+    }
+    .carousel-row {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .carousel-cell {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(26, 93, 163, 0.09);
+      padding: 1rem 1.25rem;
+      flex: 1 1 220px;
+      max-width: 240px;
+      font-family: 'EB Garamond', serif;
+      color: #193865;
+      cursor: default;
+      min-width: 180px;
+      min-height: 130px;
+    }
+    .carousel-cell h3 {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1a5da3;
+      margin-bottom: 0.65rem;
+      text-align: center;
+    }
+    .carousel-cell p {
+      font-size: 1rem;
+      line-height: 1.4;
+      min-height: 70px;
+      text-align: center;
+    }
+
+    /* Lectio Links section */
+    #lectio-links-section {
+      max-width: 950px;
+      margin: 3rem auto 2rem auto;
+      background: #f5f7f9;
+      border-radius: 9px;
+      padding: 1.6rem 1.5rem;
+      font-family: 'EB Garamond', serif;
+      color: #194578;
+      text-align: center;
+      font-size: 1.22rem;
+      box-shadow: 0 4px 16px rgba(26,93,163,0.055);
+    }
+    #lectio-links-header {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #115293;
+      margin-bottom: .5rem;
+      letter-spacing: .01em;
+    }
+
+    footer.footer {
+      max-width: 1100px;
+      margin: 2rem auto 1rem auto;
+      padding: 1rem 1rem;
+      font-size: 0.9rem;
+      color: #666;
+      border-top: 1px solid #ccc;
+      text-align: center;
+      font-family: 'EB Garamond', serif;
+      user-select: none;
+    }
+    @media (max-width: 700px) {
+      .hero-video-wrapper, .hero-content { min-height: 220px; }
+      .carousel-row { gap: 1rem; }
+      .carousel-cell { min-width: 85vw; max-width: 95vw; margin-bottom: 1rem;}
+      .carousel-header { font-size: 1.1rem; }
+      #lectio-links-section { font-size: 1rem; padding: 1rem 0.25rem;}
+    }
+  </style>
 </head>
 <body>
-  <!-- Navigation bar (matches exegesis page) -->
+  <!-- Navigation -->
   <nav class="navbar" role="navigation" aria-label="Main menu">
     <div class="container-fluid" style="display:flex; align-items:center; justify-content:space-between;">
       <a href="index.html" class="navbar-brand" aria-label="Go to homepage">
@@ -34,39 +194,52 @@
     </div>
   </nav>
 
-  <main class="container" role="main">
-    <!-- Quote Section -->
-    <section class="quote-section" aria-label="Today's Quote">
-      <blockquote id="quote" class="quote-text fs-3 fst-italic text-primary mb-3" tabindex="0">Loading quote...</blockquote>
-      <p id="quote-citation" class="quote-citation fs-5 text-muted mb-4" tabindex="0"></p>
-      <div id="tags" class="tags-row fs-6 fst-italic text-secondary mb-4"></div>
-    </section>
-
-    <!-- Liturgical Tags -->
-    <div id="liturgical-tags" class="fs-6 mb-4 text-primary text-center">
-      <span>Cycle: <strong id="cycle-tag">N/A</strong></span> |
-      <span>Weekday Cycle: <strong id="weekday-cycle">N/A</strong></span> |
-      <span>Feast: <strong id="feast-tag">None</strong></span> |
-      <span>Gospel: <strong id="gospel-tag">Unknown</strong></span>
-      <span>USCCB Link: <a href="#" id="usccb-link" target="_blank" rel="noopener noreferrer">Open Readings</a></span>
+  <!-- Hero Video + Quote Overlay -->
+  <section class="hero-video-wrapper" aria-label="Background video of flickering candles" role="presentation">
+    <video autoplay muted loop playsinline aria-hidden="true">
+      <source src="candle-video.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-video-overlay"></div>
+    <div class="hero-content" role="region" aria-live="polite" aria-atomic="true">
+      <blockquote id="quote" class="quote-text">Loading quote...</blockquote>
+      <p id="quote-citation" class="quote-citation"></p>
+      <div id="todays-reflection"></div>
     </div>
+  </section>
 
-    <!-- Content Sections -->
-    <p id="summary" class="fs-5 mb-3 text-body"></p>
-    <p id="psalm-summary" class="fs-5 mb-3 text-muted"></p>
-    <p id="gospel-summary" class="fs-5 mb-3"></p>
-    <p id="saint-reflection" class="fs-5 mb-3"></p>
-    <p id="daily-prayer" class="fs-5 mb-3 text-body"></p>
-    <p id="theological-synthesis" class="fs-5 mb-3"></p>
-    <p id="second-reading" class="fs-5 mb-3"></p>
-    <p id="exegesis" class="fs-5 mb-3"></p>
+  <!-- Let Us Pray -->
+  <section id="let-us-pray" aria-label="Let Us Pray section">
+    Loading prayer...
+  </section>
 
-    <!-- Recent Reflections Carousel (matches exegesis) -->
-    <section class="carousel-section" aria-label="Recent Reflections Carousel">
-      <h2 class="carousel-header">Recent Reflections</h2>
-      <div id="carousel-inner" class="carousel-inner" role="list"></div>
-    </section>
-  </main>
+  <!-- Carousel with 4 content cells -->
+  <section class="carousel-section" aria-label="Content summary carousel">
+    <h2 class="carousel-header">Today's Reflections</h2>
+    <div class="carousel-row">
+      <div class="carousel-cell" id="second-reading" tabindex="0">
+        <h3>Second Reading</h3>
+        <p id="second-reading-content"></p>
+      </div>
+      <div class="carousel-cell" id="psalm-summary" tabindex="0">
+        <h3>Psalm Summary</h3>
+        <p id="psalm-summary-content"></p>
+      </div>
+      <div class="carousel-cell" id="gospel-summary" tabindex="0">
+        <h3>Gospel Summary</h3>
+        <p id="gospel-summary-content"></p>
+      </div>
+      <div class="carousel-cell" id="saint-reflection" tabindex="0">
+        <h3>Saint Reflection</h3>
+        <p id="saint-reflection-content"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lectio Links section -->
+  <section id="lectio-links-section">
+    <div id="lectio-links-header">Lectio Links</div>
+    <div id="lectio-links-content">Loading ...</div>
+  </section>
 
   <footer class="footer">
     © 2025 Daily Lectio Media LLC | FaithLinks™ — Wear the Word. Grow in Grace.
@@ -84,89 +257,37 @@
         const data = await res.json();
         const entry = Array.isArray(data) ? data.find(d => d.date === today) : data[today];
 
-        if (!entry) {
-          document.getElementById("quote").textContent = "Today's reflection coming soon";
-          document.getElementById("quote-citation").textContent = "";
-          document.getElementById("tags").textContent = "";
-          ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id =>
-            document.getElementById(id).textContent = "");
-          document.getElementById("cycle-tag").textContent = "N/A";
-          document.getElementById("weekday-cycle").textContent = "N/A";
-          document.getElementById("feast-tag").textContent = "None";
-          document.getElementById("gospel-tag").textContent = "Unknown";
-          document.getElementById("usccb-link").href = "#";
-          document.getElementById("usccb-link").textContent = "";
-          document.getElementById("carousel-inner").innerHTML = `<div style="color:#999; padding:1rem;">No recent reflections available.</div>`;
-          return;
-        }
+        // Populate or fallback for all sections
+        // Hero quote and citation
+        document.getElementById('quote').textContent = (entry && entry.quote) || "Today's reflection coming soon";
+        document.getElementById('quote-citation').textContent = (entry && entry.quoteCitation) || "";
 
-        // Populate devotion of the day
-        document.getElementById("quote").textContent = entry.quote || "";
-        document.getElementById("quote-citation").textContent = entry.quoteCitation || "";
-        document.getElementById("tags").textContent = (entry.tags && entry.tags.length > 0)
-          ? "Tags: " + entry.tags.join(", ") : "Tags: None";
+        // Today's Reflection
+        document.getElementById('todays-reflection').textContent = (entry && entry.summary) || "";
 
-        document.getElementById("summary").textContent = entry.summary || "";
-        document.getElementById("psalm-summary").textContent = entry.psalmSummary || "";
-        document.getElementById("gospel-summary").textContent = entry.gospelSummary || "";
-        document.getElementById("saint-reflection").textContent = entry.saintReflection || "";
-        document.getElementById("daily-prayer").textContent = entry.dailyPrayer || "";
-        document.getElementById("theological-synthesis").textContent = entry.theologicalSynthesis || "";
-        document.getElementById("second-reading").textContent = entry.secondReading || "";
-        document.getElementById("exegesis").textContent = entry.exegesis || "";
+        // Let Us Pray
+        document.getElementById('let-us-pray').textContent = (entry && entry.dailyPrayer) || "Let us pray ...";
 
-        document.getElementById("cycle-tag").textContent = entry.cycle || "N/A";
-        document.getElementById("weekday-cycle").textContent = entry.weekdayCycle || "N/A";
-        document.getElementById("feast-tag").textContent = entry.feast || "None";
-        document.getElementById("gospel-tag").textContent = entry.gospelReference || "Unknown";
-        const usccbLinkEl = document.getElementById("usccb-link");
-        if (entry.usccbLink) {
-          usccbLinkEl.href = entry.usccbLink;
-          usccbLinkEl.textContent = "Read Today's Scriptures";
-        } else {
-          usccbLinkEl.href = "#";
-          usccbLinkEl.textContent = "";
-        }
+        // Carousel (4 feeds)
+        document.getElementById('second-reading-content').textContent   = (entry && entry.secondReading)   || "";
+        document.getElementById('psalm-summary-content').textContent   = (entry && entry.psalmSummary)   || "";
+        document.getElementById('gospel-summary-content').textContent  = (entry && entry.gospelSummary)  || "";
+        document.getElementById('saint-reflection-content').textContent = (entry && entry.saintReflection) || "";
 
-        // Carousel: last 6 past entries
-        const pastEntries = (Array.isArray(data) ? data : Object.values(data))
-          .filter(d => d.exegesis && d.date < today)
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 6);
+        // Lectio Links
+        document.getElementById('lectio-links-content').textContent = (entry && entry.theologicalSynthesis) || "";
 
-        const carouselEl = document.getElementById("carousel-inner");
-        carouselEl.innerHTML = "";
-        if (pastEntries.length === 0) {
-          carouselEl.innerHTML = `<div style="color:#999; padding:1rem;">No recent reflections available.</div>`;
-        } else {
-          pastEntries.forEach(post => {
-            const excerpt = post.exegesis && post.exegesis.length > 160
-              ? post.exegesis.substring(0, 157) + '…'
-              : post.exegesis || '';
-            const displayTitle = (post.feast && post.feast !== "None") ? post.feast : (post.gospelReference || post.date);
-            carouselEl.innerHTML += `
-              <a href="exegesis.html?date=${post.date}" class="carousel-item" role="listitem" tabindex="0" aria-label="Reflection for ${post.date}">
-                <div class="date">${post.date}</div>
-                <div class="title">${displayTitle}</div>
-                <div class="excerpt">${excerpt}</div>
-                <div class="cta">Read &rsaquo;</div>
-              </a>`;
-          });
-        }
-      } catch (err) {
-        console.error("Error loading devotions:", err);
-        document.getElementById("quote").textContent = "Error loading daily devotions.";
-        document.getElementById("quote-citation").textContent = "";
-        document.getElementById("tags").textContent = "";
-        ["summary","psalm-summary","gospel-summary","saint-reflection","daily-prayer","theological-synthesis","second-reading","exegesis"].forEach(id =>
-          document.getElementById(id).textContent = "");
-        document.getElementById("cycle-tag").textContent = "N/A";
-        document.getElementById("weekday-cycle").textContent = "N/A";
-        document.getElementById("feast-tag").textContent = "None";
-        document.getElementById("gospel-tag").textContent = "Unknown";
-        document.getElementById("usccb-link").href = "#";
-        document.getElementById("usccb-link").textContent = "";
-        document.getElementById("carousel-inner").innerHTML = `<div style="color:#999; padding: 1rem;">Failed to load recent reflections.</div>`;
+      } catch (error) {
+        console.error("Error loading devotions:", error);
+        document.getElementById('quote').textContent = "Error loading quote.";
+        document.getElementById('quote-citation').textContent = "";
+        document.getElementById('todays-reflection').textContent = "";
+        document.getElementById('let-us-pray').textContent = "";
+        document.getElementById('second-reading-content').textContent = "";
+        document.getElementById('psalm-summary-content').textContent = "";
+        document.getElementById('gospel-summary-content').textContent = "";
+        document.getElementById('saint-reflection-content').textContent = "";
+        document.getElementById('lectio-links-content').textContent = "";
       }
     })();
   </script>
