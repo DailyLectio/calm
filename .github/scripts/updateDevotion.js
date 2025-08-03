@@ -1,13 +1,14 @@
 const fs = require('fs');
+const { DateTime } = require('luxon');
 
 // Read the weekly feed
 const weeklyFeed = JSON.parse(fs.readFileSync('public/weeklyfeed.json', 'utf8'));
 
-// Get today's UTC date (adjust to local if needed)
-const now = new Date();
-const year = now.getUTCFullYear();
-const month = String(now.getUTCMonth() + 1).padStart(2, "0");
-const day = String(now.getUTCDate()).padStart(2, "0");
+// Get today's date in US Eastern Time (EST/EDT automatically handled)
+const now = DateTime.now().setZone('America/New_York');
+const year = now.year;
+const month = String(now.month).padStart(2, "0");
+const day = String(now.day).padStart(2, "0");
 const todayString = `${year}-${month}-${day}`;
 
 // Find today's entry

@@ -2,8 +2,8 @@ name: Update Daily Devotion
 
 on:
   schedule:
-    - cron: '2 7 * * *'      # Runs every day at 07:02 UTC (adjust as needed)
-  workflow_dispatch:         # Allows you to trigger manually if desired
+    - cron: '2 7 * * *'      # Runs every day at 07:02 UTC (3:02 AM EDT/EST; adjust if needed)
+  workflow_dispatch:
 
 jobs:
   update-devotion:
@@ -12,15 +12,17 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      - name: Install luxon for timezones
+        run: npm install luxon
+
       - name: Update devotions.json
-        run: |
-          node .github/scripts/updateDevotion.js
+        run: node .github/scripts/updateDevotion.js
 
       - name: Commit and push changes
         run: |
@@ -29,4 +31,3 @@ jobs:
           git add public/devotions.json
           git commit -m "Auto-update devotions.json for today" || echo "No changes to commit"
           git push
-
