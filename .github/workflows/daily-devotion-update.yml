@@ -2,12 +2,14 @@ name: Update Daily Devotion
 
 on:
   schedule:
-    - cron: '2 7 * * *'      # Every day at 07:02 UTC
+    - cron: '2 7 * * *'
   workflow_dispatch:
 
 jobs:
   update-devotion:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    # This is crucial!
 
     steps:
       - name: Checkout repo
