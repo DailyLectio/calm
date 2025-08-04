@@ -9,8 +9,7 @@ jobs:
   update-devotion:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # This is crucial!
-
+      contents: write # This is crucial!
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -27,11 +26,11 @@ jobs:
         run: python3 update_daily_devotion.py
 
       - name: Commit and push changes
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add public/devotions.json dist/devotions.json devotion_update.log
+          git diff --staged --quiet || git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+          git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config --global user.name 'JimGram'
-          git config --global user.email 'jimgram@gmail.com'
-          git add public/devotions.json
-          git commit -m "Auto-update devotions.json for today" || echo "No changes to commit"
-          git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
