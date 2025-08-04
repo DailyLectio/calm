@@ -12,13 +12,13 @@ def fix(entry):
     # Rename reading_summary to first_reading
     if "reading_summary" in entry:
         entry["first_reading"] = entry.pop("reading_summary")
-    # Insert a new "summary" field after "quote" if not present
-    if "quote" in entry and "summary" not in entry:
+    # Insert a new "firstReading" field after "quote" if not present
+    if "quote" in entry and "firstReading" not in entry:
         new = collections.OrderedDict()
         for k, v in entry.items():
             new[k] = v
             if k == "quote":
-                new["summary"] = "This field will be a summary."
+                new["firstReading"] = "This field will be a summary."
         entry.clear()
         entry.update(new)
     return entry
