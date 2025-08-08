@@ -2,35 +2,58 @@ name: Update Daily Devotion
 
 on:
   schedule:
-    - cron: '2 7 * * *'
+    - cron: '2 7 * * *'  # runs daily at 07:02 UTC (~03:02 ET during EDT)
   workflow_dispatch:
 
 jobs:
   update-devotion:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # This is crucial!
+      contents: write
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (main, full history)
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          ref: main
+          fetch-depth: 0
 
-      - name: Install dependencies
-        run: npm install luxon
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ---- Optional preflight sanity check (recommended) ----
+      # This step FAILS EARLY if today's date isn't found in public/weeklyfeed.json
+      - name: Sanity check weeklyfeed for today
+        env:
+          APP_TZ: America/New_York   # Tampa is Eastern Time; change if you prefer
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          tz = os.environ.get("APP_TZ","UTC")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+          data = json.load(open("public/weeklyfeed.json"))
+          found = any(str(e.get("date","")).strip()==today for e in data)
+          print("tz=", tz, "today=", today, "found=", found)
+          raise SystemExit(0 if found else 1)
+          PY
 
       - name: Run daily devotion update (Python)
-        run: python3 update_daily_devotion.py
+        env:
+          APP_TZ: America/New_York
+        run: |
+          python3 update_daily_devotion.py --tz "$APP_TZ"
 
       - name: Commit and push changes
         run: |
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
-          git add public/devotions.json dist/devotions.json devotion_update.log
+          git add public/devotions.json dist/devotions.json
           git diff --staged --quiet || git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+          # If your repo path is different, change the owner/repo here:
           git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
         env:
           GH_PAT: ${{ secrets.GH_PAT }}

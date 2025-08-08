@@ -1,72 +1,56 @@
-#!/usr/bin/env python3
-"""
-Daily Devotion Update Script for FaithLinks
-Updates today's devotional entry from weeklyfeed.json to:
-- public/devotions.json (live source)
-- dist/devotions.json (backup/build dist folder)
-"""
+name: Update Daily Devotion
 
-import json
-import os
-import sys
-from datetime import datetime
-import logging
+on:
+  schedule:
+    - cron: '2 7 * * *'  # runs at 07:02 UTC (03:02 ET during EDT)
+  workflow_dispatch:
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PUBLIC_DIR = os.path.join(BASE_DIR, "public")
-DIST_DIR = os.path.join(BASE_DIR, "dist")
+jobs:
+  update-devotion:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-WEEKLY_PATH = os.path.join(PUBLIC_DIR, "weeklyfeed.json")
-PUBLIC_TARGET_PATH = os.path.join(PUBLIC_DIR, "devotions.json")
-DIST_TARGET_PATH = os.path.join(DIST_DIR, "devotions.json")
-LOG_PATH = os.path.join(BASE_DIR, "devotion_update.log")
+    steps:
+      - name: Checkout repo (main, full history)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_PATH),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-def update_devotions():
-    today = datetime.now().strftime("%Y-%m-%d")
-    logging.info(f"Starting daily devotion update for {today}")
+      # --- Optional: fail fast if today's date isn't in weeklyfeed.json
+      - name: Sanity check weeklyfeed for today
+        env:
+          APP_TZ: America/New_York
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          tz = os.environ.get("APP_TZ","UTC")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+          data = json.load(open("public/weeklyfeed.json"))
+          found = any(str(e.get("date","")).strip()==today for e in data)
+          print("tz=", tz, "today=", today, "found=", found)
+          raise SystemExit(0 if found else 1)
+          PY
 
-    # Verify source data file exists
-    if not os.path.exists(WEEKLY_PATH):
-        logging.error(f"Source file missing: {WEEKLY_PATH}")
-        sys.exit(1)
+      - name: Run daily devotion update (Python)
+        env:
+          APP_TZ: America/New_York
+        run: python3 update_daily_devotion.py --tz "$APP_TZ"
 
-    try:
-        with open(WEEKLY_PATH, "r", encoding="utf-8") as f:
-            weekly_data = json.load(f)
-    except Exception as e:
-        logging.error(f"Error reading weeklyfeed.json: {e}")
-        sys.exit(1)
-
-    today_entry = next((entry for entry in weekly_data if entry.get("date") == today), None)
-    if not today_entry:
-        logging.error(f"No entry with date {today} found in weeklyfeed.json")
-        sys.exit(1)
-
-    # Write to public/devotions.json (live)
-    try:
-        with open(PUBLIC_TARGET_PATH, "w", encoding="utf-8") as f:
-            json.dump([today_entry], f, indent=2, ensure_ascii=False)
-        logging.info(f"✅ Updated {PUBLIC_TARGET_PATH} with entry for {today}")
-    except Exception as e:
-        logging.error(f"Failed writing to {PUBLIC_TARGET_PATH}: {e}")
-
-    # Write to dist/devotions.json (backup)
-    try:
-        os.makedirs(DIST_DIR, exist_ok=True)  # Ensure dist folder exists
-        with open(DIST_TARGET_PATH, "w", encoding="utf-8") as f:
-            json.dump([today_entry], f, indent=2, ensure_ascii=False)
-        logging.info(f"✅ Updated {DIST_TARGET_PATH} with entry for {today}")
-    except Exception as e:
-        logging.error(f"Failed writing to {DIST_TARGET_PATH}: {e}")
-
-if __name__ == "__main__":
-    update_devotions()
+      - name: Commit and push changes
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add public/devotions.json dist/devotions.json
+          git diff --staged --quiet || git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+          git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
