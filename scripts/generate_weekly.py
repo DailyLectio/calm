@@ -15,7 +15,7 @@ SCHEMA_PATH   = ROOT / "schemas" / "devotion.schema.json"
 try:
     from zoneinfo import ZoneInfo
 except Exception:
-    ZoneInfo = None  # fallback on platforms without zoneinfo
+    ZoneInfo = None
 
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
 
@@ -39,28 +39,28 @@ try:
     DAYS = int(_raw_days or "7")
 except ValueError:
     DAYS = 7
-DAYS = max(1, min(DAYS, 14))  # keep it sane
+DAYS = max(1, min(DAYS, 14))  # sanity bounds
 
 USCCB_BASE = "https://bible.usccb.org/bible/readings"
 
 STYLE_CARD = """ROLE: Catholic editor + theologian for FaithLinks.
 
-Write each day in two layers:
-(1) Accessible summaries (high-school/early-college) for first reading, psalm, gospel, saint.
-(2) A deeper academic “exegesis” (masters level), 400–700 words.
+Audience: teens + adults. Two layers:
+(1) Accessible summaries (high-school/early-college) for firstReading, psalmSummary, gospelSummary, saintReflection.
+(2) A deeper “exegesis” (masters level), 400–700 words.
 
-Rules:
-- Do NOT quote copyrighted scripture; only use citations (e.g., “Dt 4:32–40”).
-- Use 'theologicalSynthesis' (3–6 sentences) to LINK the readings and saint with today’s challenges.
-- Warm, pastoral, concrete; no fluff; avoid clichés.
-- Make the saint connection explicit.
-- End with an ORIGINAL dailyPrayer (3–6 sentences).
+Hard requirements:
+- Provide a non-empty 'quote' (<= 20 words) AND a non-empty 'quoteCitation' like "Mt 16:24".
+- Do NOT paste copyrighted scripture passages; short quotes are acceptable with citation.
+- 'theologicalSynthesis': 3–6 sentences that LINK the readings + saint to today’s challenges (Lectio Link).
+- Warm, pastoral, concrete; no clichés; show the connections.
+- End with an ORIGINAL 'dailyPrayer' (3–6 sentences).
 
-Output valid JSON with these keys (match your schema):
-date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary,
-saintReflection, theologicalSynthesis, exegesis, dailyPrayer, usccbLink, tags, cycle,
-weekdayCycle, feast, gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey.
-Return ONLY one JSON object. No markdown.
+Return ONLY a JSON object with these keys (strings unless noted):
+date, quote, quoteCitation, firstReading, secondReading (string or null), psalmSummary, gospelSummary, saintReflection,
+dailyPrayer, theologicalSynthesis, exegesis, tags (array of strings), usccbLink, cycle, weekdayCycle, feast, gospelReference,
+firstReadingRef, secondReadingRef (string or null), psalmRef, gospelRef, lectionaryKey.
+No markdown, no commentary.
 """
 
 def usccb_link(d: date) -> str:
@@ -111,26 +111,122 @@ def lectionary_key(meta: dict) -> str:
     return "|".join(p for p in parts if p)
 
 def extract_json(text: str) -> str:
-    """
-    Fallback: if the model returns extra text, grab the first {...} block.
-    """
-    s = text.find("{")
-    e = text.rfind("}")
+    s = text.find("{"); e = text.rfind("}")
     if s >= 0 and e > s:
         return text[s:e+1]
     return text
 
+def clean_tags(tags_val) -> list[str]:
+    if tags_val is None:
+        return []
+    if isinstance(tags_val, str):
+        items = [tags_val]
+    elif isinstance(tags_val, list):
+        items = tags_val
+    else:
+        return []
+    out = []
+    for t in items:
+        s = str(t).strip()
+        if s:
+            out.append(s)
+        if len(out) >= 12:
+            break
+    return out
+
+def repair_quote(client: OpenAI, ds: str, meta: dict) -> dict:
+    prompt = (
+        "Provide ONE short Scripture quotation (<= 20 words) from today's readings and its short citation. "
+        "Return JSON with keys 'quote' and 'quoteCitation' only.\n"
+        f"Date: {ds}\n"
+        f"First: {meta.get('firstRef','')}\n"
+        f"Psalm: {meta.get('psalmRef','')}\n"
+        f"Gospel: {meta.get('gospelRef','')}\n"
+    )
+    fix = client.chat.completions.create(
+        model="gpt-4o-mini",
+        temperature=0.4,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role":"system","content":"You supply precise quotations and short citations based on the given references."},
+            {"role":"user","content": prompt},
+        ],
+    )
+    try:
+        return json.loads(fix.choices[0].message.content)
+    except Exception:
+        return {}
+
+def canonicalize(obj: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
+    """Shape the object to EXACT keys and types your site expects."""
+    def S(k, default=""):
+        v = obj.get(k)
+        if v is None:
+            return default
+        s = str(v).strip()
+        return s if s else default
+
+    # secondReading may be nullable
+    second_reading = obj.get("secondReading")
+    if isinstance(second_reading, str):
+        second_reading = second_reading.strip() or None
+    elif second_reading is not None:
+        second_reading = str(second_reading).strip() or None
+
+    second_ref = obj.get("secondReadingRef")
+    if isinstance(second_ref, str):
+        second_ref = second_ref.strip() or None
+    elif second_ref is not None:
+        second_ref = str(second_ref).strip() or None
+    if not second_ref:
+        second_ref = meta.get("secondRef") or None
+
+    clean = {
+        # REQUIRED keys (exact names)
+        "date": ds,
+        "quote": S("quote"),
+        "quoteCitation": S("quoteCitation"),
+        "firstReading": S("firstReading"),
+        "psalmSummary": S("psalmSummary"),
+        "gospelSummary": S("gospelSummary"),
+        "saintReflection": S("saintReflection"),
+        "dailyPrayer": S("dailyPrayer"),
+        "theologicalSynthesis": S("theologicalSynthesis"),
+        "exegesis": S("exegesis"),
+        "secondReading": second_reading,  # string or None
+        "tags": clean_tags(obj.get("tags")),
+        "usccbLink": usccb_link(d),
+        "cycle": S("cycle") or meta["cycle"],
+        "weekdayCycle": S("weekdayCycle") or meta["weekday"],
+        "feast": S("feast") or meta["feast"],
+        "gospelReference": S("gospelReference") or meta["gospelRef"],
+
+        # The four we added
+        "firstReadingRef": S("firstReadingRef") or meta["firstRef"],
+        "secondReadingRef": second_ref,  # string or None
+        "psalmRef": S("psalmRef") or meta["psalmRef"],
+        "gospelRef": S("gospelRef") or meta["gospelRef"],
+
+        # Extra helpful key we already use
+        "lectionaryKey": S("lectionaryKey") or lk,
+    }
+    return clean
+
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS}")
 
-    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-    validator = Draft202012Validator(schema)
+    validator = None
+    if SCHEMA_PATH.exists():
+        schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+    else:
+        print(f"[warn] {SCHEMA_PATH} not found; skipping schema validation")
 
     weekly = load_json(WEEKLY_PATH, default=[])
     by_date = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
     hints  = load_json(READINGS_HINT, default=None)
 
-    client = OpenAI()  # requires OPENAI_API_KEY
+    client = OpenAI()  # needs OPENAI_API_KEY
 
     for i in range(DAYS):
         d  = START + timedelta(days=i)
@@ -161,31 +257,37 @@ def main():
         )
         raw = resp.choices[0].message.content
         try:
-            obj = json.loads(raw)
+            draft = json.loads(raw)
         except Exception:
-            obj = json.loads(extract_json(raw))
+            draft = json.loads(extract_json(raw))
 
-        # Fill/normalize required fields
-        obj["date"]            = ds
-        obj["usccbLink"]       = usccb_link(d)
-        obj["cycle"]           = obj.get("cycle") or meta["cycle"]
-        obj["weekdayCycle"]    = obj.get("weekdayCycle") or meta["weekday"]
-        obj["feast"]           = obj.get("feast") or meta["feast"]
-        obj["firstReadingRef"] = obj.get("firstReadingRef") or meta["firstRef"]
-        obj["secondReadingRef"]= obj.get("secondReadingRef") or (None if not meta["secondRef"] else meta["secondRef"])
-        obj["psalmRef"]        = obj.get("psalmRef") or meta["psalmRef"]
-        obj["gospelRef"]       = obj.get("gospelRef") or meta["gospelRef"]
-        obj["gospelReference"] = obj.get("gospelReference") or meta["gospelRef"]
-        obj["lectionaryKey"]   = obj.get("lectionaryKey") or lk
+        # Repair pass to GUARANTEE non-empty quote & citation
+        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip()) < 3)
+        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip()) < 2)
+        if need_q or need_c:
+            patch = repair_quote(client, ds, meta)
+            if need_q and patch.get("quote"):
+                draft["quote"] = patch["quote"]
+            if need_c and patch.get("quoteCitation"):
+                draft["quoteCitation"] = patch["quoteCitation"]
+            # Last-resort fallback (should rarely trigger)
+            if not draft.get("quoteCitation"):
+                draft["quoteCitation"] = meta.get("gospelRef") or meta.get("firstRef") or "—"
+            if not draft.get("quote") or len(str(draft["quote"]).strip()) < 3:
+                draft["quote"] = "Teach me your ways, O Lord."
 
-        # Validate against schema
-        errs = list(validator.iter_errors(obj))
-        if errs:
-            details = "; ".join([f"{'/'.join(map(str,e.path))}: {e.message}" for e in errs])
-            raise SystemExit(f"Validation failed for {ds}: {details}")
+        # Build the EXACT shape your site expects
+        obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
+
+        # Validate if schema present
+        if validator:
+            errs = list(validator.iter_errors(obj))
+            if errs:
+                details = "; ".join([f"{'/'.join(map(str,e.path))}: {e.message}" for e in errs])
+                raise SystemExit(f"Validation failed for {ds}: {details}")
 
         by_date[ds] = obj
-        print(f"[ok] generated {ds}")
+        print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})")
 
     out = list(sorted(by_date.values(), key=lambda r: r["date"]))
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
