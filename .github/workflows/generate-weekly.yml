@@ -2,8 +2,17 @@ name: Generate Weekly Devotions
 
 on:
   schedule:
-    - cron: '5 8 * * 5'   # Fridays 08:05 UTC (~4:05am ET in summer, ~3:05am ET in winter)
+    - cron: '5 8 * * 4'   # Thursdays 08:05 UTC (≈ 4:05am ET in summer, 3:05am ET in winter)
   workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Start date (YYYY-MM-DD). Leave blank for today."
+        required: false
+        default: ""
+      days:
+        description: "How many days to generate"
+        required: false
+        default: "7"
 
 jobs:
   gen-weekly:
