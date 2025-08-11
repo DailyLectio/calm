@@ -1,0 +1,23 @@
+name: Validate Devotions JSON
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install validator deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema
+      - name: Validate JSON files
+        run: |
+          python scripts/validate_devotions.py
