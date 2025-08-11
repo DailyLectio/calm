@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://your-domain/schemas/weekly.schema.json",
+  "title": "Weekly Devotions Feed",
+  "type": "array",
+  "items": { "$ref": "https://your-domain/schemas/devotion.schema.json" },
+  "minItems": 1
+}
