@@ -1,23 +1,47 @@
 name: Validate Devotions JSON
+
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'public/**/*.json'
+      - 'schemas/**/*.json'
+      - 'scripts/validate_devotions.py'
+  push:
+    branches: [ main ]
+    paths:
+      - 'public/**/*.json'
+      - 'schemas/**/*.json'
+      - 'scripts/**/*.py'
+  workflow_dispatch: {}   # lets you run it manually
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+      # ✅ IMPORTANT: checkout the PR HEAD, not the merge ref
+      - name: Checkout PR HEAD
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
       - name: Install validator deps
         run: |
-          python -m pip install --upgrade pip
-          pip install jsonschema
-      - name: Validate JSON files
+          python -V
+          pip install -q jsonschema jq
+
+      # 👇 print exactly what the runner is validating
+      - name: Debug — echo JSON snapshot
         run: |
-          python scripts/validate_devotions.py
+          echo "HEAD SHA: $GITHUB_SHA"
+          echo "First 11 weekly rows:"
+          jq -r 'to_entries[] | select(.key<11) | "\(.key)\t\(.value.date)\tcycle=\(.value.cycle)\tweekdayCycle=\(.value.weekdayCycle)"' public/weeklyfeed.json
+          echo "Search for bad strings:"
+          LC_ALL=C grep -nE "Year[[:space:]]*C|Cycle[[:space:]]*I" public/weeklyfeed.json || echo "no matches"
+          echo "Devotions object:"
+          jq '{date, cycle, weekdayCycle}' public/devotions.json
+
+      - name: Validate JSON files
+        run: python scripts/validate_devotions.py

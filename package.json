@@ -10,5 +10,10 @@
   "license": "UNLICENSED",
   "dependencies": {
     "tempaw-zemez-functions": "^2.4.32"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-cli": "^5.0.0",
+    "ajv-formats": "^2.1.1"
   }
 }
