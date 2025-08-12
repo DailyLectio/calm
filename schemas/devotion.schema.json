@@ -44,6 +44,10 @@
         "psalm":         { "type": "array", "items": { "type": "string" } },
         "gospel":        { "type": "array", "items": { "type": "string" } },
         "saint":         { "type": "array", "items": { "type": "string" } }
+        "sourcesLink": { "type": "string", "format": "uri" },
+        "lectionarySignature": { "type": "string" },
+        "relatedDates": { "type": "array", "items": { "type": "string", "format": "date" } }
+
       },
       "additionalProperties": true
     },
