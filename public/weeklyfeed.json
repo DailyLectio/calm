@@ -21,7 +21,9 @@
     "weekdayCycle": "I",
     "feast": "Memorial – Saint John Vianney, Priest",
     "gospelReference": "Mt 14:13-21",
-    "secondReadingRef": ""
+    "secondReadingRef": "",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-04",
+    "lectionarySignature": "||MT14:13-21"
   },
   {
     "date": "2025-08-05",
@@ -46,7 +48,9 @@
     "weekdayCycle": "II",
     "feast": "Memorial of Saint Mother Teresa of Calcutta",
     "gospelReference": "Mt 26:26-30",
-    "secondReadingRef": ""
+    "secondReadingRef": "",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-05",
+    "lectionarySignature": "||MT26:26-30"
   },
   {
     "date": "2025-08-06",
@@ -82,7 +86,9 @@
     "weekdayCycle": "I",
     "feast": "Feast of the Transfiguration of the Lord",
     "gospelReference": "Luke 9:28-36",
-    "secondReadingRef": ""
+    "secondReadingRef": "",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-06",
+    "lectionarySignature": "||LUKE9:28-36"
   },
   {
     "date": "2025-08-07",
@@ -106,7 +112,9 @@
     "weekdayCycle": "I",
     "feast": "Optional Memorial – Saint Cajetan / Sts. Sixtus II & Companions",
     "gospelReference": "Mt 16:13-23",
-    "secondReadingRef": ""
+    "secondReadingRef": "",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-07",
+    "lectionarySignature": "||MT16:13-23"
   },
   {
     "date": "2025-08-08",
@@ -136,7 +144,9 @@
     "secondReadingRef": "",
     "psalmRef": "",
     "gospelRef": "Lk 9:23-26",
-    "lectionaryKey": "080825"
+    "lectionaryKey": "080825",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-08",
+    "lectionarySignature": "||LK9:23-26"
   },
   {
     "date": "2025-08-09",
@@ -165,7 +175,9 @@
     "secondReadingRef": "",
     "psalmRef": "",
     "gospelRef": "Lk 9:23-26",
-    "lectionaryKey": "080925"
+    "lectionaryKey": "080925",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-09",
+    "lectionarySignature": "||LK9:23-26"
   },
   {
     "date": "2025-08-10",
@@ -195,7 +207,9 @@
     "secondReadingRef": "",
     "psalmRef": "",
     "gospelRef": "Lk 9:23-27",
-    "lectionaryKey": "081025"
+    "lectionaryKey": "081025",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-10",
+    "lectionarySignature": "||LK9:23-27"
   },
   {
     "date": "2025-08-11",
@@ -262,7 +276,9 @@
         "Ecclesial witness: the coin from the fish pays for two; Clare funds witness by two currencies—contemplation and service. Her poverty critiques consumer anxiety, and her obedience models the Gospel’s ‘no-scandal’ principle: yield non-essentials to clear the way for essentials.",
         "For us: in a rights-assertive culture, Clare’s freedom is luminous. Choose the Cross-shaped yes that protects the little ones, and let worship (‘ābad) spill over as organized mercy. That is how a city’s gates are truly strengthened."
       ]
-    }
+    },
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-11",
+    "lectionarySignature": "DT10:12-22|PS147:12-13,14-15,19-20|MT17:22-27"
   },
   {
     "date": "2025-08-12",
@@ -291,7 +307,9 @@
     "secondReadingRef": "",
     "psalmRef": "",
     "gospelRef": "Lk 9:23-27",
-    "lectionaryKey": "081225"
+    "lectionaryKey": "081225",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-12",
+    "lectionarySignature": "||LK9:23-27"
   },
   {
     "date": "2025-08-13",
@@ -321,7 +339,9 @@
     "secondReadingRef": "",
     "psalmRef": "Ps 95:1-2, 6-7, 8-9",
     "gospelRef": "Lk 9:23-26",
-    "lectionaryKey": "081325"
+    "lectionaryKey": "081325",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-13",
+    "lectionarySignature": "EZEK33:7-9|PS95:1-2,6-7,8-9|LK9:23-26"
   },
   {
     "date": "2025-08-14",
@@ -350,6 +370,8 @@
     "secondReadingRef": "",
     "psalmRef": "",
     "gospelRef": "Lk 9:23-27",
-    "lectionaryKey": "081425"
+    "lectionaryKey": "081425",
+    "sourcesLink": "https://dailylectio.org/sources?d=2025-08-14",
+    "lectionarySignature": "||LK9:23-27"
   }
 ]
