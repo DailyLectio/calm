@@ -24,7 +24,7 @@ jobs:
           python-version: "3.11"
 
       # ---- Optional preflight sanity check (recommended) ----
-      # This step FAILS EARLY if today's date isn't found in public/weeklyfeed.json
+      # Fails early if today's date isn't in public/weeklyfeed.json
       - name: Sanity check weeklyfeed for today
         env:
           APP_TZ: America/New_York   # Tampa is Eastern Time; change if you prefer
@@ -35,7 +35,8 @@ jobs:
           from zoneinfo import ZoneInfo
           tz = os.environ.get("APP_TZ","UTC")
           today = datetime.now(ZoneInfo(tz)).date().isoformat()
-          data = json.load(open("public/weeklyfeed.json"))
+          with open("public/weeklyfeed.json") as f:
+              data = json.load(f)
           found = any(str(e.get("date","")).strip()==today for e in data)
           print("tz=", tz, "today=", today, "found=", found)
           raise SystemExit(0 if found else 1)
@@ -47,33 +48,34 @@ jobs:
         run: |
           python3 update_daily_devotion.py --tz "$APP_TZ"
 
+      # Copy artifact out of ignored dist/ so git can track it
+      - name: Prepare artifact for commit
+        run: |
+          set -euo pipefail
+          mkdir -p public
+          if [ -f dist/devotions.json ]; then
+            cp dist/devotions.json public/devotions.json
+          else
+            echo "dist/devotions.json not found; did the Python step create it?"
+            exit 1
+          fi
+
       - name: Commit and push changes
-      run: |
-      set -euo pipefail
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
 
-      git config --local user.name "GitHub Action"
-      git config --local user.email "action@github.com"
+          # Only stage the tracked file (dist/ stays ignored)
+          git add public/devotions.json
 
-      # Move the generated file out of the ignored dist/ and into a tracked path
-      mkdir -p public
-      if [ -f dist/devotions.json ]; then
-        cp dist/devotions.json public/devotions.json
-      else
-        echo "dist/devotions.json not found; nothing to publish"
-        exit 1
-      fi
-
-      # Only stage the tracked file (dist/ stays ignored)
-      git add public/devotions.json
-
-      # Commit only if there are staged changes
-      if ! git diff --staged --quiet; then
-        git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
-      # If your repo path is different, change the owner/repo here:
-        git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
-      else
-        echo "No changes to commit"
-      fi
-    env:
-      GH_PAT: ${{ secrets.GH_PAT }}
-
+          # Commit only if there are staged changes
+          if ! git diff --staged --quiet; then
+            git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+            # If your repo path is different, change the owner/repo here:
+            git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
+          else
+            echo "No changes to commit"
+          fi
