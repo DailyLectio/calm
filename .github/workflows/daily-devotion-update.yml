@@ -48,12 +48,32 @@ jobs:
           python3 update_daily_devotion.py --tz "$APP_TZ"
 
       - name: Commit and push changes
-        run: |
-          git config --local user.name "GitHub Action"
-          git config --local user.email "action@github.com"
-          git add public/devotions.json dist/devotions.json
-          git diff --staged --quiet || git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
-          # If your repo path is different, change the owner/repo here:
-          git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+  run: |
+    set -euo pipefail
+
+    git config --local user.name "GitHub Action"
+    git config --local user.email "action@github.com"
+
+    # Move the generated file out of the ignored dist/ and into a tracked path
+    mkdir -p public
+    if [ -f dist/devotions.json ]; then
+      cp dist/devotions.json public/devotions.json
+    else
+      echo "dist/devotions.json not found; nothing to publish"
+      exit 1
+    fi
+
+    # Only stage the tracked file (dist/ stays ignored)
+    git add public/devotions.json
+
+    # Commit only if there are staged changes
+    if ! git diff --staged --quiet; then
+      git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+      # If your repo path is different, change the owner/repo here:
+      git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
+    else
+      echo "No changes to commit"
+    fi
+  env:
+    GH_PAT: ${{ secrets.GH_PAT }}
+
