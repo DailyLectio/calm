@@ -5,6 +5,14 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from openai import OpenAI
 
+# add near the top of the file
+def _normalize_refs(entry: dict) -> dict:
+    # ensure reading refs are strings, never None
+    for k in ("firstReadingRef", "psalmRef", "secondReadingRef", "gospelRef"):
+        v = entry.get(k, "")
+        entry[k] = "" if v is None else str(v)
+    return entry
+
 ROOT = Path(__file__).resolve().parents[1]
 WEEKLY_PATH   = ROOT / "public" / "weeklyfeed.json"
 READINGS_HINT = ROOT / "public" / "weeklyreadings.json"
