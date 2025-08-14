@@ -108,7 +108,7 @@ def extract_json(text: str) -> str:
 def clean_tags(val) -> list[str]:
     if val is None: return []
     items = [val] if isinstance(val,str) else (val if isinstance(val,list) else [])
-    out=[]; 
+    out=[]
     for t in items:
         s=str(t).strip()
         if s: out.append(s)
@@ -250,6 +250,9 @@ def main():
                     draft[field] = fixed
 
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
+
+        # >>> NEW: normalize ref fields to strings (no None) BEFORE validation
+        obj = _normalize_refs(obj)
 
         if validator:
             errs = list(validator.iter_errors(obj))
