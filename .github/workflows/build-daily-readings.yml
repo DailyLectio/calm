@@ -1,0 +1,36 @@
+name: Build Daily Readings (public domain)
+
+on:
+  schedule:
+    - cron: '2 8 * * *'   # 08:02 UTC ≈ 4:02am ET (summer), 3:02am ET (winter)
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      APP_TZ: America/New_York
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build daily readings JSON
+        run: |
+          python3 scripts/build_daily_readings.py
+      - name: Validate daily readings JSON
+        run: |
+          python3 -m pip install jsonschema
+          python3 scripts/validate_dailyreadings.py
+      - name: Commit and push dailyreadings.json
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add public/dailyreadings.json
+          git diff --staged --quiet || git commit -m "Daily readings for $(date +%F)"
+          git push
