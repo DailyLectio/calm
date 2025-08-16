@@ -1,13 +1,24 @@
 {
-  "books": {
-    "Mt": {
-      "16": {
-        "24": "Then Jesus said to his disciples: If any man will come after me, let him deny himself, and take up his cross, and follow me.",
-        "25": "For he that will save his life, shall lose it: and he that shall lose his life for my sake, shall find it.",
-        "26": "For what doth it profit a man, if he gain the whole world, and suffer the loss of his own soul? Or what exchange shall a man give for his soul?",
-        "27": "For the Son of man shall come in the glory of his Father with his angels: and then will he render to every man according to his works.",
-        "28": "Amen I say to you, there are some of them that stand here, that shall not taste death, till they see the Son of man coming in his kingdom."
-      }
+  "Joshua": {
+    "24": {
+      "14": "Now therefore fear the Lord, and serve him perfectly and in truth...",
+      "15": "If it seem evil to you to serve the Lord, you have your choice...",
+      "16": "And the people answered, and said: God forbid we should leave the Lord...",
+      "29": "And after these things Josue the son of Nun the servant of the Lord died..."
+    }
+  },
+  "Psalm": {
+    "16": {
+      "1": "The prayer of David. Hear, O Lord, my justice...",
+      "2": "...",
+      "11": "Thou hast made known to me the ways of life..."
+    }
+  },
+  "Matthew": {
+    "19": {
+      "13": "Then were little children presented to him...",
+      "14": "But Jesus said to them: Suffer the little children...",
+      "15": "And when he had imposed hands upon them, he departed from thence."
     }
   }
 }
