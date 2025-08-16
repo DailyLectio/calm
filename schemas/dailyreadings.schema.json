@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dailylectio.org/schemas/dailyreadings.schema.json",
+  "title": "Daily Readings (single day, object)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["date", "liturgicalDay", "usccb", "translation", "sections", "provenance"],
+  "properties": {
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+
+    "liturgicalDay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "cycle", "weekdayCycle"],
+      "properties": {
+        "title": { "type": "string" },
+        "cycle": { "type": "string" },
+        "weekdayCycle": { "type": "string" }
+      }
+    },
+
+    "usccb": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "alternates"],
+      "properties": {
+        "primary": { "type": "string", "format": "uri" },
+        "alternates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "url", "context"],
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "context": { "type": "string", "enum": ["vigil", "mass-during-day", "other"] }
+            }
+          }
+        }
+      }
+    },
+
+    "translation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "abbrev", "attributionUrl"],
+      "properties": {
+        "name": { "type": "string" },
+        "abbrev": { "type": "string" },
+        "attributionUrl": { "type": "string", "format": "uri" }
+      }
+    },
+
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "type": { "const": "first" },
+              "heading": { "type": "string" },
+              "reference": { "type": "string" },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "reference", "text"]
+          },
+          {
+            "properties": {
+              "type": { "const": "second" },
+              "heading": { "type": "string" },
+              "reference": { "type": "string" },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "reference", "text"]
+          },
+          {
+            "properties": {
+              "type": { "const": "psalm" },
+              "heading": { "type": "string" },
+              "reference": { "type": "string" },
+              "antiphon": { "type": ["string", "null"] },
+              "verses": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "reference"],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "type": { "const": "alleluia" },
+              "heading": { "type": "string" },
+              "reference": { "type": "string" },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "reference", "text"]
+          },
+          {
+            "properties": {
+              "type": { "const": "gospel" },
+              "heading": { "type": "string" },
+              "reference": { "type": "string" },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "reference", "text"]
+          },
+          {
+            "properties": {
+              "type": { "const": "sequence" },
+              "heading": { "type": "string" },
+              "text": { "type": ["string", "null"] }
+            },
+            "required": ["type", "heading", "text"]
+          },
+          {
+            "properties": {
+              "type": { "const": "saint" },
+              "heading": { "type": "string" },
+              "name": { "type": "string" },
+              "link": { "type": "string", "format": "uri" }
+            },
+            "required": ["type", "heading", "name", "link"]
+          }
+        ]
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["builtAt", "tz", "calendarSource", "textSource"],
+      "properties": {
+        "builtAt": { "type": "string" },
+        "tz": { "type": "string" },
+        "calendarSource": { "type": "string" },
+        "textSource": { "type": "string" }
+      }
+    }
+  }
+}
