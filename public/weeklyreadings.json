@@ -1,14 +1,17 @@
 [
     {
-        "week": "August 4-10, 2025",
+        "week": "August 4-17, 2025",
         "days": [
             {
-                "date": "2025-08-04",
-                "first": "Numbers 11:4-15\n\n4 The mixed multitude that was among them lusted exceedingly. And the children of Israel also wept again and said: Who will give us flesh to eat? 5 We remember the fish that we ate freely in Egypt, the cucumbers and the melons and the leeks and the onions and the garlic; 6 But now our soul is dried up; there is nothing at all, except this manna, before our eyes. ... 15 If this is the way you will deal with me, I beg you to kill me at once, if I have found favor in your sight; and let me not see my wretchedness.",
-                "psalm": "Psalm 81:12-17\n\n12 So I gave them up unto their own hearts' lust; and they walked in their own counsels. 13 Oh that my people had listened unto me, and Israel had walked in my ways! 14 I should soon have subdued their enemies, and turned my hand against their adversaries. 15 The haters of the Lord should have submitted themselves unto him: and their time should have endured forever. 16 He should have fed them also with the finest of the wheat: and with honey out of the rock should I have satisfied you.",
-                "second": null,
-                "gospel": "Matthew 14:13-21\n\n13 Now when Jesus heard this, he withdrew from there in a boat to a deserted place by himself. But when the crowds heard it, they followed him on foot from the towns. ... 20 And they all ate and were satisfied. And they took up twelve baskets full of the broken pieces left over. 21 And those who ate were about five thousand men, not counting women and children.",
-                "usccbLink": "https://bible.usccb.org/bible/readings/080425.cfm"
+{
+  "date": "2025-08-17",
+  "readings": {
+    "first": "**Deuteronomy 6:1-13**\n\n1 These are the commandments, and ceremonies, and judgments, which the Lord your God commanded, that you should teach the children of Israel, and do them in the land which you are going over to possess.\n2 That thou mayst fear the Lord thy God, and keep all his commandments and precepts...\n13 Thou shalt fear the Lord thy God, and shalt serve him only, and thou shalt swear by his name.",
+    "psalm": "**Psalm 33:1,12,18-22**\n\n1 Rejoice in the Lord, O ye just: praise becometh the upright.\n12 Blessed is the nation whose God is the Lord: the people whom he hath chosen for his inheritance.\n18 Behold the eyes of the Lord are on them that fear him: and on them that hope in his mercy.\n19 To deliver their souls from death; and feed them in famine.\n20 Our soul waiteth for the Lord: he is our helper and protector.\n21 For in him our heart shall rejoice: and in his holy name we have trusted.\n22 Let thy mercy, O Lord, be upon us, as we have hoped in thee.",
+    "second": "**Hebrews 11:1-2, 8-19**\n\n1 Now faith is the substance of things to be hoped for, the evidence of things that appear not.\n2 For by this the ancients obtained a testimony. ...\n8 By faith he that is called Abraham obeyed, to go out into a place which he was to receive for an inheritance; and he went out, not knowing whither he went.\n... 19 For he looked upon God as able to raise up even from the dead; whereupon also he received him for a parable.",
+    "gospel": "**Luke 12:32-48**\n\n32 Fear not, little flock, for it hath pleased your Father to give you a kingdom. ...\n36 And you yourselves like to men who wait for their lord, when he shall return from the wedding; that when he cometh and knocketh, they may open to him immediately. ...\n48 And whosoever hath not known, and hath done things worthy of stripes, shall be beaten with few stripes. And every one to whom much hath been given, much shall be required of him; and to whom they have committed much, of him they will demand the more."
+  }
+}
             },
             {
                 "date": "2025-08-05",
