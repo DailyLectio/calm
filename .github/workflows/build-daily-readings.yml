@@ -12,6 +12,7 @@ jobs:
       contents: write
     env:
       APP_TZ: America/New_York
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,13 +42,10 @@ jobs:
 
           path = "public/weeklyreadings.json"
           data = json.load(open(path, encoding="utf-8"))
-
           found = any(str(i.get("date","")).strip() == today for i in data)
-          if not found:
-              raise SystemExit(f"ERROR: {today} not found in {path}")
-          print(f"OK: {path} contains {today}")
+          print("tz=", tz, "today=", today, "found=", found)
+          raise SystemExit(0 if found else 1)
           PY
-      # -----------------------------------------------------------------------
 
       - name: Build daily readings JSON
         run: |
