@@ -1,9 +1,10 @@
+cat > .github/workflows/build-daily-readings.yml <<'YAML'
 name: Build Daily Readings (public domain)
 
 on:
   schedule:
-    - cron: '2 8 * * *'        # 08:02 UTC ≈ 4:02am ET (summer), 3:02am ET (winter)
-  workflow_dispatch: {}         # enables “Run workflow” button
+    - cron: '2 8 * * *'     # 08:02 UTC ≈ 4:02am ET (summer), 3:02am ET (winter)
+  workflow_dispatch: {}      # enables the “Run workflow” button
 
 jobs:
   build:
@@ -21,7 +22,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       # ---- Preflight: make sure weeklyreadings.json includes TODAY (by APP_TZ) ----
       - name: Preflight: weeklyreadings has today
@@ -36,15 +37,15 @@ jobs:
               ZoneInfo = None
 
           tz = os.environ.get("APP_TZ", "UTC")
-          now = datetime.now(ZoneInfo(tz)) if ZoneInfo else datetime.utcnow()
+          now = datetime.now(ZoneInfo(tz)) if ZoneInfo else datetime.now()
           today = now.date().isoformat()
 
-          path = "public/weeklyreadings.json"
-          data = json.load(open(path, encoding="utf-8"))
-          ok = any(str(i.get("date","")).strip() == today for i in data)
-          if not ok:
-              raise SystemExit(f"today {today} missing in {path}")
-          print("ok: found", today, "in", path)
+          p = "public/weeklyreadings.json"
+          data = json.load(open(p, encoding="utf-8"))
+
+          if not any(str(i.get("date","")).strip() == today for i in data):
+              raise SystemExit(f"today {today} missing in {p}")
+          print("ok: found", today, "in", p)
           PY
 
       - name: Build daily readings JSON
@@ -62,3 +63,4 @@ jobs:
           git add public/dailyreadings.json
           git diff --staged --quiet || git commit -m "Daily readings for $(date +%F)"
           git push
+YAML
