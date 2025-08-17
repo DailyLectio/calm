@@ -3,7 +3,7 @@ name: Build Daily Readings (public domain)
 on:
   schedule:
     - cron: '2 8 * * *'        # 08:02 UTC ≈ 4:02am ET (summer), 3:02am ET (winter)
-  workflow_dispatch: {}         # enables the green “Run workflow” button
+  workflow_dispatch: {}         # enables “Run workflow” button
 
 jobs:
   build:
