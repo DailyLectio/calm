@@ -1,5 +1,3 @@
-
-
 name: Build Daily Readings (public domain)
 
 on:
@@ -25,7 +23,7 @@ jobs:
           python-version: '3.11'
 
       # Preflight: make sure weeklyreadings.json has TODAY
-      - name: Preflight: weeklyreadings has today
+      - name: "Preflight: weeklyreadings has today"
         shell: bash
         run: |
           python3 - <<'PY'
@@ -54,4 +52,3 @@ jobs:
           git add public/dailyreadings.json
           git diff --staged --quiet || git commit -m "Daily readings for $(date +%F)"
           git push
-
