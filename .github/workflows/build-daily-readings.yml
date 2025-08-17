@@ -1,3 +1,5 @@
+
+
 name: Build Daily Readings (public domain)
 
 on:
@@ -52,3 +54,4 @@ jobs:
           git add public/dailyreadings.json
           git diff --staged --quiet || git commit -m "Daily readings for $(date +%F)"
           git push
+
