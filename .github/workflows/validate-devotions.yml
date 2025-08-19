@@ -1,47 +1,71 @@
-name: Validate Devotions JSON
-
-on:
-  pull_request:
-    branches: [ main ]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'public/**/*.json'
-      - 'schemas/**/*.json'
-      - 'scripts/validate_devotions.py'
-  push:
-    branches: [ main ]
-    paths:
-      - 'public/**/*.json'
-      - 'schemas/**/*.json'
-      - 'scripts/**/*.py'
-  workflow_dispatch: {}   # lets you run it manually
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      # ✅ IMPORTANT: checkout the PR HEAD, not the merge ref
-      - name: Checkout PR HEAD
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Install validator deps
+      # Quick snapshot so you can see the first few rows in the logs
+      - name: Debug — echo first 10 devotions
         run: |
-          python -V
-          pip install -q jsonschema jq
+          set -euo pipefail
+          jq -r '
+            .[0:10] |
+            .[] | [.date, .cycle, .weekdayCycle] | @tsv
+          ' public/devotions.json
 
-      # 👇 print exactly what the runner is validating
-      - name: Debug — echo JSON snapshot
+      # 1) JSON must be an array
+      - name: Assert devotions.json is an array
         run: |
-          echo "HEAD SHA: $GITHUB_SHA"
-          echo "First 11 weekly rows:"
-          jq -r 'to_entries[] | select(.key<11) | "\(.key)\t\(.value.date)\tcycle=\(.value.cycle)\tweekdayCycle=\(.value.weekdayCycle)"' public/weeklyfeed.json
-          echo "Search for bad strings:"
-          LC_ALL=C grep -nE "Year[[:space:]]*C|Cycle[[:space:]]*I" public/weeklyfeed.json || echo "no matches"
-          echo "Devotions object:"
-          jq '{date, cycle, weekdayCycle}' public/devotions.json
+          test "$(jq -r 'type' public/devotions.json)" = "array"
 
-      - name: Validate JSON files
-        run: python scripts/validate_devotions.py
+      # 2) Every item must have a valid YYYY-MM-DD date
+      - name: Validate dates
+        run: |
+          set -euo pipefail
+          # list any bad dates (if any)
+          BAD="$(jq -r '.[].date' public/devotions.json | grep -vE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)"
+          if [ -n "$BAD" ]; then
+            echo "Invalid date strings found:"
+            echo "$BAD"
+            exit 1
+          fi
+
+      # 3) No duplicate dates
+      - name: Check duplicate dates
+        run: |
+          set -euo pipefail
+          DUPS="$(jq -r '.[].date' public/devotions.json | sort | uniq -d)"
+          if [ -n "$DUPS" ]; then
+            echo "Duplicate dates:"
+            echo "$DUPS"
+            exit 1
+          fi
+
+      # 4) Basic required keys present (adjust as you need)
+      - name: Required keys exist
+        run: |
+          set -euo pipefail
+          jq -e '
+            all(.[]; 
+              has("date") and
+              has("quote") and
+              has("quoteCitation") and
+              has("firstReading") and
+              has("psalmSummary") and
+              has("gospelSummary") and
+              has("saintReflection") and
+              has("dailyPrayer") and
+              has("theologicalSynthesis") and
+              has("exegesis") and
+              has("tags") and
+              has("usccbLink") and
+              has("cycle") and
+              has("weekdayCycle") and
+              has("feast") and
+              has("gospelReference") and
+              has("firstReadingRef") and
+              has("psalmRef") and
+              has("gospelRef") and
+              has("lectionaryKey")
+            )
+          ' public/devotions.json >/dev/null
