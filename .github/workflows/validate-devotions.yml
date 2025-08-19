@@ -1,71 +1,63 @@
+name: Validate Devotions JSON
+
+on:
+  # Run automatically when devotions.json or this workflow/schema changes
+  push:
+    branches: [ main ]
+    paths:
+      - 'public/devotions.json'
+      - 'schemas/devotion.schema.json'
+      - '.github/workflows/validate-devotions.yml'
+  # Run on PRs that touch the file
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'public/devotions.json'
+  # Allow manual “Run workflow”
+  workflow_dispatch:
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Quick snapshot so you can see the first few rows in the logs
-      - name: Debug — echo first 10 devotions
+      - name: Install jq and jsonschema
         run: |
-          set -euo pipefail
-          jq -r '
-            .[0:10] |
-            .[] | [.date, .cycle, .weekdayCycle] | @tsv
-          ' public/devotions.json
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+          python3 -m pip install --upgrade pip jsonschema
 
-      # 1) JSON must be an array
-      - name: Assert devotions.json is an array
+      - name: Snapshot — first 10 rows (date, cycle, weekdayCycle)
         run: |
-          test "$(jq -r 'type' public/devotions.json)" = "array"
+          jq -r '.[0:10] | .[] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
 
-      # 2) Every item must have a valid YYYY-MM-DD date
-      - name: Validate dates
+      - name: Shape check (array of objects)
         run: |
-          set -euo pipefail
-          # list any bad dates (if any)
-          BAD="$(jq -r '.[].date' public/devotions.json | grep -vE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' || true)"
-          if [ -n "$BAD" ]; then
-            echo "Invalid date strings found:"
-            echo "$BAD"
-            exit 1
+          jq -e 'type=="array" and all(.[]; type=="object")' public/devotions.json > /dev/null
+
+      - name: Dates exist and are unique
+        run: |
+          jq -r '.[].date' public/devotions.json | tee /tmp/dates.txt
+          if [ ! -s /tmp/dates.txt ]; then echo "No dates found"; exit 1; fi
+          dups=$(sort /tmp/dates.txt | uniq -d)
+          if [ -n "$dups" ]; then
+            echo "Duplicate dates found:"; echo "$dups"; exit 1
           fi
 
-      # 3) No duplicate dates
-      - name: Check duplicate dates
+      - name: Schema validation (schemas/devotion.schema.json)
         run: |
-          set -euo pipefail
-          DUPS="$(jq -r '.[].date' public/devotions.json | sort | uniq -d)"
-          if [ -n "$DUPS" ]; then
-            echo "Duplicate dates:"
-            echo "$DUPS"
-            exit 1
-          fi
-
-      # 4) Basic required keys present (adjust as you need)
-      - name: Required keys exist
-        run: |
-          set -euo pipefail
-          jq -e '
-            all(.[]; 
-              has("date") and
-              has("quote") and
-              has("quoteCitation") and
-              has("firstReading") and
-              has("psalmSummary") and
-              has("gospelSummary") and
-              has("saintReflection") and
-              has("dailyPrayer") and
-              has("theologicalSynthesis") and
-              has("exegesis") and
-              has("tags") and
-              has("usccbLink") and
-              has("cycle") and
-              has("weekdayCycle") and
-              has("feast") and
-              has("gospelReference") and
-              has("firstReadingRef") and
-              has("psalmRef") and
-              has("gospelRef") and
-              has("lectionaryKey")
-            )
-          ' public/devotions.json >/dev/null
+          python3 - <<'PY'
+          import json, sys
+          from jsonschema import Draft202012Validator
+          schema = json.load(open('schemas/devotion.schema.json', encoding='utf-8'))
+          data = json.load(open('public/devotions.json', encoding='utf-8'))
+          v = Draft202012Validator(schema)
+          errs = list(v.iter_errors(data))
+          if errs:
+              for e in errs:
+                  path = "/".join(map(str, e.path))
+                  print(f"[schema] {path or '<root>'}: {e.message}")
+              sys.exit(1)
+          print("Schema validation: OK")
+          PY
