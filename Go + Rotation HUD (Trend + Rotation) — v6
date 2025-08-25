@@ -1,8 +1,8 @@
 //@version=6
-// ===== CHOOSE ONE of the two 'indicator(...)' lines (comment the other) =====
-// ---- A) Overlay on price as a bottom band
-indicator("Go + Rotation HUD (Trend + Rotation) — v6", overlay=true, max_labels_count=50, max_lines_count=50)
-// ---- B) Separate panel version (place in its own pane below)
+// ===== CHOOSE ONE of the two 'indicator(...)' lines and comment the other =====
+// ---- A) Overlay on price as a bottom band (table anchored bottom_center)
+indicator("Go + Rotation HUD (Trend + Rotation) — v6 (overlay)", overlay=true, max_labels_count=50, max_lines_count=50)
+// ---- B) Separate panel version (put it in its own pane below the chart)
 // indicator("Go + Rotation HUD (Trend + Rotation) — v6 (panel)", overlay=false, max_labels_count=50, max_lines_count=50)
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -32,12 +32,12 @@ showRotationRow = input.bool(true, "Show Rotation row", group=groupDisp)
 txtScale        = input.string("Small", "Text size", options=["Tiny","Small","Large","Huge"], group=groupDisp)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helpers
+// Small helpers
 clamp(x, lo, hi) => math.max(lo, math.min(hi, x))
 
+// Choose text size
 txtSize(s) =>
-    // return a built-in size enum from a string
-    out = size.normal
+    var out = size.normal
     if s == "Tiny"
         out := size.tiny
     else if s == "Small"
@@ -48,16 +48,18 @@ txtSize(s) =>
         out := size.huge
     out
 
+// Color from score
 tileColorFromScore(score) =>
-    c = color.rgb(165, 42, 42)                    // default brown-red
+    // default brown-red
+    var c = #A52A2A
     if score >= goThresh
-        c := color.new(color.lime, 0)
+        c := #00FF00
     else if score >= yellowMin
-        c := color.new(color.gold, 0)
+        c := #FFD700
     c
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Trend features
+// Feature calculations (Trend row)
 
 // Relative Volume
 rvSma  = ta.sma(volume, lenRV)
@@ -69,11 +71,9 @@ udRaw  = math.sign(close - close[1])
 udAvg  = ta.sma(udRaw, lenUD)
 sUD    = clamp(udAvg, -1.0, 1.0)
 
-// ADX / DI alignment (v6 names)
-adx    = ta.adx(lenADX)
-plusDI = ta.plusdi(lenADX)
-minusDI= ta.minusdi(lenADX)
-dir    = plusDI >= minusDI ? 1.0 : -1.0
+// ADX / DI alignment
+[diplus, diminus, adx] = ta.dmi(lenADX, lenADX)  // supply adxSmoothing
+dir    = diplus >= diminus ? 1.0 : -1.0
 sADX   = clamp((adx / 30.0) * dir, -1.0, 1.0)
 
 // Choppiness Index (classic)
@@ -84,7 +84,7 @@ den = math.max(hh - ll, syminfo.mintick)
 chop = 100.0 * math.log10(trueRangeSum / den) / math.log10(lenChop)
 sChopTrend = clamp((50.0 - (chop - 50.0)) / 50.0, -1.0, 1.0)  // trend likes low chop
 
-// VWAP position
+// VWAP position (session vwap)
 vwap = ta.vwap
 sVWAP = close >= vwap ? 0.5 : -0.5
 
@@ -100,50 +100,103 @@ zTrend = wRV * sRVol + wUD * sUD + wADX * sADX + wChop * sChopTrend + wVWAP * sV
 pTrend = 50.0 + 50.0 * clamp(zTrend / (wRV + wUD + wADX + wChop + wVWAP + wReg), -1.0, 1.0)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Rotation features (simple)
-sChopRot = clamp((chop - 50.0) / 50.0, -1.0, 1.0)                  // rotation likes high chop
-sADXRot  = clamp((20.0 - adx) / 20.0, -1.0, 1.0)                   // lower ADX better
-sVWAPRot = 1.0 - math.min(math.abs(close - vwap) / (3.0*ta.atr(14)), 1.0)  // near vwap → 1
+// Feature calculations (Rotation row) – simple variant
+// (High CI + low ADX + at/near VWAP → better rotation)
 
-zRot = wChop * sChopRot + wADX * sADXRot + wVWAP * sVWAPRot
-pRot = 50.0 + 50.0 * clamp(zRot / (wChop + wADX + wVWAP), -1.0, 1.0)
+sChopRot = clamp((chop - 50.0) / 50.0, -1.0, 1.0) // rotation likes *high* chop
+sADXRot  = clamp((20.0 - adx) / 20.0, -1.0, 1.0)
+sVWAPRot = 1.0 - math.min(math.abs(close - vwap) / (3.0 * ta.atr(14)), 1.0)   // near vwap → 1
+
+zRot   = wChop * sChopRot + wADX * sADXRot + wVWAP * sVWAPRot
+pRot   = 50.0 + 50.0 * clamp(zRot / (wChop + wADX + wVWAP), -1.0, 1.0)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Table HUD at bottom (overlay) or inside panel
-cols = showRotationRow ? 7 : 3
-rows = 2
-var tbl = table.new(position.bottom_center, columns=cols, rows=rows, frame_color=color.new(color.gray,70), frame_width=1)
+// Table UI at bottom (overlay) or inside panel (overlay=false)
+cols = showRotationRow ? 7 : 3   // GO + (RVol,U/D,ADX,Chop,VWAP,Reg) + optional ROT row
+rows = showRotationRow ? 3 : 2   // 0 = header, 1 = Trend row, 2 = Rotation row (if shown)
 
+// Lazily (re)create table when geometry changes
+var table tbl = na
+var int lastCols = -1
+var int lastRows = -1
+if barstate.isfirst or cols != lastCols or rows != lastRows
+    if not na(tbl)
+        table.delete(tbl)
+    tbl := table.new(position.bottom_center, columns=cols, rows=rows,
+                     frame_color=#808080B2, frame_width=1)
+    lastCols := cols
+    lastRows := rows
+
+// header helper
 setHdr(row, col, txt) =>
-    table.cell(tbl, row, col, txt, text_color=color.white, bgcolor=color.new(color.black, 0), text_size=txtSize(txtScale))
+    table.cell(tbl, row, col, txt, text_color=#FFFFFF, bgcolor=#000000, text_size=txtSize(txtScale))
 
+// value tile helper, returns next column index
 putTile(row, col, label, score, note) =>
-    c = tileColorFromScore(score)
-    table.cell(tbl, row-1, col, label, text_color=color.silver, bgcolor=color.new(color.black,0), text_size=txtSize(txtScale))
-    table.cell(tbl, row,   col, label + "\n" + note, text_color=color.black, bgcolor=c, text_size=txtSize(txtScale))
+    c    = tileColorFromScore(score)
+    // header above the value cell
+    table.cell(tbl, row-1, col, label, text_color=#C0C0C0, bgcolor=#000000, text_size=txtSize(txtScale))
+    // auto-contrast text for readability
+    luma = 0.299 * color.r(c) + 0.587 * color.g(c) + 0.114 * color.b(c)
+    fg   = luma > 140 ? color.black : color.white
+    table.cell(tbl, row, col, label + "\n" + note, text_color=fg, bgcolor=c, text_size=txtSize(txtScale))
     col + 1
 
+// Clear and draw
 if barstate.islast
-    table.clear(tbl, 0, 0, cols-1, rows-1) // v6 requires bounds
+    table.clear(tbl, 0, 0, cols - 1, rows - 1)
 
+    // Row indices
+    rowHdr   = 0
+    rowTrend = 1
+    rowRot   = showRotationRow ? 2 : -1  // <- use -1 as “not used”
+
+    // ---- Trend row ----
     col = 0
-    col := putTile(1, col, "GO",   pTrend, "GO " + str.tostring(math.round(pTrend)) + "%")
-    col := putTile(1, col, "RVol", 50 + 50*clamp(sRVol,-1,1),   "rv="  + str.tostring(rv, format.mintick))
-    col := putTile(1, col, "U/D",  50 + 50*clamp(sUD, -1,1),    "ud="  + str.tostring(udAvg, format.mintick))
-    col := putTile(1, col, "ADX",  50 + 50*clamp(sADX,-1,1),    "adx=" + str.tostring(adx, format.mintick))
-    col := putTile(1, col, "Chop", 50 + 50*clamp(sChopTrend,-1,1), "ci=" + str.tostring(chop, format.mintick))
-    col := putTile(1, col, "VWAP", 50 + 50*clamp(sVWAP,-1,1),   "Δ="   + str.tostring(close - vwap, format.mintick))
-    col := putTile(1, col, "Reg",  50 + 50*clamp(sReg,-1,1),    "pos=" + str.tostring(posE, format.mintick))
+    col := putTile(rowTrend, col, "GO",   pTrend, "GO "  + str.tostring(math.round(pTrend)) + "%")
+    col := putTile(rowTrend, col, "RVol", 50 + 50*clamp(sRVol, -1, 1), "rv="  + str.tostring(rv,     format.mintick))
+    col := putTile(rowTrend, col, "U/D",  50 + 50*clamp(sUD,   -1, 1), "ud="  + str.tostring(udAvg,  format.mintick))
+    col := putTile(rowTrend, col, "ADX",  50 + 50*clamp(sADX,  -1, 1), "adx=" + str.tostring(adx,    format.mintick))
+    col := putTile(rowTrend, col, "Chop", 50 + 50*clamp(sChopTrend,-1,1), "ci=" + str.tostring(chop,  format.mintick))
+    col := putTile(rowTrend, col, "VWAP", 50 + 50*clamp(sVWAP, -1, 1),  "Δ="  + str.tostring(close - vwap, format.mintick))
+    col := putTile(rowTrend, col, "Reg",  50 + 50*clamp(sReg,  -1, 1),  "pos="+ str.tostring(posE,  format.mintick))
 
-    if showRotationRow
+    // ---- Rotation row (optional) ----
+    if showRotationRow and rowRot >= 0
         col2 = 0
-        col2 := putTile(1, col2, "ROT",  pRot,  "ROT " + str.tostring(math.round(pRot)) + "%")
-        col2 := putTile(1, col2, "Chop", 50 + 50*clamp(sChopRot,-1,1), "ci=" + str.tostring(chop, format.mintick))
-        col2 := putTile(1, col2, "ADX",  50 + 50*clamp(sADXRot,-1,1),  "adx=" + str.tostring(adx, format.mintick))
-        col2 := putTile(1, col2, "VWAP", 50 + 50*clamp(sVWAPRot,-1,1), "Δ="   + str.tostring(close - vwap, format.mintick))
+        col2 := putTile(rowRot, col2, "ROT",  pRot, "ROT " + str.tostring(math.round(pRot)) + "%")
+        col2 := putTile(rowRot, col2, "Chop", 50 + 50*clamp(sChopRot,-1,1), "ci="  + str.tostring(chop, format.mintick))
+        col2 := putTile(rowRot, col2, "ADX",  50 + 50*clamp(sADXRot,-1,1), "adx=" + str.tostring(adx,   format.mintick))
+        col2 := putTile(rowRot, col2, "VWAP", 50 + 50*clamp(sVWAPRot,-1,1), "Δ="  + str.tostring(close - vwap, format.mintick))
 
+// Clear and draw (last bar only)
+if barstate.islast
+    table.clear(tbl, 0, 0, cols-1, rows-1)
+
+    // Row indices
+    rowHdr   = 0
+    rowTrend = 1
+    rowRot   = showRotationRow ? 2 : na
+
+    // ---- Trend row ----
+    col = 0
+    col := putTile(rowTrend, col, "GO",   pTrend, "GO "   + str.tostring(math.round(pTrend)) + "%")
+    col := putTile(rowTrend, col, "RVol", 50 + 50*clamp(sRVol, -1, 1), "rv="  + str.tostring(rv,     format.mintick))
+    col := putTile(rowTrend, col, "U/D",  50 + 50*clamp(sUD,   -1, 1), "ud="  + str.tostring(udAvg,  format.mintick))
+    col := putTile(rowTrend, col, "ADX",  50 + 50*clamp(sADX,  -1, 1), "adx=" + str.tostring(adx,    format.mintick))
+    col := putTile(rowTrend, col, "Chop", 50 + 50*clamp(sChopTrend,-1,1), "ci=" + str.tostring(chop,  format.mintick))
+    col := putTile(rowTrend, col, "VWAP", 50 + 50*clamp(sVWAP, -1, 1),  "Δ="  + str.tostring(close - vwap, format.mintick))
+    col := putTile(rowTrend, col, "Reg",  50 + 50*clamp(sReg,  -1, 1),  "pos="+ str.tostring(posE,  format.mintick))
+
+    // ---- Rotation row (optional) ----
+    if showRotationRow and not na(rowRot)
+        col2 = 0
+        col2 := putTile(rowRot, col2, "ROT",  pRot, "ROT " + str.tostring(math.round(pRot)) + "%")
+        col2 := putTile(rowRot, col2, "Chop", 50 + 50*clamp(sChopRot,-1,1), "ci="  + str.tostring(chop, format.mintick))
+        col2 := putTile(rowRot, col2, "ADX",  50 + 50*clamp(sADXRot,-1,1), "adx=" + str.tostring(adx,   format.mintick))
+        col2 := putTile(rowRot, col2, "VWAP", 50 + 50*clamp(sVWAPRot,-1,1), "Δ="  + str.tostring(close - vwap, format.mintick))
 // ─────────────────────────────────────────────────────────────────────────────
-// Optional alerts
+// Simple alerts (optional)
 doTrendAlert = input.bool(false, "Alert: GO turns green", group=groupDisp)
 doRotAlert   = input.bool(false, "Alert: ROT turns green", group=groupDisp)
 
