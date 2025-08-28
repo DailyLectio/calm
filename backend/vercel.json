@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/*.ts": { "runtime": "nodejs20.x" }
-  },
   "crons": [
     { "path": "/api/send", "schedule": "0 12 * * *" }
   ]
