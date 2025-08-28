@@ -1,5 +1,8 @@
 {
-  "functions": { "api/send.ts": { "runtime": "nodejs18.x" } },
+  "functions": {
+    "api/register.ts": { "runtime": "nodejs20.x" },
+    "api/send.ts": { "runtime": "nodejs20.x" }
+  },
   "crons": [
     { "path": "/api/send", "schedule": "0 12 * * *" }
   ]
