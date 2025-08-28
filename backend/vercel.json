@@ -1,0 +1,6 @@
+{
+  "functions": { "api/send.ts": { "runtime": "nodejs18.x" } },
+  "crons": [
+    { "path": "/api/send", "schedule": "0 12 * * *" }
+  ]
+}
