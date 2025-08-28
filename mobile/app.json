@@ -5,26 +5,22 @@
     "scheme": "lectiolinks",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#ffffff" },
+
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dailyword.lectiolinks",
-      "infoPlist": {
-        "NSUserTrackingUsageDescription": "We use notifications to remind you of daily devotions."
-      }
+      "bundleIdentifier": "com.dailyword.lectiolinks"
     },
+
     "android": {
-      "package": "com.dailyword.lectiolinks",
-      "googleServicesFile": "./google-services.json",
-      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#ffffff" }
+      "package": "com.dailyword.lectiolinks"
     },
+
     "plugins": ["expo-notifications"],
+
     "extra": {
-      "eas": { "projectId": "REPLACE_WITH_EAS_PROJECT_ID" },
       "FEED_URL": "https://dailylectio.org/devotions.json",
-      "BACKEND_URL": "https://YOUR_VERCEL_SITE.com/api",
+      "BACKEND_URL": "https://calm-ttxp.vercel.app/api",
       "BRAND": {
         "marianBlue": "#1F6BB5",
         "gold": "#D4AF37",
