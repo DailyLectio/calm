@@ -1,3 +1,4 @@
+// mobile/src/screens/HomeScreen.tsx
 import React, { useEffect, useState } from "react";
 import { ScrollView, RefreshControl, View, Text, Linking, Pressable } from "react-native";
 import { fetchToday } from "../api";
@@ -23,13 +24,18 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => { load(); }, []);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.bg }}
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+    >
       <View style={{ padding: 16 }}>
         <Pressable onPress={() => navigation.navigate("Settings")} style={{ alignSelf: "flex-end", marginBottom: 8 }}>
           <Text style={{ color: colors.primary, fontWeight: "600" }}>Reminders ⚙️</Text>
         </Pressable>
 
-        <Text style={{ fontSize: 22, fontWeight: "800", color: colors.text, marginBottom: 8 }}>{data?.date || "…"}</Text>
+        <Text style={{ fontSize: 22, fontWeight: "800", color: colors.text, marginBottom: 8 }}>
+          {data?.date || "…"}
+        </Text>
 
         {data?.quote && (
           <Section title="Quote of the Day">

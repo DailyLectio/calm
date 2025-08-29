@@ -1,47 +1,68 @@
-import React, { useEffect, useMemo } from "react";
-import { Platform, UIManager } from "react-native";
-import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
+// mobile/App.tsx
+import React, { useEffect } from "react";
+import { View, Text, Platform } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "../app/src/screens/HomeScreen";
-import SettingsScreen from "../app/src/screens/SettingsScreen";
-import { registerForPushNotificationsAsync, ensureDailyNotification } from "./notifications";
-import { ThemeProvider, themeFromBrand } from "../app/src/theme";
 import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import HomeScreen from "./src/screens/HomeScreen";
 
 const Stack = createNativeStackNavigator();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false
-  })
-});
+async function registerForPush() {
+  // Ask the OS for permission (shows the system prompt)
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== "granted") return;
 
-// Enable LayoutAnimation on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
+  // Android requires a channel to be created
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.DEFAULT,
+    });
+  }
+
+  // Get an Expo push token (works inside Expo Go)
+  const projectId =
+    (Constants.expoConfig as any)?.extra?.eas?.projectId ||
+    (Constants.expoConfig as any)?.extra?.EAS_PROJECT_ID;
+
+  const token = (
+    await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)
+  ).data;
+
+  // Send token to your backend
+  const BACKEND_URL = (Constants.expoConfig as any)?.extra?.BACKEND_URL;
+  if (BACKEND_URL) {
+    await fetch(`${BACKEND_URL}/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+  }
+}
+
+// Tiny placeholder Settings screen to satisfy navigation
+function SettingsScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Settings (Reminders)</Text>
+      <Text style={{ marginTop: 6, opacity: 0.7 }}>Premium scheduling UI goes here.</Text>
+    </View>
+  );
 }
 
 export default function App() {
-  const theme = useMemo(() => themeFromBrand(), []);
-
   useEffect(() => {
-    // Register for push & schedule the standard daily reminder
-    (async () => {
-      await registerForPushNotificationsAsync();
-      await ensureDailyNotification(); // 7:00 AM local default (modifiable in Settings)
-    })();
+    registerForPush();
   }, []);
 
   return (
-    <ThemeProvider value={theme}>
-      <NavigationContainer theme={theme.isDark ? DarkTheme : DefaultTheme}>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Today’s Lectio Link" }} />
-          <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: "Prayer Reminders" }} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ThemeProvider>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Lectio Links" component={HomeScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
