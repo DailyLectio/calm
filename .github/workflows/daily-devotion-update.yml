@@ -23,30 +23,108 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ---- Optional preflight sanity check (recommended) ----
-      # Fails early if today's date isn't in public/weeklyfeed.json
+      # ---- PRE-RUN VISIBILITY ----
+      - name: Show weeklyfeed.json header (pre-check)
+        run: |
+          echo "SHA: $GITHUB_SHA"
+          if [ -f public/weeklyfeed.json ]; then
+            head -n 60 public/weeklyfeed.json
+          else
+            echo "public/weeklyfeed.json not found"; exit 1
+          fi
+
+      # Fails early if weeklyfeed is malformed, enums are short, or today's date missing
       - name: Sanity check weeklyfeed for today
         env:
           APP_TZ: America/New_York   # Tampa is Eastern Time; change if you prefer
         run: |
           python3 - <<'PY'
-          import json, os
+          import json, os, sys
           from datetime import datetime
-          from zoneinfo import ZoneInfo
+          try:
+              from zoneinfo import ZoneInfo
+          except Exception:
+              ZoneInfo = None
+
           tz = os.environ.get("APP_TZ","UTC")
-          today = datetime.now(ZoneInfo(tz)).date().isoformat()
-          with open("public/weeklyfeed.json") as f:
+          today = datetime.now(ZoneInfo(tz) if ZoneInfo else None).date().isoformat()
+          print("App TZ:", tz, " Today:", today)
+
+          with open("public/weeklyfeed.json", encoding="utf-8") as f:
               data = json.load(f)
-          found = any(str(e.get("date","")).strip()==today for e in data)
-          print("tz=", tz, "today=", today, "found=", found)
-          raise SystemExit(0 if found else 1)
+
+          if not isinstance(data, list):
+              print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
+
+          by_date = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
+          row = by_date.get(today)
+          if not row:
+              print(f"ERROR: No entry for today ({today}) in weeklyfeed.json"); sys.exit(1)
+
+          cyc = str(row.get("cycle",""))
+          wdc = str(row.get("weekdayCycle",""))
+          if not cyc.startswith("Year ") or not wdc.startswith("Cycle "):
+              print("ERROR: Enums not normalized:",
+                    {"date": today, "cycle": cyc, "weekdayCycle": wdc})
+              sys.exit(1)
+
+          required = [
+            "quote","quoteCitation","firstReading","psalmSummary",
+            "gospelSummary","saintReflection","dailyPrayer",
+            "theologicalSynthesis","exegesis","usccbLink",
+            "firstReadingRef","psalmRef","gospelRef"
+          ]
+          missing = [k for k in required if not str(row.get(k,"")).strip()]
+          if missing:
+              print("ERROR: Missing/empty keys for today:", missing); sys.exit(1)
+
+          print("Pre-check OK for", today)
           PY
 
+      # ---- RUN THE DAILY UPDATE ----
       - name: Run daily devotion update (Python)
         env:
           APP_TZ: America/New_York
         run: |
           python3 update_daily_devotion.py --tz "$APP_TZ"
+
+      # ---- POST-RUN VISIBILITY (artifact) ----
+      - name: Show dist/devotions.json header (post-generate)
+        run: |
+          if [ -f dist/devotions.json ]; then
+            head -n 60 dist/devotions.json
+          else
+            echo "dist/devotions.json not written"; exit 1
+          fi
+
+      # Optional shape check on dist artifact (top-level array w/ today's entry)
+      - name: Sanity check devotions artifact
+        env:
+          APP_TZ: America/New_York
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          from datetime import datetime
+          try:
+              from zoneinfo import ZoneInfo
+          except Exception:
+              ZoneInfo = None
+
+          tz = os.environ.get("APP_TZ","UTC")
+          today = datetime.now(ZoneInfo(tz) if ZoneInfo else None).date().isoformat()
+
+          with open("dist/devotions.json","r",encoding="utf-8") as f:
+            data = json.load(f)
+
+          if not isinstance(data, list):
+              print("ERROR: devotions.json is not a top-level array"); sys.exit(1)
+
+          by_date = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
+          if today not in by_date:
+              print(f"ERROR: No entry for today ({today}) in devotions.json"); sys.exit(1)
+
+          print("Devotions artifact OK for", today)
+          PY
 
       # Copy artifact out of ignored dist/ so git can track it
       - name: Prepare artifact for commit
@@ -60,6 +138,11 @@ jobs:
             exit 1
           fi
 
+      # ---- POST-COPY VISIBILITY (what we will commit) ----
+      - name: Show public/devotions.json header (post-copy)
+        run: |
+          head -n 60 public/devotions.json
+
       - name: Commit and push changes
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -68,13 +151,10 @@ jobs:
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
 
-          # Only stage the tracked file (dist/ stays ignored)
           git add public/devotions.json
 
-          # Commit only if there are staged changes
           if ! git diff --staged --quiet; then
             git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
-            # If your repo path is different, change the owner/repo here:
             git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
           else
             echo "No changes to commit"
