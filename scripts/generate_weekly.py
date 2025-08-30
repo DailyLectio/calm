@@ -13,6 +13,20 @@ def _normalize_refs(entry: dict) -> dict:
         entry[k] = "" if v is None else str(v)
     return entry
 
+# accept short and long forms; always output long form
+CYCLE_MAP = {
+    "A": "Year A", "B": "Year B", "C": "Year C",
+    "Year A": "Year A", "Year B": "Year B", "Year C": "Year C",
+}
+WEEKDAY_MAP = {
+    "I": "Cycle I", "II": "Cycle II",
+    "Cycle I": "Cycle I", "Cycle II": "Cycle II",
+}
+def _normalize_enums(entry: dict) -> dict:
+    entry["cycle"] = CYCLE_MAP.get(str(entry.get("cycle","")).strip(), "Year C")
+    entry["weekdayCycle"] = WEEKDAY_MAP.get(str(entry.get("weekdayCycle","")).strip() or str(entry.get("weekday","")).strip(), "Cycle I")
+    return entry
+
 ROOT = Path(__file__).resolve().parents[1]
 WEEKLY_PATH   = ROOT / "public" / "weeklyfeed.json"
 READINGS_HINT = ROOT / "public" / "weeklyreadings.json"
@@ -93,8 +107,8 @@ def readings_meta_for(d: date, hints) -> dict:
         "secondRef": pick("secondReadingRef","secondRef","secondReading", default=""),
         "psalmRef":  pick("psalmRef","psalm","psalmReference"),
         "gospelRef": pick("gospelRef","gospel","gospelReference"),
-        "cycle":     pick("cycle", default="C"),
-        "weekday":   pick("weekdayCycle","weekday", default="I"),
+        "cycle":     pick("cycle", default="C"),            # may be short in hints
+        "weekday":   pick("weekdayCycle","weekday", default="I"),  # may be short in hints
         "feast":     pick("feast", default="Feria"),
         "saintName": pick("saintName","saint", default=""),
         "saintNote": pick("saintNote", default="")
@@ -121,7 +135,7 @@ def clean_tags(val) -> list[str]:
         if len(out)>=12: break
     return out
 
-# ---------- Repair helpers (same as before) ----------
+# ---------- Repair helpers ----------
 def repair_quote(client: OpenAI, ds: str, meta: dict) -> dict:
     prompt = (
         "Provide ONE short Scripture quotation (<= 20 words) from today's readings and its short citation. "
@@ -188,6 +202,7 @@ def canonicalize(draft: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
         "secondReading": second_reading,
         "tags": clean_tags(draft.get("tags")),
         "usccbLink": usccb_link(d),
+        # NOTE: these may be short in hints; normalize afterwards
         "cycle": S("cycle") or meta["cycle"],
         "weekdayCycle": S("weekdayCycle") or meta["weekday"],
         "feast": S("feast") or meta["feast"],
@@ -202,6 +217,7 @@ def canonicalize(draft: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS}")
 
+    # ----- schema (optional) -----
     validator = None
     if SCHEMA_PATH.exists():
         schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -248,14 +264,14 @@ def main():
             draft = json.loads(extract_json(raw))
 
         # Guarantee quote & citation
-        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip()) < 3)
-        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip()) < 2)
+        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip())<3)
+        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip())<2)
         if need_q or need_c:
             patch = repair_quote(client, ds, meta)
-            if need_q and patch.get("quote"): draft["quote"] = patch["quote"]
-            if need_c and patch.get("quoteCitation"): draft["quoteCitation"] = patch["quoteCitation"]
-            if not draft.get("quoteCitation"): draft["quoteCitation"] = meta.get("gospelRef") or meta.get("firstRef") or "—"
-            if not draft.get("quote") or len(str(draft["quote"]).strip()) < 3: draft["quote"] = "Teach me your ways, O Lord."
+            if need_q and patch.get("quote"): draft["quote"]=patch["quote"]
+            if need_c and patch.get("quoteCitation"): draft["quoteCitation"]=patch["quoteCitation"]
+            if not draft.get("quoteCitation"): draft["quoteCitation"]= meta.get("gospelRef") or meta.get("firstRef") or "—"
+            if not draft.get("quote") or len(str(draft["quote"]).strip())<3: draft["quote"]="Teach me your ways, O Lord."
 
         # Repair too-short summaries
         for field in ("firstReading","psalmSummary","gospelSummary","saintReflection"):
@@ -266,10 +282,13 @@ def main():
                     draft[field] = fixed
 
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
+
+        # normalize for schema expectations
         obj = _normalize_refs(obj)
+        obj = _normalize_enums(obj)
 
         by_date[ds] = obj
-        print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})")
+        print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})  [{obj['cycle']}, {obj['weekdayCycle']}]")
 
     out = list(sorted(by_date.values(), key=lambda r: r["date"]))
 
