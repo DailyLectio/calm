@@ -209,7 +209,7 @@ def main():
     else:
         print(f"[warn] {SCHEMA_PATH} not found; skipping schema validation")
 
-    # ---------- Defensive load of the weekly file ----------
+    # ----- Defensive load of weeklyfeed.json -----
     raw_weekly = load_json(WEEKLY_PATH, default=[])
     if isinstance(raw_weekly, dict) and "weeklyDevotionals" in raw_weekly:
         weekly = raw_weekly.get("weeklyDevotionals", [])
@@ -217,8 +217,6 @@ def main():
         weekly = raw_weekly
     else:
         weekly = []
-    # ignore any top-level 'metadata' silently
-
     by_date = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
 
     hints  = load_json(READINGS_HINT, default=None)
@@ -250,14 +248,14 @@ def main():
             draft = json.loads(extract_json(raw))
 
         # Guarantee quote & citation
-        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip())<3)
-        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip())<2)
+        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip()) < 3)
+        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip()) < 2)
         if need_q or need_c:
             patch = repair_quote(client, ds, meta)
-            if need_q and patch.get("quote"): draft["quote"]=patch["quote"]
-            if need_c and patch.get("quoteCitation"): draft["quoteCitation"]=patch["quoteCitation"]
-            if not draft.get("quoteCitation"): draft["quoteCitation"]= meta.get("gospelRef") or meta.get("firstRef") or "—"
-            if not draft.get("quote") or len(str(draft["quote"]).strip())<3: draft["quote"]="Teach me your ways, O Lord."
+            if need_q and patch.get("quote"): draft["quote"] = patch["quote"]
+            if need_c and patch.get("quoteCitation"): draft["quoteCitation"] = patch["quoteCitation"]
+            if not draft.get("quoteCitation"): draft["quoteCitation"] = meta.get("gospelRef") or meta.get("firstRef") or "—"
+            if not draft.get("quote") or len(str(draft["quote"]).strip()) < 3: draft["quote"] = "Teach me your ways, O Lord."
 
         # Repair too-short summaries
         for field in ("firstReading","psalmSummary","gospelSummary","saintReflection"):
@@ -270,18 +268,17 @@ def main():
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
         obj = _normalize_refs(obj)
 
-        # (moved array validation below)
         by_date[ds] = obj
         print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})")
 
     out = list(sorted(by_date.values(), key=lambda r: r["date"]))
 
-    # ---------- Validate the ARRAY, not each object ----------
+    # ----- Validate the ARRAY (not each object) -----
     if validator:
         errs = list(validator.iter_errors(out))
         if errs:
-            details = "; ".join([f\"{'/'.join(map(str, e.path))}: {e.message}\" for e in errs])
-            raise SystemExit(f\"Validation failed: {details}\")
+            details = "; ".join([f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs])
+            raise SystemExit(f"Validation failed: {details}")
 
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
     WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
