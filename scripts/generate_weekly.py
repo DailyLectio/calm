@@ -5,9 +5,9 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from openai import OpenAI
 
-# add near the top of the file
+# ---------- tiny helpers ----------
 def _normalize_refs(entry: dict) -> dict:
-    # ensure reading refs are strings, never None
+    # ensure ref fields are strings (schema-safe), not None
     for k in ("firstReadingRef", "psalmRef", "secondReadingRef", "gospelRef"):
         v = entry.get(k, "")
         entry[k] = "" if v is None else str(v)
@@ -32,14 +32,18 @@ def today_in_tz(tzname: str) -> date:
 
 _raw_start = (os.getenv("START_DATE") or "").strip()
 if _raw_start:
-    try: START = date.fromisoformat(_raw_start)
-    except ValueError: raise SystemExit(f"[error] START_DATE must be YYYY-MM-DD, got {_raw_start!r}")
+    try:
+        START = date.fromisoformat(_raw_start)
+    except ValueError:
+        raise SystemExit(f"[error] START_DATE must be YYYY-MM-DD, got {_raw_start!r}")
 else:
     START = today_in_tz(APP_TZ)
 
 _raw_days = (os.getenv("DAYS") or "7").strip()
-try: DAYS = int(_raw_days or "7")
-except ValueError: DAYS = 7
+try:
+    DAYS = int(_raw_days or "7")
+except ValueError:
+    DAYS = 7
 DAYS = max(1, min(DAYS, 14))
 
 USCCB_BASE = "https://bible.usccb.org/bible/readings"
@@ -67,8 +71,10 @@ def usccb_link(d: date) -> str:
     return f"{USCCB_BASE}/{d.strftime('%m%d%y')}.cfm"
 
 def load_json(path: Path, default):
-    try: return json.loads(path.read_text(encoding="utf-8"))
-    except Exception: return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
 
 def readings_meta_for(d: date, hints) -> dict:
     ds = d.isoformat(); row = None
@@ -115,7 +121,7 @@ def clean_tags(val) -> list[str]:
         if len(out)>=12: break
     return out
 
-# ---------- Repair helpers ----------
+# ---------- Repair helpers (same as before) ----------
 def repair_quote(client: OpenAI, ds: str, meta: dict) -> dict:
     prompt = (
         "Provide ONE short Scripture quotation (<= 20 words) from today's readings and its short citation. "
@@ -203,8 +209,18 @@ def main():
     else:
         print(f"[warn] {SCHEMA_PATH} not found; skipping schema validation")
 
-    weekly = load_json(WEEKLY_PATH, default=[])
+    # ---------- Defensive load of the weekly file ----------
+    raw_weekly = load_json(WEEKLY_PATH, default=[])
+    if isinstance(raw_weekly, dict) and "weeklyDevotionals" in raw_weekly:
+        weekly = raw_weekly.get("weeklyDevotionals", [])
+    elif isinstance(raw_weekly, list):
+        weekly = raw_weekly
+    else:
+        weekly = []
+    # ignore any top-level 'metadata' silently
+
     by_date = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
+
     hints  = load_json(READINGS_HINT, default=None)
     client = OpenAI()
 
@@ -228,8 +244,10 @@ def main():
             messages=[{"role":"system","content":STYLE_CARD},{"role":"user","content":user_msg}],
         )
         raw = resp.choices[0].message.content
-        try: draft = json.loads(raw)
-        except Exception: draft = json.loads(extract_json(raw))
+        try:
+            draft = json.loads(raw)
+        except Exception:
+            draft = json.loads(extract_json(raw))
 
         # Guarantee quote & citation
         need_q = (not draft.get("quote") or len(str(draft["quote"]).strip())<3)
@@ -241,7 +259,7 @@ def main():
             if not draft.get("quoteCitation"): draft["quoteCitation"]= meta.get("gospelRef") or meta.get("firstRef") or "—"
             if not draft.get("quote") or len(str(draft["quote"]).strip())<3: draft["quote"]="Teach me your ways, O Lord."
 
-        # NEW: Repair missing/too-short summaries (threshold ~30 chars)
+        # Repair too-short summaries
         for field in ("firstReading","psalmSummary","gospelSummary","saintReflection"):
             txt = str(draft.get(field,"")).strip()
             if len(txt) < 30:
@@ -250,20 +268,21 @@ def main():
                     draft[field] = fixed
 
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
-
-        # >>> NEW: normalize ref fields to strings (no None) BEFORE validation
         obj = _normalize_refs(obj)
 
-        if validator:
-            errs = list(validator.iter_errors(obj))
-            if errs:
-                details = "; ".join([f"{'/'.join(map(str,e.path))}: {e.message}" for e in errs])
-                raise SystemExit(f"Validation failed for {ds}: {details}")
-
+        # (moved array validation below)
         by_date[ds] = obj
         print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})")
 
     out = list(sorted(by_date.values(), key=lambda r: r["date"]))
+
+    # ---------- Validate the ARRAY, not each object ----------
+    if validator:
+        errs = list(validator.iter_errors(out))
+        if errs:
+            details = "; ".join([f\"{'/'.join(map(str, e.path))}: {e.message}\" for e in errs])
+            raise SystemExit(f\"Validation failed: {details}\")
+
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
     WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} total entries")
