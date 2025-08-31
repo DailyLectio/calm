@@ -4,11 +4,49 @@ from datetime import datetime, date, timedelta
 from pathlib import Path
 from jsonschema import Draft202012Validator
 from openai import OpenAI
+from collections import OrderedDict
+from typing import List, Dict, Any
+
+# ---------- constants ----------
+ROOT = Path(__file__).resolve().parents[1]
+WEEKLY_PATH   = ROOT / "public" / "weeklyfeed.json"
+READINGS_HINT = ROOT / "public" / "weeklyreadings.json"
+SCHEMA_PATH   = ROOT / "schemas" / "devotion.schema.json"
+USCCB_BASE    = "https://bible.usccb.org/bible/readings"
+
+# Output contract (key order required by the app)
+KEY_ORDER = [
+    "date",
+    "quote",
+    "quoteCitation",
+    "firstReading",
+    "psalmSummary",
+    "gospelSummary",
+    "saintReflection",
+    "dailyPrayer",
+    "theologicalSynthesis",
+    "exegesis",
+    "secondReading",
+    "tags",
+    "usccbLink",
+    "cycle",
+    "weekdayCycle",
+    "feast",
+    "gospelReference",
+    "firstReadingRef",
+    "secondReadingRef",
+    "psalmRef",
+    "gospelRef",
+    "lectionaryKey",
+]
+
+# These must be serialized as empty strings (never null)
+NULLABLE_STR_FIELDS = ("secondReading", "feast", "secondReadingRef")
 
 # ---------- tiny helpers ----------
-def _normalize_refs(entry: dict) -> dict:
-    # ensure ref fields are strings (schema-safe), not None
-    for k in ("firstReadingRef", "psalmRef", "secondReadingRef", "gospelRef"):
+def _normalize_refs(entry: Dict[str, Any]) -> Dict[str, Any]:
+    # ensure ref fields are strings (schema/app-safe), not None
+    for k in ("firstReadingRef", "psalmRef", "secondReadingRef", "gospelRef", "gospelReference"):
         v = entry.get(k, "")
         entry[k] = "" if v is None else str(v)
     return entry
@@ -22,15 +60,13 @@ WEEKDAY_MAP = {
     "I": "Cycle I", "II": "Cycle II",
     "Cycle I": "Cycle I", "Cycle II": "Cycle II",
 }
-def _normalize_enums(entry: dict) -> dict:
+def _normalize_enums(entry: Dict[str, Any]) -> Dict[str, Any]:
     entry["cycle"] = CYCLE_MAP.get(str(entry.get("cycle","")).strip(), "Year C")
-    entry["weekdayCycle"] = WEEKDAY_MAP.get(str(entry.get("weekdayCycle","")).strip() or str(entry.get("weekday","")).strip(), "Cycle I")
+    entry["weekdayCycle"] = WEEKDAY_MAP.get(
+        str(entry.get("weekdayCycle","")).strip() or str(entry.get("weekday","")).strip(), 
+        "Cycle I"
+    )
     return entry
-
-ROOT = Path(__file__).resolve().parents[1]
-WEEKLY_PATH   = ROOT / "public" / "weeklyfeed.json"
-READINGS_HINT = ROOT / "public" / "weeklyreadings.json"
-SCHEMA_PATH   = ROOT / "schemas" / "devotion.schema.json"
 
 try:
     from zoneinfo import ZoneInfo
@@ -60,8 +96,6 @@ except ValueError:
     DAYS = 7
 DAYS = max(1, min(DAYS, 14))
 
-USCCB_BASE = "https://bible.usccb.org/bible/readings"
-
 STYLE_CARD = """ROLE: Catholic editor + theologian for FaithLinks.
 
 Audience: teens + adults. Two layers:
@@ -90,7 +124,7 @@ def load_json(path: Path, default):
     except Exception:
         return default
 
-def readings_meta_for(d: date, hints) -> dict:
+def readings_meta_for(d: date, hints) -> Dict[str, str]:
     ds = d.isoformat(); row = None
     if isinstance(hints, list):
         for r in hints:
@@ -109,12 +143,12 @@ def readings_meta_for(d: date, hints) -> dict:
         "gospelRef": pick("gospelRef","gospel","gospelReference"),
         "cycle":     pick("cycle", default="C"),            # may be short in hints
         "weekday":   pick("weekdayCycle","weekday", default="I"),  # may be short in hints
-        "feast":     pick("feast", default="Feria"),
+        "feast":     pick("feast", default=""),
         "saintName": pick("saintName","saint", default=""),
         "saintNote": pick("saintNote", default="")
     }
 
-def lectionary_key(meta: dict) -> str:
+def lectionary_key(meta: Dict[str, str]) -> str:
     parts = [meta.get("firstRef","").replace(" ",""),
              meta.get("psalmRef","").replace(" ",""),
              meta.get("gospelRef","").replace(" ",""),
@@ -125,7 +159,7 @@ def extract_json(text: str) -> str:
     s = text.find("{"); e = text.rfind("}")
     return text[s:e+1] if (s>=0 and e>s) else text
 
-def clean_tags(val) -> list[str]:
+def clean_tags(val) -> List[str]:
     if val is None: return []
     items = [val] if isinstance(val,str) else (val if isinstance(val,list) else [])
     out=[]
@@ -136,7 +170,7 @@ def clean_tags(val) -> list[str]:
     return out
 
 # ---------- Repair helpers ----------
-def repair_quote(client: OpenAI, ds: str, meta: dict) -> dict:
+def repair_quote(client: OpenAI, ds: str, meta: Dict[str,str]) -> Dict[str,str]:
     prompt = (
         "Provide ONE short Scripture quotation (<= 20 words) from today's readings and its short citation. "
         "Return JSON with keys 'quote' and 'quoteCitation' only.\n"
@@ -159,7 +193,7 @@ REPAIR_SPECS = {
     "saintReflection": lambda m: f"Write 3–5 sentences (60–120 words) on Saint {m.get('saintName','the saint')} connecting explicitly to today's readings. Pastoral and invitational.",
 }
 
-def repair_field(client: OpenAI, field: str, meta: dict) -> str:
+def repair_field(client: OpenAI, field: str, meta: Dict[str,str]) -> str:
     ask = REPAIR_SPECS[field](meta)
     r = client.chat.completions.create(
         model="gpt-4o-mini", temperature=0.5, response_format={"type":"json_object"},
@@ -175,20 +209,26 @@ def repair_field(client: OpenAI, field: str, meta: dict) -> str:
     except Exception:
         return ""
 
-def canonicalize(draft: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
+def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
     def S(k, default=""):
         v = draft.get(k)
         if v is None: return default
         s = str(v).strip()
         return s if s else default
+    # handle possible null/empty second reading + ref
     second_reading = draft.get("secondReading")
-    if isinstance(second_reading,str): second_reading = second_reading.strip() or None
-    elif second_reading is not None:    second_reading = str(second_reading).strip() or None
+    if isinstance(second_reading,str): second_reading = second_reading.strip() or ""
+    elif second_reading is None:       second_reading = ""
+    else:                              second_reading = str(second_reading).strip() or ""
+
     second_ref = draft.get("secondReadingRef")
-    if isinstance(second_ref,str): second_ref = second_ref.strip() or None
-    elif second_ref is not None:   second_ref = str(second_ref).strip() or None
-    if not second_ref: second_ref = meta.get("secondRef") or None
-    return {
+    if isinstance(second_ref,str): second_ref = second_ref.strip() or ""
+    elif second_ref is None:       second_ref = ""
+    else:                          second_ref = str(second_ref).strip() or ""
+    if not second_ref:
+        second_ref = meta.get("secondRef","") or ""
+
+    obj = {
         "date": ds,
         "quote": S("quote"),
         "quoteCitation": S("quoteCitation"),
@@ -199,7 +239,7 @@ def canonicalize(draft: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
         "dailyPrayer": S("dailyPrayer"),
         "theologicalSynthesis": S("theologicalSynthesis"),
         "exegesis": S("exegesis"),
-        "secondReading": second_reading,
+        "secondReading": second_reading,  # must be string (can be "")
         "tags": clean_tags(draft.get("tags")),
         "usccbLink": usccb_link(d),
         # NOTE: these may be short in hints; normalize afterwards
@@ -208,11 +248,49 @@ def canonicalize(draft: dict, *, ds: str, d: date, meta: dict, lk: str) -> dict:
         "feast": S("feast") or meta["feast"],
         "gospelReference": S("gospelReference") or meta["gospelRef"],
         "firstReadingRef": S("firstReadingRef") or meta["firstRef"],
-        "secondReadingRef": second_ref,
+        "secondReadingRef": second_ref,   # must be string (can be "")
         "psalmRef": S("psalmRef") or meta["psalmRef"],
         "gospelRef": S("gospelRef") or meta["gospelRef"],
         "lectionaryKey": S("lectionaryKey") or lk,
     }
+    return obj
+
+# ---------- NEW: stable normalization for app contract ----------
+def _normalize_nullable_strings(entry: Dict[str, Any]) -> Dict[str, Any]:
+    for k in NULLABLE_STR_FIELDS:
+        v = entry.get(k, "")
+        if v is None:
+            entry[k] = ""
+        else:
+            entry[k] = str(v)
+    return entry
+
+def _mirror_gospel_keys(entry: Dict[str, Any]) -> Dict[str, Any]:
+    gref = entry.get("gospelReference") or entry.get("gospelRef") or ""
+    entry["gospelReference"] = gref
+    entry["gospelRef"] = gref
+    return entry
+
+def _order_keys(entry: Dict[str, Any]) -> OrderedDict:
+    ordered = OrderedDict()
+    for k in KEY_ORDER:
+        if k in NULLABLE_STR_FIELDS and (entry.get(k) is None):
+            ordered[k] = ""
+        else:
+            ordered[k] = entry.get(k, "" if k in NULLABLE_STR_FIELDS else ([] if k == "tags" else ""))
+    return ordered
+
+def normalize_day(entry: Dict[str, Any]) -> OrderedDict:
+    entry = _normalize_enums(_normalize_refs(_mirror_gospel_keys(_normalize_nullable_strings(entry))))
+    # guarantee tags is a list
+    if isinstance(entry.get("tags"), str):
+        entry["tags"] = [s.strip() for s in entry["tags"].split(",") if s.strip()]
+    elif not isinstance(entry.get("tags"), list):
+        entry["tags"] = []
+    return _order_keys(entry)
+
+def normalize_week(entries: List[Dict[str, Any]]) -> List[OrderedDict]:
+    return [normalize_day(e) for e in entries]
 
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS}")
@@ -233,14 +311,16 @@ def main():
         weekly = raw_weekly
     else:
         weekly = []
-    by_date = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
+
+    by_date: Dict[str, Dict[str, Any]] = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
 
     hints  = load_json(READINGS_HINT, default=None)
     client = OpenAI()
 
-    for i in range(DAYS):
+    wanted_dates = [(START + timedelta(days=i)).isoformat() for i in range(DAYS)]
+
+    for i, ds in enumerate(wanted_dates):
         d  = START + timedelta(days=i)
-        ds = d.isoformat()
         meta = readings_meta_for(d, hints)
         lk   = lectionary_key(meta)
 
@@ -264,8 +344,8 @@ def main():
             draft = json.loads(extract_json(raw))
 
         # Guarantee quote & citation
-        need_q = (not draft.get("quote") or len(str(draft["quote"]).strip())<3)
-        need_c = (not draft.get("quoteCitation") or len(str(draft["quoteCitation"]).strip())<2)
+        need_q = (not draft.get("quote") or len(str(draft.get("quote","")).strip())<3)
+        need_c = (not draft.get("quoteCitation") or len(str(draft.get("quoteCitation","")).strip())<2)
         if need_q or need_c:
             patch = repair_quote(client, ds, meta)
             if need_q and patch.get("quote"): draft["quote"]=patch["quote"]
@@ -283,14 +363,14 @@ def main():
 
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
 
-        # normalize for schema expectations
-        obj = _normalize_refs(obj)
-        obj = _normalize_enums(obj)
+        # NEW: normalize to app contract now
+        obj = normalize_day(obj)
 
         by_date[ds] = obj
         print(f"[ok] generated {ds} with quote='{obj['quote']}' ({obj['quoteCitation']})  [{obj['cycle']}, {obj['weekdayCycle']}]")
 
-    out = list(sorted(by_date.values(), key=lambda r: r["date"]))
+    # Only write the requested window (exact DAYS entries, in order)
+    out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
     # ----- Validate the ARRAY (not each object) -----
     if validator:
