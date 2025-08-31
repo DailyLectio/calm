@@ -27,7 +27,8 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 97:1-2, 5-6, 10-12",
     "gospelRef": "Mark 6:17-29",
-    "lectionaryKey": "634"
+    "lectionaryKey": "634",
+    "gospelReference": "Mark 6:17-29"
   },
   {
     "date": "2025-08-30",
@@ -57,7 +58,8 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 98:1, 7-8, 9",
     "gospelRef": "Matthew 25:14-30",
-    "lectionaryKey": "430"
+    "lectionaryKey": "430",
+    "gospelReference": "Matthew 25:14-30"
   },
   {
     "date": "2025-08-31",
@@ -87,7 +89,8 @@
     "secondReadingRef": "Hebrews 12:18-19, 22-24a",
     "psalmRef": "Psalm 68:4-5, 6-7, 10-11",
     "gospelRef": "Luke 14:1, 7-14",
-    "lectionaryKey": "126"
+    "lectionaryKey": "126",
+    "gospelReference": "Luke 14:1, 7-14"
   },
   {
     "date": "2025-09-01",
@@ -117,7 +120,8 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 96:1 and 3, 4-5, 11-12, 13",
     "gospelRef": "Luke 4:16-30",
-    "lectionaryKey": "431"
+    "lectionaryKey": "431",
+    "gospelReference": "Luke 4:16-30"
   },
   {
     "date": "2025-09-02",
@@ -147,7 +151,8 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 27:1, 4, 13-14",
     "gospelRef": "Luke 4:31-37",
-    "lectionaryKey": "432"
+    "lectionaryKey": "432",
+    "gospelReference": "Luke 4:31-37"
   },
   {
     "date": "2025-09-03",
@@ -177,7 +182,8 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 52:10, 11",
     "gospelRef": "Luke 4:38-44",
-    "lectionaryKey": "433"
+    "lectionaryKey": "433",
+    "gospelReference": "Luke 4:38-44"
   },
   {
     "date": "2025-09-04",
@@ -207,6 +213,7 @@
     "secondReadingRef": "",
     "psalmRef": "Psalm 98:2-3, 3-4, 5-6",
     "gospelRef": "Luke 5:1-11",
-    "lectionaryKey": "434"
+    "lectionaryKey": "434",
+    "gospelReference": "Luke 5:1-11"
   }
 ]
