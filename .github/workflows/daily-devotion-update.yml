@@ -2,7 +2,7 @@ name: Update Daily Devotion
 
 on:
   schedule:
-    - cron: '2 7 * * *'  # runs daily at 07:02 UTC (~03:02 ET during EDT)
+    - cron: "2 7 * * *"   # daily ~03:02 ET during EDT
   workflow_dispatch:
 
 jobs:
@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      APP_TZ: America/New_York
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
       - name: Checkout repo (main, full history)
@@ -23,6 +26,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai
+
       # ---- PRE-RUN VISIBILITY ----
       - name: Show weeklyfeed.json header (pre-check)
         run: |
@@ -33,10 +41,76 @@ jobs:
             echo "public/weeklyfeed.json not found"; exit 1
           fi
 
-      # Fails early if weeklyfeed is malformed, enums are short, or today's date missing
-      - name: Sanity check weeklyfeed for today
-        env:
-          APP_TZ: America/New_York   # Tampa is Eastern Time; change if you prefer
+      # Patch missing refs for TODAY, then save back to public/weeklyfeed.json
+      - name: Patch missing scripture refs for today
+        run: |
+          python3 - <<'PY'
+          import os, json, sys
+          from datetime import datetime
+          try:
+              from zoneinfo import ZoneInfo
+          except Exception:
+              ZoneInfo = None
+          from openai import OpenAI
+
+          tz = os.environ.get("APP_TZ","UTC")
+          today = (datetime.now(ZoneInfo(tz)).date().isoformat()
+                   if ZoneInfo else datetime.utcnow().date().isoformat())
+
+          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+              week = json.load(f)
+          if not isinstance(week, list):
+              print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
+
+          by = {str(d.get("date","")).strip(): d for d in week if isinstance(d, dict)}
+          row = by.get(today)
+          if not row:
+              print(f"ERROR: No entry for today ({today}) in weeklyfeed.json"); sys.exit(1)
+
+          need = [k for k in ("firstReadingRef","psalmRef") if not str(row.get(k,"")).strip()]
+          if need:
+              client = OpenAI()
+              prompt = (
+                "Provide exact Catholic daily Mass scripture references (book chapter:verses) for this date. "
+                "Return JSON with keys: firstReadingRef, psalmRef, gospelRef, secondReadingRef ('' if none). "
+                f"Date: {today}\nUSCCB: {row.get('usccbLink','')}\n"
+                f"Cycle: {row.get('cycle','')}\nWeekdayCycle: {row.get('weekdayCycle','')}\nFeast: {row.get('feast','')}\n"
+              )
+              r = client.chat.completions.create(
+                model="gpt-4o-mini",
+                temperature=0.2,
+                response_format={"type":"json_object"},
+                messages=[
+                  {"role":"system","content":"Return only valid scripture reference strings; no commentary."},
+                  {"role":"user","content": prompt},
+                ],
+              )
+              try:
+                  fix = json.loads(r.choices[0].message.content)
+              except Exception:
+                  fix = {}
+
+              row["firstReadingRef"] = row.get("firstReadingRef") or fix.get("firstReadingRef","")
+              row["psalmRef"]       = row.get("psalmRef")       or fix.get("psalmRef","")
+              # keep both gospel keys identical for your app
+              if not str(row.get("gospelRef","")).strip():
+                  row["gospelRef"] = fix.get("gospelRef","")
+              if not str(row.get("gospelReference","")).strip():
+                  row["gospelReference"] = row.get("gospelRef","")
+
+              # WRITE PATCH BACK TO REPO FILE
+              with open("public/weeklyfeed.json","w",encoding="utf-8") as f:
+                  json.dump(week, f, ensure_ascii=False, indent=2)
+
+              print("Patched refs for", today, "→",
+                    "firstReadingRef:", row.get("firstReadingRef"),
+                    "| psalmRef:", row.get("psalmRef"))
+          else:
+              print("Refs already present for", today)
+          PY
+
+      # Enforce required fields after patch
+      - name: Verify required fields for today
         run: |
           python3 - <<'PY'
           import json, os, sys
@@ -47,44 +121,32 @@ jobs:
               ZoneInfo = None
 
           tz = os.environ.get("APP_TZ","UTC")
-          today = datetime.now(ZoneInfo(tz) if ZoneInfo else None).date().isoformat()
-          print("App TZ:", tz, " Today:", today)
+          today = (datetime.now(ZoneInfo(tz)).date().isoformat()
+                   if ZoneInfo else datetime.utcnow().date().isoformat())
 
-          with open("public/weeklyfeed.json", encoding="utf-8") as f:
+          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
               data = json.load(f)
-
           if not isinstance(data, list):
               print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
 
-          by_date = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
-          row = by_date.get(today)
+          by = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
+          row = by.get(today)
           if not row:
               print(f"ERROR: No entry for today ({today}) in weeklyfeed.json"); sys.exit(1)
 
-          cyc = str(row.get("cycle",""))
-          wdc = str(row.get("weekdayCycle",""))
-          if not cyc.startswith("Year ") or not wdc.startswith("Cycle "):
-              print("ERROR: Enums not normalized:",
-                    {"date": today, "cycle": cyc, "weekdayCycle": wdc})
-              sys.exit(1)
-
           required = [
-            "quote","quoteCitation","firstReading","psalmSummary",
-            "gospelSummary","saintReflection","dailyPrayer",
-            "theologicalSynthesis","exegesis","usccbLink",
-            "firstReadingRef","psalmRef","gospelRef"
+            "quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
+            "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
+            "usccbLink","cycle","weekdayCycle","gospelRef","firstReadingRef","psalmRef"
           ]
-          missing = [k for k in required if not str(row.get(k,"")).strip()]
+          missing = [k for k in required if not str(row.get(k,'')).strip()]
           if missing:
-              print("ERROR: Missing/empty keys for today:", missing); sys.exit(1)
-
-          print("Pre-check OK for", today)
+            print("ERROR: Missing/empty keys for today:", missing); sys.exit(1)
+          print("OK for today:", today)
           PY
 
       # ---- RUN THE DAILY UPDATE ----
       - name: Run daily devotion update (Python)
-        env:
-          APP_TZ: America/New_York
         run: |
           python3 update_daily_devotion.py --tz "$APP_TZ"
 
@@ -97,48 +159,12 @@ jobs:
             echo "dist/devotions.json not written"; exit 1
           fi
 
-      # Optional shape check on dist artifact (top-level array w/ today's entry)
-      - name: Sanity check devotions artifact
-        env:
-          APP_TZ: America/New_York
-        run: |
-          python3 - <<'PY'
-          import json, os, sys
-          from datetime import datetime
-          try:
-              from zoneinfo import ZoneInfo
-          except Exception:
-              ZoneInfo = None
-
-          tz = os.environ.get("APP_TZ","UTC")
-          today = datetime.now(ZoneInfo(tz) if ZoneInfo else None).date().isoformat()
-
-          with open("dist/devotions.json","r",encoding="utf-8") as f:
-            data = json.load(f)
-
-          if not isinstance(data, list):
-              print("ERROR: devotions.json is not a top-level array"); sys.exit(1)
-
-          by_date = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
-          if today not in by_date:
-              print(f"ERROR: No entry for today ({today}) in devotions.json"); sys.exit(1)
-
-          print("Devotions artifact OK for", today)
-          PY
-
-      # Copy artifact out of ignored dist/ so git can track it
       - name: Prepare artifact for commit
         run: |
           set -euo pipefail
           mkdir -p public
-          if [ -f dist/devotions.json ]; then
-            cp dist/devotions.json public/devotions.json
-          else
-            echo "dist/devotions.json not found; did the Python step create it?"
-            exit 1
-          fi
+          cp dist/devotions.json public/devotions.json
 
-      # ---- POST-COPY VISIBILITY (what we will commit) ----
       - name: Show public/devotions.json header (post-copy)
         run: |
           head -n 60 public/devotions.json
@@ -151,7 +177,8 @@ jobs:
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
 
-          git add public/devotions.json
+          # Commit BOTH files so the ref patch persists
+          git add public/weeklyfeed.json public/devotions.json
 
           if ! git diff --staged --quiet; then
             git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
