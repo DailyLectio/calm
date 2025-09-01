@@ -250,6 +250,22 @@ def exegesis_wants_paras(txt: str) -> bool:
                   if line.strip().endswith(":") or (line.strip().istitle() and len(line.split())<=6))
     return has_5 and headish >= 2
 
+def fallback_exegesis(meta: dict) -> str:
+    """Last-ditch non-AI exegesis so the field is never empty."""
+    f = meta.get
+    first  = f("firstRef","").strip()
+    psalm  = f("psalmRef","").strip()
+    gospel = f("gospelRef","").strip()
+
+    paras = [
+        "Context:\nThe Church gives us a coherent set of readings today. The first reading sets the stage with lived faith in real history. The psalm answers in prayer and trust. The Gospel reveals Jesus as the center and fulfillment. We approach the Word not as trivia but as God’s voice shaping our week and our choices.",
+        f"First Reading ({first}):\nThis passage calls for a response that is more than ideas. It names the human condition and God’s initiative. We learn how God acts, how a community listens, and how a disciple chooses. The text invites us to see our own habits, fears, and hopes in light of God’s faithful plan.",
+        f"Psalm ({psalm}):\nThe refrain teaches the posture of the heart—confidence, repentance, gratitude, or petition. The psalm is not wallpaper; it trains our prayer. By repeating its lines we let grace reorder our desires and read the day with God’s vocabulary.",
+        f"Gospel ({gospel}):\nHere Jesus stands at the center. He calls, heals, confronts, and reveals the Kingdom. The scene is concrete and demanding: no distant theory, but a decision to follow Him today. The Gospel exposes what we cling to and offers the freedom of mercy and discipleship.",
+        "Fathers & Today:\nThe Fathers of the Church read Scripture as one story that culminates in Christ. They urge us to interpret our lives within that story and to act. For us, that means choosing a small, specific obedience: reconcile with someone, serve a hidden need, pray with the day’s psalm, and keep our eyes on Jesus. Holiness grows by these concrete yeses."
+    ]
+    return "\n\n".join(paras)
+
 # ---------- canonicalization ----------
 def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
     def S(k, default=""):
@@ -456,55 +472,58 @@ def main():
             except Exception:
                 pass
 
-        # --- enforce word ranges (and paragraph format for exegesis) ---
-        for field in ["firstReading","secondReading","psalmSummary","gospelSummary",
-                      "saintReflection","dailyPrayer","theologicalSynthesis","exegesis"]:
-            # allow empty secondReading when none is assigned
-            if field == "secondReading" and not str(draft.get("secondReading","")).strip():
-                draft["secondReading"] = ""  # normalize
-                continue
+# --- enforce word ranges (and paragraph format for exegesis) ---
+for field in ["firstReading","secondReading","psalmSummary","gospelSummary",
+              "saintReflection","dailyPrayer","theologicalSynthesis","exegesis"]:
 
-            txt = str(draft.get(field,"")).strip()
-            need = not meets_words(field, txt)
-            if field == "exegesis":
-                need = need or (not exegesis_wants_paras(txt))
+    # allow empty secondReading when none is assigned
+    if field == "secondReading" and not str(draft.get("secondReading","")).strip():
+        draft["secondReading"] = ""
+        continue
 
-            if need:
-                spec = LENGTH_RULES[field]
-                para_hint = ("\nFormat as 5–6 short paragraphs with brief headings "
-                             "(e.g., Context:, Psalm:, Gospel:, Fathers:, Today:) separated by blank lines."
-                            ) if field == "exegesis" else ""
-                ask = (
+    def _good(txt: str) -> bool:
+        ok = meets_words(field, txt)
+        if field == "exegesis":
+            ok = ok and exegesis_wants_paras(txt)
+        return ok
+
+    txt = str(draft.get(field,"")).strip()
+    if _good(txt):
+        continue
+
+    # up to two AI repair attempts
+    spec = LENGTH_RULES[field]
+    para_hint = ("\nFormat as 5–6 short paragraphs with brief headings "
+                 "(e.g., Context:, Psalm:, Gospel:, Fathers:, Today:) separated by blank lines."
+                 ) if field == "exegesis" else ""
+
+    for _ in range(2):
+        r = safe_chat(
+            client,
+            temperature=TEMP_REPAIR,
+            response_format={"type":"json_object"},
+            messages=[
+                {"role":"system","content":"Return JSON with a single key 'text'."},
+                {"role":"user","content":
                     f"Write {spec['min_w']}-{spec['max_w']} words for {field}. "
-                    "Do not paste long Scripture; paraphrase faithfully. Warm, pastoral, concrete."
+                    "No long Scripture quotes—paraphrase faithfully. Warm, pastoral, concrete."
                     f"\nFIRST: {meta.get('firstRef','')}\nPSALM: {meta.get('psalmRef','')}\nGOSPEL: {meta.get('gospelRef','')}"
-                    f"\nSAINT: {meta.get('saintName','')}{para_hint}"
-                )
-                r = safe_chat(
-                    client,
-                    temperature=TEMP_REPAIR,
-                    response_format={"type":"json_object"},
-                    messages=[{"role":"system","content":"Return JSON with a single key 'text'."},
-                              {"role":"user","content": ask}],
-                    model=MODEL
-                )
-                try:
-                    obj_fix = json.loads(r.choices[0].message.content)
-                    new_txt = str(obj_fix.get("text","")).strip()
-                    if meets_words(field, new_txt) and (field!="exegesis" or exegesis_wants_paras(new_txt)):
-                        draft[field] = new_txt
-                except Exception:
-                    pass
+                    f"\nSAINT: {meta.get('saintName','')}{para_hint}"}
+            ],
+            model=MODEL
+        )
+        try:
+            obj = json.loads(r.choices[0].message.content)
+            new_txt = str(obj.get("text","")).strip()
+            if _good(new_txt):
+                draft[field] = new_txt
+                break
+        except Exception:
+            pass
 
-        # backfill refs at source if draft omitted them
-        if not str(draft.get("firstReadingRef","")).strip() or not str(draft.get("psalmRef","")).strip() or not str(draft.get("gospelRef","")).strip():
-            try:
-                patch = repair_refs_by_date(client, ds=ds, usccb_url=usccb_link(d), cycle=meta["cycle"], weekday=meta["weekday"], feast=meta.get("feast",""))
-                for k in ("firstReadingRef","psalmRef","gospelRef","secondReadingRef"):
-                    if not str(draft.get(k,"")).strip():
-                        draft[k] = patch.get(k,"") or ""
-            except Exception as _e:
-                print(f"[warn] ref backfill failed for {ds}: {_e}")
+    # deterministic fallback so the field is NEVER empty
+    if field == "exegesis" and not _good(str(draft.get("exegesis","")).strip()):
+        draft["exegesis"] = fallback_exegesis(meta)
 
         # --- turn into contract object & normalize ---
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
