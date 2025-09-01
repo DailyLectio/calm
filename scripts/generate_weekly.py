@@ -22,7 +22,7 @@ TEMP_REPAIR    = float(os.getenv("GEN_TEMP_REPAIR", "0.45"))
 TEMP_QUOTE     = float(os.getenv("GEN_TEMP_QUOTE", "0.35"))
 
 def safe_chat(client, *, temperature, response_format, messages, model=None):
-    """Try chosen model; if not available to the key, fall back without failing the run."""
+    """Try chosen model; if unavailable to the key, fall back without failing the run."""
     use_model = (model or MODEL)
     try:
         return client.chat.completions.create(
@@ -50,6 +50,7 @@ KEY_ORDER = [
     "weekdayCycle","feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef",
     "gospelRef","lectionaryKey",
 ]
+# fields that must serialize as empty strings (never null)
 NULLABLE_STR_FIELDS = ("secondReading", "feast", "secondReadingRef")
 
 # ---------- utilities ----------
@@ -174,6 +175,11 @@ def clean_tags(val) -> List[str]:
         if len(out)>=12: break
     return out
 
+# --- quote helpers ---
+def strip_trailing_paren_ref(s: str) -> str:
+    # trims things like:  (Jn 3:16), (1 Cor 2:2), (Ps 27:1)
+    return re.sub(r"\s*\([^)]*\)\s*$", "", (s or "")).strip()
+
 # ---------- ref repair + citation fallback ----------
 def repair_refs_by_date(client, ds: str, usccb_url: str, cycle: str, weekday: str, feast: str="") -> dict:
     prompt = (
@@ -252,6 +258,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         s = str(v).strip()
         return s if s else default
 
+    # second reading text & ref
     second_reading = draft.get("secondReading")
     if isinstance(second_reading,str): second_reading = second_reading.strip() or ""
     elif second_reading is None:       second_reading = ""
@@ -275,7 +282,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         "dailyPrayer": S("dailyPrayer"),
         "theologicalSynthesis": S("theologicalSynthesis"),
         "exegesis": S("exegesis"),
-        "secondReading": second_reading,  # must be ""
+        "secondReading": second_reading,  # MUST be a string ("" if none)
         "tags": clean_tags(draft.get("tags")),
         "usccbLink": usccb_link(d),
         "cycle": S("cycle") or meta["cycle"],
@@ -283,7 +290,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         "feast": S("feast") or meta["feast"],
         "gospelReference": S("gospelReference") or meta["gospelRef"],
         "firstReadingRef": S("firstReadingRef") or meta["firstRef"],
-        "secondReadingRef": second_ref,
+        "secondReadingRef": second_ref,   # MUST be a string ("" if none)
         "psalmRef": S("psalmRef") or meta["psalmRef"],
         "gospelRef": S("gospelRef") or meta["gospelRef"],
         "lectionaryKey": S("lectionaryKey") or lk,
@@ -327,7 +334,7 @@ def normalize_week(entries: List[Dict[str, Any]]) -> List[OrderedDict]:
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS} model={MODEL}")
 
-    # optional schema validation at the END; we only load it here
+    # optional schema validation (loaded once; applied at end)
     validator = None
     if SCHEMA_PATH.exists():
         try:
@@ -336,6 +343,7 @@ def main():
         except Exception:
             print(f"[warn] could not load schema at {SCHEMA_PATH}; continuing")
 
+    # load prior weekly file defensively
     raw_weekly = load_json(WEEKLY_PATH, default=[])
     if isinstance(raw_weekly, dict) and "weeklyDevotionals" in raw_weekly:
         weekly = raw_weekly.get("weeklyDevotionals", [])
@@ -348,6 +356,9 @@ def main():
     hints   = load_json(READINGS_HINT, default=None)
     client  = OpenAI()
     wanted_dates = [(START + timedelta(days=i)).isoformat() for i in range(DAYS)]
+
+    # avoid quote reuse across this 7-day window
+    used_quotes_so_far: set[str] = set(q.strip() for q in [e.get("quote","") for e in weekly if isinstance(e,dict)])
 
     for i, ds in enumerate(wanted_dates):
         d    = START + timedelta(days=i)
@@ -390,7 +401,7 @@ def main():
         except Exception:
             draft = json.loads(extract_json(raw))
 
-        # --- enforce quote (words + sentence count), then backfill citation if still empty ---
+        # --- enforce quote (words + sentence count), then ensure citation ---
         q  = str(draft.get("quote","")).strip()
         qc = str(draft.get("quoteCitation","")).strip()
         need_q = not (QUOTE_WORDS[0] <= word_count(q) <= QUOTE_WORDS[1] and QUOTE_SENT[0] <= sent_count(q) <= QUOTE_SENT[1])
@@ -417,6 +428,33 @@ def main():
             except Exception:
                 pass
         backfill_quote_citation(draft, meta)
+
+        # Strip trailing parenthetical citation from the quote text
+        draft["quote"] = strip_trailing_paren_ref(draft.get("quote",""))
+
+        # Avoid reusing the exact same quote in this weekly run
+        if draft["quote"].strip() in used_quotes_so_far:
+            alt = safe_chat(
+                client,
+                temperature=TEMP_QUOTE,
+                response_format={"type":"json_object"},
+                messages=[
+                    {"role":"system","content":"Return JSON with 'quote' and 'quoteCitation' only."},
+                    {"role":"user","content":
+                     "Give ONE different Scripture line (9–25 words) from today's readings; "
+                     "avoid repeating any previous day's quote this week. Include short citation.\n"
+                     f"First: {meta.get('firstRef','')}\nPsalm: {meta.get('psalmRef','')}\nGospel: {meta.get('gospelRef','')}"}
+                ],
+                model=MODEL
+            )
+            try:
+                got = json.loads(alt.choices[0].message.content)
+                if got.get("quote"):
+                    draft["quote"] = strip_trailing_paren_ref(got["quote"])
+                if got.get("quoteCitation"):
+                    draft["quoteCitation"] = got["quoteCitation"].strip()
+            except Exception:
+                pass
 
         # --- enforce word ranges (and paragraph format for exegesis) ---
         for field in ["firstReading","secondReading","psalmSummary","gospelSummary",
@@ -451,31 +489,35 @@ def main():
                     model=MODEL
                 )
                 try:
-                    obj = json.loads(r.choices[0].message.content)
-                    new_txt = str(obj.get("text","")).strip()
+                    obj_fix = json.loads(r.choices[0].message.content)
+                    new_txt = str(obj_fix.get("text","")).strip()
                     if meets_words(field, new_txt) and (field!="exegesis" or exegesis_wants_paras(new_txt)):
                         draft[field] = new_txt
                 except Exception:
                     pass
 
+        # backfill refs at source if draft omitted them
+        if not str(draft.get("firstReadingRef","")).strip() or not str(draft.get("psalmRef","")).strip() or not str(draft.get("gospelRef","")).strip():
+            try:
+                patch = repair_refs_by_date(client, ds=ds, usccb_url=usccb_link(d), cycle=meta["cycle"], weekday=meta["weekday"], feast=meta.get("feast",""))
+                for k in ("firstReadingRef","psalmRef","gospelRef","secondReadingRef"):
+                    if not str(draft.get(k,"")).strip():
+                        draft[k] = patch.get(k,"") or ""
+            except Exception as _e:
+                print(f"[warn] ref backfill failed for {ds}: {_e}")
+
         # --- turn into contract object & normalize ---
-        obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lectionary_key(meta))
+        obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
         obj = normalize_day(obj)
 
         by_date[ds] = obj
+        used_quotes_so_far.add(obj["quote"].strip())
         print(f"[ok] {ds} — quote='{obj['quote']}' ({obj['quoteCitation']})  [{obj['cycle']}, {obj['weekdayCycle']}]")
 
     # only the requested window, in order
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
     # optional JSON Schema validation (array-level)
-    validator = None
-    if SCHEMA_PATH.exists():
-        try:
-            schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-            validator = Draft202012Validator(schema)
-        except Exception:
-            validator = None
     if validator:
         errs = list(validator.iter_errors(out))
         if errs:
