@@ -108,9 +108,13 @@ except ValueError:
 DAYS = max(1, min(DAYS, 14))
 
 # ---------- USCCB scraping (authoritative) ----------
-# Requires: requests, beautifulsoup4, lxml
-import requests
-from bs4 import BeautifulSoup
+# Soft-import the deps so the job won’t crash if they’re missing (we’ll fall back to hints).
+try:
+    import requests
+    from bs4 import BeautifulSoup
+    HAS_SCRAPE_DEPS = True
+except Exception:
+    HAS_SCRAPE_DEPS = False
 
 REF_RE = re.compile(r"[1-3]?\s?[A-Za-z][A-Za-z ]*\s+\d+[:.]\d+(?:[-–]\d+)?(?:,\s?\d+[-–]?\d+)*")
 
@@ -131,6 +135,8 @@ def _grab_first_ref_after(header: Any) -> Optional[str]:
 
 def fetch_usccb_meta(d: date) -> Dict[str,str]:
     """Fetch the USCCB page for the date and extract feast/title + references."""
+    if not HAS_SCRAPE_DEPS:
+        raise RuntimeError("scrape deps missing (requests/bs4/lxml)")
     url = usccb_link(d)
     headers = {"User-Agent": "calm-bot/1.0 (+https://dailylectio.org)"}
     r = requests.get(url, timeout=20, headers=headers)
@@ -156,31 +162,21 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
     psalm  = _grab_first_ref_after(h_psalm)    if h_psalm    else None
     gospel = _grab_first_ref_after(h_gospel)   if h_gospel   else None
 
-    # Normalize commas/spaces for psalm ref (USCCB often uses “Ps 96:1, 3, 4-5…”)
-    for key,val in [("firstRef", first), ("secondRef", second), ("psalmRef", psalm), ("gospelRef", gospel)]:
-        if val:
-            val = _clean_text(val)
-            if key=="psalmRef":
-                val = val.replace(", ", ",").replace(" ,", ",").replace("—","-").replace("–","-")
-            if key=="firstRef" and val.lower().startswith("reading i"):
-                val = val.split()[-1]
-        locals()[key] = val
-
     out = {
-        "firstRef":  first or "",
-        "secondRef": second or "",
-        "psalmRef":  psalm or "",
-        "gospelRef": gospel or "",
+        "firstRef":  _clean_text(first or ""),
+        "secondRef": _clean_text(second or ""),
+        "psalmRef":  _clean_text((psalm or "").replace(", ", ",").replace(" ,", ",").replace("—","-").replace("–","-")),
+        "gospelRef": _clean_text(gospel or ""),
         "feast":     feast,
-        # cycles are not given on USCCB; we keep your current normalization defaults
+        # cycles are not given on USCCB; keep defaults
         "cycle":  "Year C",
         "weekday":"Cycle I",
-        "saintName": "",   # try to extract a saint’s name from feast title
+        "saintName": "",
         "saintNote": "",
         "url": url,
     }
 
-    # Quick saint name heuristic from the feast/title (e.g., "Memorial of Saint Gregory the Great, Pope…")
+    # Quick saint name heuristic from the feast/title
     m = re.search(r"(Saint|St\.)\s+([A-Z][A-Za-z'’\-]+(?:\s+[A-Z][A-Za-z'’\-]+)*)", out["feast"])
     if m:
         out["saintName"] = m.group(0).replace("St.", "Saint")
@@ -404,7 +400,8 @@ Rules:
         try:
             draft = json.loads(resp.choices[0].message.content)
         except Exception:
-            draft = json.loads(resp.choices[0].message.content.strip()[resp.choices[0].message.content.find("{"):resp.choices[0].message.content.rfind("}")+1])
+            raw = resp.choices[0].message.content
+            draft = json.loads(raw.strip()[raw.find("{"):raw.rfind("}")+1])
 
         # quote: words/sentences, citation limited to today’s refs, no duplicates
         def citation_allowed(cite: str, meta: dict) -> bool:
@@ -557,7 +554,7 @@ Rules:
             raise SystemExit(f"Validation failed: {details}")
 
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+    WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8"))
     print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} entries")
 
 if __name__ == "__main__":
