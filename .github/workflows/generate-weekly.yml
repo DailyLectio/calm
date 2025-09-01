@@ -51,13 +51,17 @@ jobs:
 
       - name: Generate weeklyfeed.json
         env:
-          TZ: America/New_York
-        run: |
-          set -euo pipefail
-          # Wire dispatch inputs to env (your script can read env or flags)
-          export START_DATE="${{ github.event.inputs.start_date }}"
-          export DAYS="${{ github.event.inputs.days }}"
-          python scripts/generate_weekly.py
+        TZ: America/New_York
+        GEN_MODEL: gpt-5-thinking        # your account’s exact model id
+        GEN_FALLBACK: gpt-4o-mini
+       GEN_TEMP: "0.55"
+        GEN_TEMP_REPAIR: "0.45"
+       GEN_TEMP_QUOTE: "0.35"
+      run: |
+       set -euo pipefail
+      export START_DATE="${{ github.event.inputs.start_date }}"
+      export DAYS="${{ github.event.inputs.days }}"
+      python scripts/generate_weekly.py
 
       # Strong validation against your contract
       - name: Validate weeklyfeed.json shape & fields
