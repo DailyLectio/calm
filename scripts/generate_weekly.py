@@ -538,7 +538,7 @@ Rules:
     if validator:
         errs = list(validator.iter_errors(out))
         if errs:
-            details = "; ".join([f\"{'/'.join(map(str, e.path))}: {e.message}\" for e in errs])
+            details = "; ".join([f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs])
             raise SystemExit(f\"Validation failed: {details}\")
 
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
