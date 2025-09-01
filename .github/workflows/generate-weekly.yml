@@ -45,7 +45,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests jsonschema openai
-          sudo apt-get update && sudo apt-get install -y jq
 
       - name: Show existing weeklyfeed.json (if present)
         run: |
