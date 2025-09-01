@@ -8,23 +8,21 @@ from collections import OrderedDict
 from typing import List, Dict, Any
 
 # ---------- repo paths ----------
-ROOT         = Path(__file__).resolve().parents[1]
-WEEKLY_PATH  = ROOT / "public" / "weeklyfeed.json"
-READINGS_HINT= ROOT / "public" / "weeklyreadings.json"
-SCHEMA_PATH  = ROOT / "schemas" / "devotion.schema.json"
-USCCB_BASE   = "https://bible.usccb.org/bible/readings"
+ROOT          = Path(__file__).resolve().parents[1]
+WEEKLY_PATH   = ROOT / "public" / "weeklyfeed.json"
+READINGS_HINT = ROOT / "public" / "weeklyreadings.json"
+SCHEMA_PATH   = ROOT / "schemas" / "devotion.schema.json"
+USCCB_BASE    = "https://bible.usccb.org/bible/readings"
 
 # ---------- model knobs (override from workflow env) ----------
-MODEL          = os.getenv("GEN_MODEL", "gpt-4o-mini")         # e.g., "gpt-5-thinking"
+MODEL          = os.getenv("GEN_MODEL", "gpt-4o-mini")   # e.g., "gpt-5-thinking"
 FALLBACK_MODEL = os.getenv("GEN_FALLBACK", "gpt-4o-mini")
 TEMP_MAIN      = float(os.getenv("GEN_TEMP", "0.55"))
 TEMP_REPAIR    = float(os.getenv("GEN_TEMP_REPAIR", "0.45"))
 TEMP_QUOTE     = float(os.getenv("GEN_TEMP_QUOTE", "0.35"))
 
 def safe_chat(client, *, temperature, response_format, messages, model=None):
-    """
-    Try chosen model; if not available to the key, fall back without failing the run.
-    """
+    """Try chosen model; if not available to the key, fall back without failing the run."""
     use_model = (model or MODEL)
     try:
         return client.chat.completions.create(
@@ -47,41 +45,21 @@ def safe_chat(client, *, temperature, response_format, messages, model=None):
 
 # ---------- output contract (key order) ----------
 KEY_ORDER = [
-    "date",
-    "quote",
-    "quoteCitation",
-    "firstReading",
-    "psalmSummary",
-    "gospelSummary",
-    "saintReflection",
-    "dailyPrayer",
-    "theologicalSynthesis",
-    "exegesis",
-    "secondReading",
-    "tags",
-    "usccbLink",
-    "cycle",
-    "weekdayCycle",
-    "feast",
-    "gospelReference",
-    "firstReadingRef",
-    "secondReadingRef",
-    "psalmRef",
-    "gospelRef",
-    "lectionaryKey",
+    "date","quote","quoteCitation","firstReading","psalmSummary","gospelSummary","saintReflection",
+    "dailyPrayer","theologicalSynthesis","exegesis","secondReading","tags","usccbLink","cycle",
+    "weekdayCycle","feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef",
+    "gospelRef","lectionaryKey",
 ]
-
-# fields that must serialize as empty strings (never null)
 NULLABLE_STR_FIELDS = ("secondReading", "feast", "secondReadingRef")
 
 # ---------- utilities ----------
 def _normalize_refs(entry: Dict[str, Any]) -> Dict[str, Any]:
-    for k in ("firstReadingRef", "psalmRef", "secondReadingRef", "gospelRef", "gospelReference"):
+    for k in ("firstReadingRef","psalmRef","secondReadingRef","gospelRef","gospelReference"):
         v = entry.get(k, "")
         entry[k] = "" if v is None else str(v)
     return entry
 
-CYCLE_MAP = {"A":"Year A","B":"Year B","C":"Year C","Year A":"Year A","Year B":"Year B","Year C":"Year C"}
+CYCLE_MAP   = {"A":"Year A","B":"Year B","C":"Year C","Year A":"Year A","Year B":"Year B","Year C":"Year C"}
 WEEKDAY_MAP = {"I":"Cycle I","II":"Cycle II","Cycle I":"Cycle I","Cycle II":"Cycle II"}
 
 def _normalize_enums(entry: Dict[str, Any]) -> Dict[str, Any]:
@@ -196,6 +174,38 @@ def clean_tags(val) -> List[str]:
         if len(out)>=12: break
     return out
 
+# ---------- ref repair + citation fallback ----------
+def repair_refs_by_date(client, ds: str, usccb_url: str, cycle: str, weekday: str, feast: str="") -> dict:
+    prompt = (
+        "Provide the exact Catholic daily Mass references for this date. "
+        "Return JSON with keys: firstReadingRef, psalmRef, gospelRef, secondReadingRef ('' if none). "
+        f"Date: {ds}\nUSCCB: {usccb_url}\nCycle: {cycle}\nWeekdayCycle: {weekday}\nFeast: {feast}"
+    )
+    r = safe_chat(
+        client,
+        temperature=0.2,
+        response_format={"type":"json_object"},
+        messages=[
+            {"role":"system","content":"Return only scripture reference strings in JSON; no commentary."},
+            {"role":"user","content": prompt},
+        ],
+    )
+    try:
+        return json.loads(r.choices[0].message.content)
+    except Exception:
+        return {}
+
+def backfill_quote_citation(draft: dict, meta: dict):
+    qc = (draft.get("quoteCitation") or "").strip()
+    if len(qc) >= 2:
+        return
+    for k in ("gospelRef","firstRef","psalmRef","secondRef"):
+        ref = (meta.get(k) or "").strip()
+        if ref:
+            draft["quoteCitation"] = ref
+            return
+    draft["quoteCitation"] = "—"
+
 # ---------- length enforcement ----------
 LENGTH_RULES = {
     "firstReading":        {"min_w": 50,  "max_w": 100},
@@ -207,7 +217,7 @@ LENGTH_RULES = {
     "theologicalSynthesis":{"min_w": 150, "max_w": 200},
     "exegesis":            {"min_w": 500, "max_w": 750},
 }
-QUOTE_WORDS = (9, 25)   # inclusive
+QUOTE_WORDS = (9, 25)
 QUOTE_SENT  = (1, 2)
 
 SENT_SPLIT = re.compile(r'[.!?]+(?=\s|$)')
@@ -220,17 +230,13 @@ def word_count(txt: str) -> int:
     return len(WORD_RE.findall(txt or ""))
 
 def meets_words(field: str, txt: str) -> bool:
-    r = LENGTH_RULES.get(field); 
+    r = LENGTH_RULES.get(field)
     if not r: return True
     w = word_count(txt)
     return r["min_w"] <= w <= r["max_w"]
 
 def exegesis_wants_paras(txt: str) -> bool:
-    """
-    Require paragraph formatting for exegesis:
-    - at least 5 paragraphs separated by blank lines
-    - at least 2 heading-like lines (end with ":" or short Title Case)
-    """
+    """Require paragraph formatting for exegesis: ≥5 paragraphs separated by blank lines; ≥2 heading-like lines."""
     txt = txt or ""
     paras = [p for p in txt.split("\n\n") if p.strip()]
     has_5 = len(paras) >= 5
@@ -246,7 +252,6 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         s = str(v).strip()
         return s if s else default
 
-    # second reading text & ref
     second_reading = draft.get("secondReading")
     if isinstance(second_reading,str): second_reading = second_reading.strip() or ""
     elif second_reading is None:       second_reading = ""
@@ -270,7 +275,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         "dailyPrayer": S("dailyPrayer"),
         "theologicalSynthesis": S("theologicalSynthesis"),
         "exegesis": S("exegesis"),
-        "secondReading": second_reading,  # MUST be a string ("" if none)
+        "secondReading": second_reading,  # must be ""
         "tags": clean_tags(draft.get("tags")),
         "usccbLink": usccb_link(d),
         "cycle": S("cycle") or meta["cycle"],
@@ -278,7 +283,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         "feast": S("feast") or meta["feast"],
         "gospelReference": S("gospelReference") or meta["gospelRef"],
         "firstReadingRef": S("firstReadingRef") or meta["firstRef"],
-        "secondReadingRef": second_ref,   # MUST be a string ("" if none)
+        "secondReadingRef": second_ref,
         "psalmRef": S("psalmRef") or meta["psalmRef"],
         "gospelRef": S("gospelRef") or meta["gospelRef"],
         "lectionaryKey": S("lectionaryKey") or lk,
@@ -322,7 +327,7 @@ def normalize_week(entries: List[Dict[str, Any]]) -> List[OrderedDict]:
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS} model={MODEL}")
 
-    # optional schema validation
+    # optional schema validation at the END; we only load it here
     validator = None
     if SCHEMA_PATH.exists():
         try:
@@ -331,7 +336,6 @@ def main():
         except Exception:
             print(f"[warn] could not load schema at {SCHEMA_PATH}; continuing")
 
-    # load prior weekly file defensively
     raw_weekly = load_json(WEEKLY_PATH, default=[])
     if isinstance(raw_weekly, dict) and "weeklyDevotionals" in raw_weekly:
         weekly = raw_weekly.get("weeklyDevotionals", [])
@@ -346,9 +350,18 @@ def main():
     wanted_dates = [(START + timedelta(days=i)).isoformat() for i in range(DAYS)]
 
     for i, ds in enumerate(wanted_dates):
-        d  = START + timedelta(days=i)
+        d    = START + timedelta(days=i)
         meta = readings_meta_for(d, hints)
-        lk   = lectionary_key(meta)
+
+        # If hints are missing refs, repair them once up front
+        if not meta["firstRef"] or not meta["psalmRef"] or not meta["gospelRef"]:
+            fix = repair_refs_by_date(client, ds, usccb_link(d), meta["cycle"], meta["weekday"], meta.get("feast",""))
+            meta["firstRef"]  = meta["firstRef"]  or fix.get("firstReadingRef","")
+            meta["psalmRef"]  = meta["psalmRef"]  or fix.get("psalmRef","")
+            meta["gospelRef"] = meta["gospelRef"] or fix.get("gospelRef","")
+            meta["secondRef"] = meta.get("secondRef","") or fix.get("secondReadingRef","")
+
+        lk = lectionary_key(meta)
 
         user_msg = "\n".join([
             f"Date: {ds}",
@@ -377,11 +390,13 @@ def main():
         except Exception:
             draft = json.loads(extract_json(raw))
 
-        # --- enforce quote (words + sentence count) ---
+        # --- enforce quote (words + sentence count), then backfill citation if still empty ---
         q  = str(draft.get("quote","")).strip()
         qc = str(draft.get("quoteCitation","")).strip()
-        if not (QUOTE_WORDS[0] <= word_count(q) <= QUOTE_WORDS[1] and QUOTE_SENT[0] <= sent_count(q) <= QUOTE_SENT[1]):
-            fix = safe_chat(
+        need_q = not (QUOTE_WORDS[0] <= word_count(q) <= QUOTE_WORDS[1] and QUOTE_SENT[0] <= sent_count(q) <= QUOTE_SENT[1])
+        need_c = len(qc) < 2
+        if need_q or need_c:
+            fixq = safe_chat(
                 client,
                 temperature=TEMP_QUOTE,
                 response_format={"type":"json_object"},
@@ -396,11 +411,12 @@ def main():
                 model=MODEL
             )
             try:
-                got = json.loads(fix.choices[0].message.content)
-                draft["quote"] = got.get("quote", q) or q
-                draft["quoteCitation"] = got.get("quoteCitation", qc) or qc
+                got = json.loads(fixq.choices[0].message.content)
+                if need_q and got.get("quote"): draft["quote"] = got["quote"]
+                if got.get("quoteCitation"):    draft["quoteCitation"] = got["quoteCitation"]
             except Exception:
                 pass
+        backfill_quote_citation(draft, meta)
 
         # --- enforce word ranges (and paragraph format for exegesis) ---
         for field in ["firstReading","secondReading","psalmSummary","gospelSummary",
@@ -443,7 +459,7 @@ def main():
                     pass
 
         # --- turn into contract object & normalize ---
-        obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
+        obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lectionary_key(meta))
         obj = normalize_day(obj)
 
         by_date[ds] = obj
@@ -453,6 +469,13 @@ def main():
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
     # optional JSON Schema validation (array-level)
+    validator = None
+    if SCHEMA_PATH.exists():
+        try:
+            schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+            validator = Draft202012Validator(schema)
+        except Exception:
+            validator = None
     if validator:
         errs = list(validator.iter_errors(out))
         if errs:

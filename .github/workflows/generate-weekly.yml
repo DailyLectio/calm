@@ -23,10 +23,10 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       APP_TZ: America/New_York
-      GEN_MODEL: gpt-5-thinking
+      GEN_MODEL: gpt-4o-mini
       GEN_FALLBACK: gpt-4o-mini
-      GEN_TEMP: "0.55"
-      GEN_TEMP_REPAIR: "0.45"
+      GEN_TEMP: "0.60"
+      GEN_TEMP_REPAIR: "0.55"
       GEN_TEMP_QUOTE: "0.35"
 
     steps:
