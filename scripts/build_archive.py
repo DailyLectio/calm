@@ -21,7 +21,7 @@ for d in weekly:
         "firstReadingRef": d.get("firstReadingRef",""),
         "psalmRef": d.get("psalmRef",""),
         "gospelRef": d.get("gospelRef") or d.get("gospelReference",""),
-        "lectionarySignature": d.get("lectionarySignature",""),
+        "lectionaryKey": "1Corinthians2:1-5|Psalm119:97,98,99,100,101,102|Luke4:16-30|C|I"
         "sourcesLink": d.get("sourcesLink")
     })
 out = root/"public"/"archive"/"index.json"
