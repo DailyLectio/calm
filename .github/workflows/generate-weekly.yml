@@ -44,8 +44,9 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install openai jsonschema
-          sudo apt-get update && sudo apt-get install -y jq
+          pip install requests beautifulsoup4 lxml openai jsonschema
+          sudo apt-get update
+          sudo apt-get install -y jq
 
       - name: Show existing weeklyfeed.json (if present)
         run: |
