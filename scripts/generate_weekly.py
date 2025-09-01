@@ -539,7 +539,7 @@ Rules:
         errs = list(validator.iter_errors(out))
         if errs:
             details = "; ".join([f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs])
-            raise SystemExit(f\"Validation failed: {details}\")
+            raise SystemExit(f"Validation failed: {details}\")
 
     WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
     WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
