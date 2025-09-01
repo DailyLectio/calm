@@ -2,7 +2,6 @@ name: Generate Weekly Devotions (Fri–Thu)
 
 on:
   schedule:
-    # GitHub cron is UTC. Two lines cover DST so it’s always 3:00am Eastern on TUESDAYS.
     - cron: "0 8 * * 2"   # 3:00am EST (UTC-5) winter
     - cron: "0 7 * * 2"   # 3:00am EDT (UTC-4) summer
   workflow_dispatch:
@@ -24,13 +23,21 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       APP_TZ: America/New_York
+      GEN_MODEL: gpt-5-thinking
+      GEN_FALLBACK: gpt-4o-mini
+      GEN_TEMP: "0.55"
+      GEN_TEMP_REPAIR: "0.45"
+      GEN_TEMP_QUOTE: "0.35"
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -51,29 +58,20 @@ jobs:
 
       - name: Generate weeklyfeed.json
         env:
-        TZ: America/New_York
-        GEN_MODEL: gpt-5-thinking        # your account’s exact model id
-        GEN_FALLBACK: gpt-4o-mini
-       GEN_TEMP: "0.55"
-        GEN_TEMP_REPAIR: "0.45"
-       GEN_TEMP_QUOTE: "0.35"
-      run: |
-       set -euo pipefail
-      export START_DATE="${{ github.event.inputs.start_date }}"
-      export DAYS="${{ github.event.inputs.days }}"
-      python scripts/generate_weekly.py
+          TZ: America/New_York
+        run: |
+          set -euo pipefail
+          export START_DATE="${{ github.event.inputs.start_date }}"
+          export DAYS="${{ github.event.inputs.days }}"
+          python scripts/generate_weekly.py
 
-      # Strong validation against your contract
       - name: Validate weeklyfeed.json shape & fields
         run: |
           set -euo pipefail
           test -f public/weeklyfeed.json
           jq 'length==7' public/weeklyfeed.json >/dev/null
-          # required keys present for every object
           jq -e 'all(.[]; has("date") and has("quote") and has("quoteCitation") and has("firstReading") and has("psalmSummary") and has("gospelSummary") and has("saintReflection") and has("dailyPrayer") and has("theologicalSynthesis") and has("exegesis") and has("secondReading") and has("tags") and has("usccbLink") and has("cycle") and has("weekdayCycle") and has("feast") and has("gospelReference") and has("firstReadingRef") and has("secondReadingRef") and has("psalmRef") and has("gospelRef") and has("lectionaryKey"))' public/weeklyfeed.json >/dev/null
-          # enums normalized
           jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
-          # nullable fields must be strings (allow empty)
           jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
 
       - name: Commit and push weeklyfeed.json
