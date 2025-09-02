@@ -2,11 +2,11 @@
 """
 USCCB-only weekly generator (no local fallbacks).
 
-- Fetches bible.usccb.org daily pages (…/MMDDYY.cfm) with requests.
+- Fetches bible.usccb.org daily pages (.../MMDDYY.cfm) with requests.
 - Extracts Reading I / Responsorial Psalm / Gospel robustly.
 - If labels are missing, uses a heuristic: detect all Scripture refs in the
-  header and classify (Gospels → Gospel, Psalm/Ps/Psalms → Psalm, else First/Second).
-- If (first, psalm, gospel) can’t be derived, exits with a clear message.
+  header and classify (Gospels -> Gospel, Psalm/Ps/Psalms -> Psalm, else First/Second).
+- If (first, psalm, gospel) can't be derived, exits with a clear message.
 
 FAST SCRAPE CHECK (no OpenAI, no writes):
     USCCB_PRECHECK=1 START_DATE=2025-09-01 DAYS=30 python scripts/generate_weekly.py
@@ -191,8 +191,10 @@ BOOK_PATTERN = (
     r"1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|"
     r"1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation))"
 )
+
+# Allow hyphen and en-dash in verse lists using ASCII '-' and \u2013.
 REF_RE = re.compile(
-    rf"({BOOK_PATTERN}\s+\d+(?::[0-9,\--\s]+)?(?:\s*(?:and|;)\s*[0-9:,\--\s]+)*)",
+    rf"({BOOK_PATTERN}\s+\d+(?::[0-9,\-\u2013\s]+)?(?:\s*(?:and|;)\s*[0-9:,\-\u2013\s]+)*)",
     flags=re.I
 )
 
@@ -235,7 +237,7 @@ def _find_ref_after(labels: List[str], text: str, near=800) -> str:
     return ""
 
 def _heuristic_assign(text: str) -> Dict[str,str]:
-    """Fallback when explicit labels aren’t found."""
+    """Fallback when explicit labels aren't found."""
     head = text[:3000]
     refs = [m.group(1) for m in REF_RE.finditer(head)]
     # de-dup while preserving order
@@ -288,9 +290,9 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
     m = re.search(r"(?im)^\s*(?:Memorial|Feast|Solemnity|Optional Memorial|Saint|St\.)[^\n]+", txt)
     if m: feast = m.group(0).strip()
 
-    # Try to extract a Saint’s name from that line
+    # Try to extract a Saint's name from that line
     saintName = ""
-    m2 = re.search(r"(Saint|St\.)\s+([A-Z][A-Za-z'’\-]+(?:\s+[A-Z][A-Za-z'’\-]+)*)", feast or "")
+    m2 = re.search(r"(Saint|St\.)\s+([A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+)*)", feast or "")
     if m2:
         saintName = m2.group(0).replace("St.", "Saint")
 
@@ -307,7 +309,7 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
         "url": usccb_link(d),
     }
 
-# ---------- main content generation (unchanged shape) ----------
+# ---------- main content generation ----------
 def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
     def S(k, default=""):
         v = draft.get(k)
@@ -376,14 +378,14 @@ def normalize_day(entry: Dict[str, Any]) -> OrderedDict:
 
 # --------------- [2B] FALLBACK BLOCK for missing model fields -----------------
 FALLBACK_SENTENCES = {
-    "quote": "“Fix your eyes on Christ.”",
+    "quote": "Fix your eyes on Christ.",
     "firstReading": "A brief summary of the first reading encouraging faithfulness.",
     "psalmSummary": "A short note on the psalm inviting trust in the Lord.",
     "gospelSummary": "A concise reminder of the Good News proclaimed today.",
-    "saintReflection": "A simple reflection inviting imitation of the saint’s virtue.",
+    "saintReflection": "A simple reflection inviting imitation of the saint's virtue.",
     "dailyPrayer": "Lord Jesus, lead me to live Your word today. Amen.",
     "theologicalSynthesis": "God calls us into communion in Christ through Word and Sacrament.",
-    "exegesis": "Today’s readings call us to deeper conversion and hope in Christ.",
+    "exegesis": "Today's readings call us to deeper conversion and hope in Christ.",
 }
 
 def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
@@ -396,7 +398,7 @@ def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
         if not str(draft.get(k, "")).strip():
             draft[k] = default
 
-    # quotes often missing a citation; we set it if absent here as well
+    # quotes often missing a citation; set a safe one if absent
     if not str(draft.get("quoteCitation", "")).strip():
         draft["quoteCitation"] = (
             draft.get("gospelReference")
@@ -459,7 +461,7 @@ def main():
             f"  First:  {meta['firstRef']}",
             f"  Psalm:  {meta['psalmRef']}",
             f"  Gospel: {meta['gospelRef']}",
-            f"Saint: {meta['saintName']} — {meta['saintNote']}",
+            f"Saint: {meta['saintName']} - {meta['saintNote']}",
         ])
 
         # --- main generation ---
@@ -477,9 +479,8 @@ def main():
         except Exception:
             draft = json.loads(extract_json(raw))
 
-        # ---------------- [2B] apply fallbacks immediately --------------------
+        # ensure required fields are not empty
         apply_fallbacks(draft, meta)
-        # ---------------------------------------------------------------------
 
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
         obj = normalize_day(obj)
@@ -488,20 +489,17 @@ def main():
 
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
-# --- optional JSON Schema validation (array-level)
-if validator:
-    errs = list(validator.iter_errors(out))
-    if errs:
-        details = "; ".join(
-            f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs
-        )
-        raise SystemExit(f"Validation failed: {details}")
+    # --- optional JSON Schema validation (array-level) ---
+    if validator:
+        errs = list(validator.iter_errors(out))
+        if errs:
+            details = "; ".join(f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs)
+            raise SystemExit(f"Validation failed: {details}")
 
-WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
-WEEKLY_PATH.write_text(
-    json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8"
-)
-print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} entries")
+    WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} entries")
+
 
 if __name__ == "__main__":
     main()
