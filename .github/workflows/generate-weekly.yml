@@ -102,32 +102,39 @@ jobs:
           jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
           jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
 
-      - name: Commit and push weeklyfeed.json
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    set -euxo pipefail
+      - name: Commit and push weeklyfeed.json (safe)
+        shell: bash
+        run: |
+         set -euo pipefail
 
-    # Configure committer
-    git config user.name "github-actions[bot]"
-    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Configure committer
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-    # Stage and commit if there are changes
-    git add public/weeklyfeed.json
-    if git diff --staged --quiet; then
-      echo "No changes to commit"
-      exit 0
-    fi
-    git commit -m "chore: weeklyfeed update (auto)"
+          # Be up-to-date with remote to avoid non-FF errors
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
 
-    # Rebase our new commit onto the latest remote main to avoid non-FF pushes
-    git fetch origin main
-    git -c rebase.autoStash=true rebase origin/main || {
-      echo "::warning::Rebase reported conflicts; preferring generated weeklyfeed.json"
-      git checkout --theirs public/weeklyfeed.json || true
-      git add public/weeklyfeed.json || true
-      git rebase --continue || true
-    }
+          # Stage result (if any)
+          git add public/weeklyfeed.json
 
-    # Safe push: only force if the remote tip is the one we rebased onto
-    git push --force-with-lease origin HEAD:main
+          # Nothing changed? Bail out cleanly.
+         if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+         fi
+
+          # Commit
+          git commit -m "chore: weeklyfeed update (auto)"
+
+          # Push with a couple of rebase retries to handle races
+          for i in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $i"
+              break
+            fi
+            echo "Push failed (attempt $i); rebasing and retrying..."
+            git pull --rebase origin main || true
+            sleep 2
+          done
