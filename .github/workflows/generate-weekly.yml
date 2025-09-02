@@ -20,10 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
+    # Secrets are injected here so every step sees them.
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }} 
-      GH_PAT: ${{ secrets.GH_PAT }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}   # sk-proj_… (or sk-…)
+      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}   # proj_… (required when using sk-proj_…)
       APP_TZ: America/New_York
       GEN_MODEL: gpt-4o-mini
       GEN_FALLBACK: gpt-4o-mini
@@ -46,7 +47,21 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests jsonschema openai
+          pip install requests jsonschema "openai>=1.0.0"
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Sanity check OpenAI env
+        run: |
+          python - <<'PY'
+          import os, sys
+          key = os.getenv("OPENAI_API_KEY","")
+          proj = os.getenv("OPENAI_PROJECT","")
+          print("Has OPENAI_API_KEY?", bool(key))
+          print("Has OPENAI_PROJECT?", bool(proj))
+          if key.startswith("sk-proj-") and not proj:
+              print("FATAL: Project-scoped key detected (sk-proj-…), but OPENAI_PROJECT is not set.", file=sys.stderr)
+              sys.exit(1)
+          PY
 
       - name: Show existing weeklyfeed.json (if present)
         run: |
@@ -56,6 +71,17 @@ jobs:
           else
             echo "No existing public/weeklyfeed.json (first run?)"
           fi
+
+      # Fast scrape-only check to ensure USCCB parsing works for the target window
+      - name: USCCB precheck (no OpenAI calls)
+        env:
+          TZ: America/New_York
+        run: |
+          set -euo pipefail
+          export START_DATE="${{ github.event.inputs.start_date }}"
+          export DAYS="${{ github.event.inputs.days }}"
+          export USCCB_PRECHECK=1
+          python scripts/generate_weekly.py
 
       - name: Generate weeklyfeed.json
         env:
