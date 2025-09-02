@@ -22,6 +22,8 @@ jobs:
       contents: write
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }} 
+      GH_PAT: ${{ secrets.GH_PAT }}
       APP_TZ: America/New_York
       GEN_MODEL: gpt-4o-mini
       GEN_FALLBACK: gpt-4o-mini
