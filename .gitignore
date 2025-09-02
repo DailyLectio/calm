@@ -5,3 +5,7 @@ dist/
 /mobile35refresh.expo/
 
 /mobile53fresh/.expo/
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
