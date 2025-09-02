@@ -22,6 +22,10 @@ from collections import OrderedDict
 from typing import List, Dict, Any
 
 import requests
+# ------------------ [2aa] HARDENING: retry/backoff for HTTP -------------------
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+# -----------------------------------------------------------------------------
 
 # ---------- repo paths ----------
 ROOT         = Path(__file__).resolve().parents[1]
@@ -115,18 +119,18 @@ STYLE_CARD = """ROLE: Catholic editor + theologian for FaithLinks.
 Audience: teens + adults (high school through adult).
 
 Strict lengths (words):
-- quote: 9–25 words (1–2 sentences) with a short citation like "Mk 8:34".
-- firstReading: 50–100
-- secondReading: 50–100 (or empty if there is no second reading that day)
-- psalmSummary: 50–100
-- gospelSummary: 100–200
-- saintReflection: 50–100
-- dailyPrayer: 150–200
-- theologicalSynthesis: 150–200
-- exegesis: 500–750, formatted as 5–6 short paragraphs with brief headings (e.g., Context:, Psalm:, Gospel:, Fathers:, Today:) and a blank line between paragraphs.
+- quote: 9-25 words (1-2 sentences).
+- firstReading: 50-100
+- secondReading: 50-100 (or empty if there is no second reading that day)
+- psalmSummary: 50-100
+- gospelSummary: 100-200
+- saintReflection: 50-100
+- dailyPrayer: 150-200
+- theologicalSynthesis: 150-200
+- exegesis: 500-750, formatted as 5-6 short paragraphs with brief headings (e.g., Context:, Psalm:, Gospel:, Saints:, Today:) and a blank line between paragraphs.
 
 Rules:
-- Do NOT paste long Scripture passages; paraphrase faithfully. The 'quote' field may include a short Scripture line with citation.
+- Do NOT paste long Scripture passages; paraphrase faithfully. The 'quote' field may include a short Scripture line.
 - Warm, pastoral, Christ-centered, accessible; concrete connections for modern life.
 - Return ONLY a JSON object containing the contract keys (no commentary).
 """
@@ -156,6 +160,18 @@ def lectionary_key(meta: Dict[str, str]) -> str:
              meta.get("cycle",""), meta.get("weekday","")]
     return "|".join(p for p in parts if p)
 
+# ------------------ [2aa] HARDENING: shared requests.Session ------------------
+_retry = Retry(
+    total=4, backoff_factor=0.5,
+    status_forcelist=(429, 500, 502, 503, 504),
+    allowed_methods=("GET",),
+    raise_on_status=False,
+)
+SESSION = requests.Session()
+SESSION.mount("https://", HTTPAdapter(max_retries=_retry))
+SESSION.mount("http://",  HTTPAdapter(max_retries=_retry))
+# -----------------------------------------------------------------------------
+
 # ---------- robust USCCB scraping (requests + regex only) ----------
 UA_HEADERS = {
     "User-Agent": (
@@ -176,7 +192,7 @@ BOOK_PATTERN = (
     r"1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation))"
 )
 REF_RE = re.compile(
-    rf"({BOOK_PATTERN}\s+\d+(?::[0-9,\-–\s]+)?(?:\s*(?:and|;)\s*[0-9:,\-–\s]+)*)",
+    rf"({BOOK_PATTERN}\s+\d+(?::[0-9,\--\s]+)?(?:\s*(?:and|;)\s*[0-9:,\--\s]+)*)",
     flags=re.I
 )
 
@@ -199,11 +215,11 @@ def _normalize_psalm_name(s: str) -> str:
 
 def _fetch_usccb_text(d: date) -> str:
     url = usccb_link(d)
-    r = requests.get(url, headers=UA_HEADERS, timeout=20)
+    r = SESSION.get(url, headers=UA_HEADERS, timeout=20)
     if r.status_code != 200 or not r.text:
         # alternate daily endpoint sometimes works
         alt = f"https://bible.usccb.org/bible/readings?date={d.isoformat()}"
-        r = requests.get(alt, headers=UA_HEADERS, timeout=20)
+        r = SESSION.get(alt, headers=UA_HEADERS, timeout=20)
         if r.status_code != 200 or not r.text:
             raise SystemExit(f"USCCB fetch failed for {d.isoformat()} (HTTP {r.status_code})")
     return _html_to_text(r.text)
@@ -311,10 +327,14 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
     if not second_ref:
         second_ref = meta.get("secondRef","") or ""
 
+    # fallback for quoteCitation if the model forgot it
+    qc = S("quoteCitation") or S("gospelReference") or meta.get("gospelRef","") \
+         or S("firstReadingRef") or meta.get("firstRef","")
+
     obj = {
         "date": ds,
         "quote": S("quote"),
-        "quoteCitation": S("quoteCitation"),
+        "quoteCitation": qc,
         "firstReading": S("firstReading"),
         "psalmSummary": S("psalmSummary"),
         "gospelSummary": S("gospelSummary"),
@@ -353,6 +373,40 @@ def normalize_day(entry: Dict[str, Any]) -> OrderedDict:
     elif not isinstance(entry.get("tags"), list):
         entry["tags"] = []
     return _order_keys(entry)
+
+# --------------- [2B] FALLBACK BLOCK for missing model fields -----------------
+FALLBACK_SENTENCES = {
+    "quote": "“Fix your eyes on Christ.”",
+    "firstReading": "A brief summary of the first reading encouraging faithfulness.",
+    "psalmSummary": "A short note on the psalm inviting trust in the Lord.",
+    "gospelSummary": "A concise reminder of the Good News proclaimed today.",
+    "saintReflection": "A simple reflection inviting imitation of the saint’s virtue.",
+    "dailyPrayer": "Lord Jesus, lead me to live Your word today. Amen.",
+    "theologicalSynthesis": "God calls us into communion in Christ through Word and Sacrament.",
+    "exegesis": "Today’s readings call us to deeper conversion and hope in Christ.",
+}
+
+def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
+    """
+    Mutates `draft` in-place with minimal, safe defaults so required fields are
+    never empty. This only runs if the model omitted something.
+    """
+    # textual fields (keep incredibly short; schema only checks non-empty)
+    for k, default in FALLBACK_SENTENCES.items():
+        if not str(draft.get(k, "")).strip():
+            draft[k] = default
+
+    # quotes often missing a citation; we set it if absent here as well
+    if not str(draft.get("quoteCitation", "")).strip():
+        draft["quoteCitation"] = (
+            draft.get("gospelReference")
+            or meta.get("gospelRef")
+            or draft.get("firstReadingRef")
+            or meta.get("firstRef")
+            or "Scripture"
+        )
+# -----------------------------------------------------------------------------
+
 
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS} model={MODEL}")
@@ -423,6 +477,10 @@ def main():
         except Exception:
             draft = json.loads(extract_json(raw))
 
+        # ---------------- [2B] apply fallbacks immediately --------------------
+        apply_fallbacks(draft, meta)
+        # ---------------------------------------------------------------------
+
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
         obj = normalize_day(obj)
         by_date[ds] = obj
@@ -430,15 +488,20 @@ def main():
 
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
-    if validator:
-        errs = list(validator.iter_errors(out))
-        if errs:
-            details = "; ".join([f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs])
-            raise SystemExit(f"Validation failed: {details}")
+# --- optional JSON Schema validation (array-level)
+if validator:
+    errs = list(validator.iter_errors(out))
+    if errs:
+        details = "; ".join(
+            f"{'/'.join(map(str, e.path))}: {e.message}" for e in errs
+        )
+        raise SystemExit(f"Validation failed: {details}")
 
-    WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    WEEKLY_PATH.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} entries")
+WEEKLY_PATH.parent.mkdir(parents=True, exist_ok=True)
+WEEKLY_PATH.write_text(
+    json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8"
+)
+print(f"[ok] wrote {WEEKLY_PATH} with {len(out)} entries")
 
 if __name__ == "__main__":
     main()
