@@ -36,8 +36,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
-          fetch-depth: 0
+          fetch-depth: 0            # full history so rebase works
+          persist-credentials: true # use the default GITHUB_TOKEN for pushes
+
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -102,13 +103,31 @@ jobs:
           jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
 
       - name: Commit and push weeklyfeed.json
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add public/weeklyfeed.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: weeklyfeed update (auto)"
-            git push
-          fi
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  run: |
+    set -euxo pipefail
+
+    # Configure committer
+    git config user.name "github-actions[bot]"
+    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    # Stage and commit if there are changes
+    git add public/weeklyfeed.json
+    if git diff --staged --quiet; then
+      echo "No changes to commit"
+      exit 0
+    fi
+    git commit -m "chore: weeklyfeed update (auto)"
+
+    # Rebase our new commit onto the latest remote main to avoid non-FF pushes
+    git fetch origin main
+    git -c rebase.autoStash=true rebase origin/main || {
+      echo "::warning::Rebase reported conflicts; preferring generated weeklyfeed.json"
+      git checkout --theirs public/weeklyfeed.json || true
+      git add public/weeklyfeed.json || true
+      git rebase --continue || true
+    }
+
+    # Safe push: only force if the remote tip is the one we rebased onto
+    git push --force-with-lease origin HEAD:main
