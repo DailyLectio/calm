@@ -102,39 +102,42 @@ jobs:
           jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
           jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
 
-      - name: Commit and push weeklyfeed.json (safe)
-        shell: bash
-        run: |
-         set -euo pipefail
+- name: Commit and push weeklyfeed.json (safe)
+  shell: bash
+  run: |
+    set -euo pipefail
 
-          # Configure committer
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    # Configure committer
+    git config user.name  "github-actions[bot]"
+    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Be up-to-date with remote to avoid non-FF errors
-          git fetch origin main
-          git checkout main
-          git pull --rebase origin main
+    # Make sure we're on latest main
+    git fetch origin main
+    git checkout main
 
-          # Stage result (if any)
-          git add public/weeklyfeed.json
+    # Stage the generated file (may or may not be new/changed)
+    git add public/weeklyfeed.json || true
 
-          # Nothing changed? Bail out cleanly.
-         if git diff --staged --quiet; then
-            echo "No changes to commit."
-            exit 0
-         fi
+    # Rebase while auto-stashing any local changes (staged or unstaged)
+    git -c rebase.autoStash=true pull --rebase origin main
 
-          # Commit
-          git commit -m "chore: weeklyfeed update (auto)"
+    # Ensure our file is still staged after the rebase/autostash dance
+    git add public/weeklyfeed.json || true
 
-          # Push with a couple of rebase retries to handle races
-          for i in 1 2 3; do
-            if git push; then
-              echo "Pushed on attempt $i"
-              break
-            fi
-            echo "Push failed (attempt $i); rebasing and retrying..."
-            git pull --rebase origin main || true
-            sleep 2
-          done
+    # If staging produced no changes, we're done
+    if git diff --staged --quiet; then
+      echo "No changes to commit."
+      exit 0
+    fi
+
+    # Commit and push (with a couple retries to handle races)
+    git commit -m "chore: weeklyfeed update (auto)"
+    for i in 1 2 3; do
+      if git push; then
+        echo "Pushed on attempt $i"
+        break
+      fi
+      echo "Push failed (attempt $i); rebasing and retrying..."
+      git -c rebase.autoStash=true pull --rebase origin main || true
+      sleep 2
+    done
