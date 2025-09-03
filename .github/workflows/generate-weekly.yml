@@ -1,15 +1,14 @@
-# .github/workflows/generate-weekly.yml
-name: Generate Weekly Devotions (Fri-Thu)
+name: Generate Weekly Devotions (Fri–Thu)
 
 on:
   schedule:
-    # 03:00 EST (UTC-5) and 03:00 EDT (UTC-4)
+    # 03:00 EST (UTC-5) and 03:00 EDT (UTC-4) — adjust if you like
     - cron: "0 8 * * 2"
     - cron: "0 7 * * 2"
   workflow_dispatch:
     inputs:
       start_date:
-        description: "Start date (YYYY-MM-DD). Blank = today (NY time)"
+        description: "Start date (YYYY-MM-DD). Blank = Monday (NY time)"
         required: false
         default: ""
       days:
@@ -20,7 +19,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -28,85 +26,88 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
-        shell: bash
+      - name: Install deps (optional)
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Generate weeklyfeed.json
-        env:
-          TZ: America/New_York
+      - name: Compute params
+        id: params
         shell: bash
         run: |
           set -euo pipefail
 
-          # 1) Resolve START (dispatch input or default to Monday)
-          START="${{ github.event.inputs.start_date || '' }}"
+          START="${{ github.event.inputs.start_date }}"
           if [ -z "$START" ]; then
             START=$(python - <<'PY'
-          import datetime as dt
-          t = dt.date.today()
-          monday = t - dt.timedelta(days=t.weekday())
-          print(monday.isoformat())
-          PY
-          )
-              fi
+import datetime as dt, zoneinfo
+# Monday in America/New_York
+tz = zoneinfo.ZoneInfo("America/New_York")
+today = dt.datetime.now(tz=tz).date()
+monday = today - dt.timedelta(days=today.weekday())
+print(monday.isoformat())
+PY
+)
+          fi
 
-          # 2) Compute the correct AUTH_CSV path (this is what your script wants)
+          DAYS="${{ github.event.inputs.days }}"
+          if [ -z "$DAYS" ]; then DAYS=7; fi
+
           YEAR=$(date -d "$START" +%Y)
           YM=$(date -d "$START" +%Y-%m)
           AUTH_CSV="data/saints/${YEAR}/saints_authority_${YM}.csv"
 
-          echo "[weekly] start=$START auth=$AUTH_CSV days=${{ github.event.inputs.days || '7' }}"
+          echo "start=$START" >> "$GITHUB_OUTPUT"
+          echo "days=$DAYS" >> "$GITHUB_OUTPUT"
+          echo "auth_csv=$AUTH_CSV" >> "$GITHUB_OUTPUT"
+          echo "[params] start=$START days=$DAYS auth=$AUTH_CSV"
 
-          # (Optional) Print the headers once in the job so we can verify them
-          head -n 1 "$AUTH_CSV" | sed -E 's/,/ | /g' || true
-
-          # 3) Run the generator with the CSV authority (NOT the base JSON)
-          python scripts/generate_weekly.py \
-            --start "$START" \
-            --authority "$AUTH_CSV" \
-            --out public/feeds/weeklyfeed.json \
-            --days "${{ github.event.inputs.days || '7' }}"
-
-
-            - name: Generate saints weeklydevotion.json (CSV-first)
+      - name: Generate weeklyfeed.json (from CSV authority)
         shell: bash
         run: |
           set -euo pipefail
-          START="${{ github.event.inputs.start_date || '' }}"
-          if [ -z "$START" ]; then
-            START="$(jq -r '.[0].date' public/weeklyfeed.json)"
-          fi
-          YEAR=$(date -d "$START" +%Y)
-          YM=$(date -d "$START" +%Y-%m)
-          AUTH_CSV="data/saints/${YEAR}/saints_authority_${YM}.csv"
+          python scripts/generate_weekly.py \
+            --start "${{ steps.params.outputs.start }}" \
+            --authority "${{ steps.params.outputs.auth_csv }}" \
+            --out public/feeds/weeklyfeed.json \
+            --days "${{ steps.params.outputs.days }}"
 
-          echo "[saints] start=$START auth=$AUTH_CSV"
-          python -m scripts.generate_saints_weekly \
-            --start "$START" \
-            --authority "$AUTH_CSV" \
-            --out public/weeklydevotion.json
+      - name: Generate saints weeklydevotion.json (CSV-only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_DATE="${{ steps.params.outputs.start }}" \
+          AUTHORITY="${{ steps.params.outputs.auth_csv }}" \
+          OUT="public/feeds/weeklydevotion.json" \
+          DAYS="${{ steps.params.outputs.days }}" \
+          python -m scripts.generate_saints_csv
 
       - name: Merge saints into weeklyfeed.json
         shell: bash
         run: |
           set -euo pipefail
           python scripts/merge_saints_into_weeklyfeed.py \
-            --weekly public/weeklyfeed.json \
-            --saints public/weeklydevotion.json \
-            --out public/weeklyfeed.json
+            --weekly public/feeds/weeklyfeed.json \
+            --saints  public/feeds/weeklydevotion.json \
+            --out     public/feeds/weeklyfeed.json
 
       - name: Commit and push artifacts
         if: github.ref == 'refs/heads/main'
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "DailyLectio Bot"
-          git config user.email "DailyLectio@users.noreply.github.com"
-          git add public/weeklyfeed.json public/weeklydevotion.json
-          git commit -m "CI: Update weeklyfeed.json (incl. saints)" || echo "No changes to commit"
-          git push
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/feeds/*.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Weekly feeds: ${{ steps.params.outputs.start }}"
+            git push
+          else
+            echo "No feed changes to commit."
+          fi
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: feeds-${{ steps.params.outputs.start }}
+          path: public/feeds/*.json
