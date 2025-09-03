@@ -1,6 +1,28 @@
 {
-  "week_start": "2025-09-03",
+  "week_start": "2025-09-01",
   "days": [
+    {
+      "date": "2025-09-01",
+      "saint": {
+        "name": "Saint Giles",
+        "source": "https://catholicsaints.info/saint-giles/",
+        "resources": [],
+        "blurb": "",
+        "reflection": "Saint Giles—pray for us."
+      },
+      "saintReflection": "Saint Giles—pray for us."
+    },
+    {
+      "date": "2025-09-02",
+      "saint": {
+        "name": "Martyrs of September",
+        "source": "https://catholicsaints.info/martyrs-of-september/",
+        "resources": [],
+        "blurb": "",
+        "reflection": "Martyrs of September—pray for us."
+      },
+      "saintReflection": "Martyrs of September—pray for us."
+    },
     {
       "date": "2025-09-03",
       "saint": {
@@ -55,28 +77,6 @@
         "reflection": "Blessed Giovanni Battista Mazzucconi—pray for us."
       },
       "saintReflection": "Blessed Giovanni Battista Mazzucconi—pray for us."
-    },
-    {
-      "date": "2025-09-08",
-      "saint": {
-        "name": "Nativity of the Blessed Virgin Mary",
-        "source": "https://catholicsaints.info/our-lady-of-charity-of-el-cobre/",
-        "resources": [],
-        "blurb": "",
-        "reflection": "Nativity of the Blessed Virgin Mary—pray for us."
-      },
-      "saintReflection": "Nativity of the Blessed Virgin Mary—pray for us."
-    },
-    {
-      "date": "2025-09-09",
-      "saint": {
-        "name": "Saint Peter Claver",
-        "source": "https://catholicsaints.info/saint-peter-claver/",
-        "resources": [],
-        "blurb": "",
-        "reflection": "Saint Peter Claver—pray for us."
-      },
-      "saintReflection": "Saint Peter Claver—pray for us."
     }
   ]
 }
