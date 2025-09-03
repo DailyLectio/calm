@@ -81,6 +81,31 @@ jobs:
           export DAYS="${{ github.event.inputs.days }}"
           python scripts/generate_weekly.py
 
+      - name: Generate saints weeklydevotion.json (CSV-first)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Use the dispatch input when provided; otherwise read first date from the built weeklyfeed.json
+          START="${{ github.event.inputs.start_date }}"
+          if [ -z "$START" ]; then
+            START="$(jq -r '.[0].date' public/weeklyfeed.json)"
+          fi
+          echo "[saints] start=$START"
+
+          # Derive YEAR and YYYY-MM to select the monthly authority CSV
+          YEAR="$(date -d "$START" +%Y)"
+          YM="$(date -d "$START" +%Y-%m)"
+
+          python -m scripts.generate_saints_weekly             --start "$START"             --authority "data/saints/${YEAR}/saints_authority_${YM}.csv"             --out public/weeklydevotion.json
+
+      - name: Merge saints into weeklyfeed.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/merge_saints_into_weeklyfeed.py             --weekly public/weeklyfeed.json             --saints public/weeklydevotion.json             --out public/weeklyfeed.json
+
+
+
             - name: Generate saints weeklydevotion.json (CSV-first)
         shell: bash
         run: |
