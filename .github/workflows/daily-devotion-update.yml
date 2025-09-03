@@ -31,6 +31,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install openai
 
+      - name: Locate weeklyfeed file
+         id: locate
+          run: |
+         set -euo pipefail
+          if [ -f public/feeds/weeklyfeed.json ]; then FEED=public/feeds/weeklyfeed.json
+         elif [ -f public/weeklyfeed.json ]; then FEED=public/weeklyfeed.json
+          else echo "No weeklyfeed.json found" >&2; exit 1; fi
+          echo "feed=$FEED" >> "$GITHUB_OUTPUT"
+          head -n 2 "$FEED" | sed -E 's/,/ | /g' || true
+
       # ---- PRE-RUN VISIBILITY ----
       - name: Show weeklyfeed.json header (pre-check)
         run: |
