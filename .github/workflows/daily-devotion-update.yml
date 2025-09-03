@@ -35,13 +35,13 @@ jobs:
       - name: Show weeklyfeed.json header (pre-check)
         run: |
           echo "SHA: $GITHUB_SHA"
-          if [ -f public/weeklyfeed.json ]; then
-            head -n 60 public/weeklyfeed.json
+          if [ -f public/feeds/weeklyfeed.json ]; then
+            head -n 60 public/feeds/weeklyfeed.json
           else
-            echo "public/weeklyfeed.json not found"; exit 1
+            echo "public/feeds/weeklyfeed.json not found"; exit 1
           fi
 
-      # Patch missing refs for TODAY, then save back to public/weeklyfeed.json
+      # Patch missing refs for TODAY, then save back to public/feeds/weeklyfeed.json
       - name: Patch missing scripture refs for today
         run: |
           python3 - <<'PY'
@@ -57,7 +57,7 @@ jobs:
           today = (datetime.now(ZoneInfo(tz)).date().isoformat()
                    if ZoneInfo else datetime.utcnow().date().isoformat())
 
-          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+          with open("public/feeds/weeklyfeed.json","r",encoding="utf-8") as f:
               week = json.load(f)
           if not isinstance(week, list):
               print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
@@ -99,7 +99,7 @@ jobs:
                   row["gospelReference"] = row.get("gospelRef","")
 
               # WRITE PATCH BACK TO REPO FILE
-              with open("public/weeklyfeed.json","w",encoding="utf-8") as f:
+              with open("public/feeds/weeklyfeed.json","w",encoding="utf-8") as f:
                   json.dump(week, f, ensure_ascii=False, indent=2)
 
               print("Patched refs for", today, "→",
@@ -124,7 +124,7 @@ jobs:
           today = (datetime.now(ZoneInfo(tz)).date().isoformat()
                    if ZoneInfo else datetime.utcnow().date().isoformat())
 
-          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+          with open("public/feeds/weeklyfeed.json","r",encoding="utf-8") as f:
               data = json.load(f)
           if not isinstance(data, list):
               print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
@@ -178,7 +178,7 @@ jobs:
           git config --local user.email "action@github.com"
 
           # Commit BOTH files so the ref patch persists
-          git add public/weeklyfeed.json public/devotions.json
+          git add public/feeds/weeklyfeed.json public/devotions.json
 
           if ! git diff --staged --quiet; then
             git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
