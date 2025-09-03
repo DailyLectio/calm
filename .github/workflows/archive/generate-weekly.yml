@@ -1,0 +1,10 @@
+name: Generate Weekly Devotions (Paused)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  paused:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Weekly generation is PAUSED. No steps will run."

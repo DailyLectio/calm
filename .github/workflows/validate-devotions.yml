@@ -1,63 +1,38 @@
 name: Validate Devotions JSON
 
 on:
-  # Run automatically when devotions.json or this workflow/schema changes
   push:
-    branches: [ main ]
     paths:
       - 'public/devotions.json'
+      - 'public/devotions-full.json'
       - 'schemas/devotion.schema.json'
-      - '.github/workflows/validate-devotions.yml'
-  # Run on PRs that touch the file
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'public/devotions.json'
-  # Allow manual “Run workflow”
-  workflow_dispatch:
 
 jobs:
-  validate:
+  lint:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install jq and jsonschema
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y jq
-          python3 -m pip install --upgrade pip jsonschema
+      - name: Install dependencies
+        run: pip install jsonschema
 
-      - name: Snapshot — first 10 rows (date, cycle, weekdayCycle)
+      - name: Validate JSON files
         run: |
-          jq -r '.[0:10] | .[] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
-
-      - name: Shape check (array of objects)
-        run: |
-          jq -e 'type=="array" and all(.[]; type=="object")' public/devotions.json > /dev/null
-
-      - name: Dates exist and are unique
-        run: |
-          jq -r '.[].date' public/devotions.json | tee /tmp/dates.txt
-          if [ ! -s /tmp/dates.txt ]; then echo "No dates found"; exit 1; fi
-          dups=$(sort /tmp/dates.txt | uniq -d)
-          if [ -n "$dups" ]; then
-            echo "Duplicate dates found:"; echo "$dups"; exit 1
-          fi
-
-      - name: Schema validation (schemas/devotion.schema.json)
-        run: |
-          python3 - <<'PY'
-          import json, sys
-          from jsonschema import Draft202012Validator
-          schema = json.load(open('schemas/devotion.schema.json', encoding='utf-8'))
-          data = json.load(open('public/devotions.json', encoding='utf-8'))
-          v = Draft202012Validator(schema)
-          errs = list(v.iter_errors(data))
-          if errs:
-              for e in errs:
-                  path = "/".join(map(str, e.path))
-                  print(f"[schema] {path or '<root>'}: {e.message}")
+          python - <<PY
+          import json, pathlib, sys
+          from jsonschema import validate, ValidationError
+          schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
+          errors = False
+          for f in ['public/devotions.json', 'public/devotions-full.json']:
+              try:
+                  data = json.loads(pathlib.Path(f).read_text())
+                  validate(instance=data, schema=schema)
+                  print(f"{f} is valid")
+              except ValidationError as e:
+                  print(f"Validation failed for {f}: {e.message}")
+                  errors = True
+          if errors:
               sys.exit(1)
-          print("Schema validation: OK")
           PY

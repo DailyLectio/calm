@@ -1,0 +1,61 @@
+name: Daily Devotion
+
+on:
+  schedule:
+    - cron: '0 7 * * *'     # Runs daily at 07:00 UTC
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      APP_TZ: America/New_York
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate full devotion (via Perplexity)
+        run: |
+          # Replace with your Perplexity CLI/task invocation
+          perple_generate --task full-exegesis > public/devotions-full.json
+
+      - name: Generate summary JSON (via Perplexity)
+        run: |
+          perple_generate --task synopsis > public/devotions.json
+
+      - name: Validate JSON against schema
+        run: |
+          pip install jsonschema
+          python - <<PY
+          import json, pathlib, sys
+          from jsonschema import validate, ValidationError
+          schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
+          for f in ['public/devotions.json', 'public/devotions-full.json']:
+              data = json.loads(pathlib.Path(f).read_text())
+              validate(instance=data, schema=schema)
+          PY
+
+      - name: Archive previous files
+        run: |
+          today=$(date -u +'%Y-%m-%d')
+          mkdir -p archive/public/daily/$today
+          mv public/devotions.json archive/public/daily/$today/
+          mv public/devotions-full.json archive/public/daily/$today/ || true
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/devotions.json public/devotions-full.json archive/public/daily/$today/*
+          if ! git diff --cached --quiet; then
+            git commit -m "Daily devotions for $today"
+            git push
+          else
+            echo "No changes to commit."
+          fi
