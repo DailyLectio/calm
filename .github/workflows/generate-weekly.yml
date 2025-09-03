@@ -2,7 +2,7 @@ name: Generate Weekly Devotions (Fri–Thu)
 
 on:
   schedule:
-    # 03:00 EST (UTC-5) and 03:00 EDT (UTC-4) — adjust if you like
+    # 03:00 EST (UTC-5) and 03:00 EDT (UTC-4)
     - cron: "0 8 * * 2"
     - cron: "0 7 * * 2"
   workflow_dispatch:
@@ -33,37 +33,31 @@ jobs:
 
       - name: Compute params
         id: params
-        shell: bash
         run: |
           set -euo pipefail
-
           START="${{ github.event.inputs.start_date }}"
           if [ -z "$START" ]; then
-            START=$(python - <<'PY'
-import datetime as dt, zoneinfo
-# Monday in America/New_York
-tz = zoneinfo.ZoneInfo("America/New_York")
-today = dt.datetime.now(tz=tz).date()
-monday = today - dt.timedelta(days=today.weekday())
-print(monday.isoformat())
-PY
-)
+            export TZ=America/New_York
+            today=$(date +%F)
+            dow=$(date +%u)             # 1..7 (Mon..Sun)
+            offset=$((dow-1))           # days since Monday
+            START=$(date -d "$today -$offset day" +%F)
           fi
-
           DAYS="${{ github.event.inputs.days }}"
           if [ -z "$DAYS" ]; then DAYS=7; fi
-
           YEAR=$(date -d "$START" +%Y)
           YM=$(date -d "$START" +%Y-%m)
           AUTH_CSV="data/saints/${YEAR}/saints_authority_${YM}.csv"
 
-          echo "start=$START" >> "$GITHUB_OUTPUT"
-          echo "days=$DAYS" >> "$GITHUB_OUTPUT"
-          echo "auth_csv=$AUTH_CSV" >> "$GITHUB_OUTPUT"
+          {
+            echo "start=$START"
+            echo "days=$DAYS"
+            echo "auth_csv=$AUTH_CSV"
+          } >> "$GITHUB_OUTPUT"
+
           echo "[params] start=$START days=$DAYS auth=$AUTH_CSV"
 
       - name: Generate weeklyfeed.json (from CSV authority)
-        shell: bash
         run: |
           set -euo pipefail
           python scripts/generate_weekly.py \
@@ -73,7 +67,6 @@ PY
             --days "${{ steps.params.outputs.days }}"
 
       - name: Generate saints weeklydevotion.json (CSV-only)
-        shell: bash
         run: |
           set -euo pipefail
           START_DATE="${{ steps.params.outputs.start }}" \
@@ -83,7 +76,6 @@ PY
           python -m scripts.generate_saints_csv
 
       - name: Merge saints into weeklyfeed.json
-        shell: bash
         run: |
           set -euo pipefail
           python scripts/merge_saints_into_weeklyfeed.py \
@@ -93,7 +85,6 @@ PY
 
       - name: Commit and push artifacts
         if: github.ref == 'refs/heads/main'
-        shell: bash
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
@@ -103,7 +94,7 @@ PY
             git commit -m "Weekly feeds: ${{ steps.params.outputs.start }}"
             git push
           else
-            echo "No feed changes to commit."
+            echo "No changes to commit."
           fi
 
       - name: Upload artifacts
