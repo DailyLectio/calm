@@ -31,27 +31,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install openai
 
-      - name: Locate weeklyfeed file
-         id: locate
-          run: |
-         set -euo pipefail
-          if [ -f public/feeds/weeklyfeed.json ]; then FEED=public/feeds/weeklyfeed.json
-         elif [ -f public/weeklyfeed.json ]; then FEED=public/weeklyfeed.json
-          else echo "No weeklyfeed.json found" >&2; exit 1; fi
-          echo "feed=$FEED" >> "$GITHUB_OUTPUT"
-          head -n 2 "$FEED" | sed -E 's/,/ | /g' || true
 
-      # ---- PRE-RUN VISIBILITY ----
+- name: Locate weeklyfeed file
+  id: locate
+  run: |
+    set -euo pipefail
+    if [ -f public/feeds/weeklyfeed.json ]; then FEED=public/feeds/weeklyfeed.json
+    elif [ -f public/weeklyfeed.json ]; then FEED=public/weeklyfeed.json
+    else echo "No weeklyfeed.json found" >&2; exit 1; fi
+    echo "feed=$FEED" >> "$GITHUB_OUTPUT"
+    echo "[daily] using $FEED"
       - name: Show weeklyfeed.json header (pre-check)
         run: |
-          echo "SHA: $GITHUB_SHA"
-          if [ -f public/feeds/weeklyfeed.json ]; then
-            head -n 60 public/feeds/weeklyfeed.json
-          else
-            echo "public/feeds/weeklyfeed.json not found"; exit 1
-          fi
+          head -n 60 "${{ steps.locate.outputs.feed }}" || { echo "weeklyfeed.json not found"; exit 1; }
 
-      # Patch missing refs for TODAY, then save back to public/feeds/weeklyfeed.json
       - name: Patch missing scripture refs for today
         run: |
           python3 - <<'PY'
@@ -121,41 +114,46 @@ jobs:
 
       # Enforce required fields after patch
       - name: Verify required fields for today
-        run: |
-          python3 - <<'PY'
-          import json, os, sys
-          from datetime import datetime
-          try:
-              from zoneinfo import ZoneInfo
-          except Exception:
-              ZoneInfo = None
 
-          tz = os.environ.get("APP_TZ","UTC")
-          today = (datetime.now(ZoneInfo(tz)).date().isoformat()
-                   if ZoneInfo else datetime.utcnow().date().isoformat())
+run: |
+  python3 - <<'PY'
+  import json, os, sys
+  from datetime import datetime
+  try:
+      from zoneinfo import ZoneInfo
+  except Exception:
+      ZoneInfo = None
 
-          with open("public/feeds/weeklyfeed.json","r",encoding="utf-8") as f:
-              data = json.load(f)
-          if not isinstance(data, list):
-              print("ERROR: weeklyfeed.json is not a top-level array"); sys.exit(1)
+  tz = os.environ.get("APP_TZ","UTC")
+  today = (datetime.now(ZoneInfo(tz)).date().isoformat()
+           if ZoneInfo else datetime.utcnow().date().isoformat())
 
-          by = {str(e.get("date","")).strip(): e for e in data if isinstance(e, dict)}
-          row = by.get(today)
-          if not row:
-              print(f"ERROR: No entry for today ({today}) in weeklyfeed.json"); sys.exit(1)
+  feed_path = "${{ steps.locate.outputs.feed }}"
+  with open(feed_path,"r",encoding="utf-8") as f:
+      raw = json.load(f)
 
-          required = [
-            "quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
-            "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
-            "usccbLink","cycle","weekdayCycle","gospelRef","firstReadingRef","psalmRef"
-          ]
-          missing = [k for k in required if not str(row.get(k,'')).strip()]
-          if missing:
-            print("ERROR: Missing/empty keys for today:", missing); sys.exit(1)
-          print("OK for today:", today)
-          PY
+  if isinstance(raw, list):
+      days = raw
+  elif isinstance(raw, dict):
+      days = raw.get("days") or raw.get("daily") or []
+  else:
+      print("ERROR: weeklyfeed.json is neither list nor object"); sys.exit(1)
 
-      # ---- RUN THE DAILY UPDATE ----
+  by = {str(e.get("date","")).strip(): e for e in days if isinstance(e, dict)}
+  row = by.get(today)
+  if not row:
+      print(f"ERROR: No entry for today ({today}) in weeklyfeed.json"); sys.exit(1)
+
+  required = [
+    "quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
+    "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
+    "usccbLink","cycle","weekdayCycle","gospelRef","firstReadingRef","psalmRef"
+  ]
+  missing = [k for k in required if not str(row.get(k,'')).strip()]
+  if missing:
+    print("ERROR: Missing/empty keys for today:", missing); sys.exit(1)
+  print("OK for today:", today)
+  PY
       - name: Run daily devotion update (Python)
         run: |
           python3 update_daily_devotion.py --tz "$APP_TZ"
