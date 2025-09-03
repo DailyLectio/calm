@@ -42,38 +42,52 @@ jobs:
         run: |
           set -euo pipefail
 
-          START_INPUT="${{ github.event.inputs.start_date }}"
-          DAYS_INPUT="${{ github.event.inputs.days }}"
-          # defaults if workflow_dispatch inputs are blank
-          if [ -z "$START_INPUT" ]; then START_INPUT="$(date +%F)"; fi
-          if [ -z "$DAYS_INPUT" ]; then DAYS_INPUT="7"; fi
+          # 1) Resolve START (dispatch input or default to Monday)
+          START="${{ github.event.inputs.start_date || '' }}"
+          if [ -z "$START" ]; then
+            START=$(python - <<'PY'
+          import datetime as dt
+          t = dt.date.today()
+          monday = t - dt.timedelta(days=t.weekday())
+          print(monday.isoformat())
+          PY
+          )
+              fi
 
-          BASE_FILE="public/feeds/weeklyfeed_base_${START_INPUT}.json"
+          # 2) Compute the correct AUTH_CSV path (this is what your script wants)
+          YEAR=$(date -d "$START" +%Y)
+          YM=$(date -d "$START" +%Y-%m)
+          AUTH_CSV="data/saints/${YEAR}/saints_authority_${YM}.csv"
 
-          # Always provide --authority; add --live-fallback if base file is missing
-          ARGS=(--start "$START_INPUT" --days "$DAYS_INPUT" --out public/weeklyfeed.json --authority "$BASE_FILE")
-          if [ ! -f "$BASE_FILE" ]; then
-            echo "Base file not found: $BASE_FILE — enabling live fallback."
-            ARGS+=(--live-fallback)
-          else
-            echo "Using base file: $BASE_FILE"
-          fi
+          echo "[weekly] start=$START auth=$AUTH_CSV days=${{ github.event.inputs.days || '7' }}"
 
-          python scripts/generate_weekly.py "${ARGS[@]}"
+          # (Optional) Print the headers once in the job so we can verify them
+          head -n 1 "$AUTH_CSV" | sed -E 's/,/ | /g' || true
 
-      - name: Generate saints weeklydevotion.json (CSV-first)
+          # 3) Run the generator with the CSV authority (NOT the base JSON)
+          python scripts/generate_weekly.py \
+            --start "$START" \
+            --authority "$AUTH_CSV" \
+            --out public/feeds/weeklyfeed.json \
+            --days "${{ github.event.inputs.days || '7' }}"
+
+
+            - name: Generate saints weeklydevotion.json (CSV-first)
         shell: bash
         run: |
           set -euo pipefail
-          START_INPUT="${{ github.event.inputs.start_date }}"
-          if [ -z "$START_INPUT" ]; then
-            START_INPUT="$(jq -r '.[0].date' public/weeklyfeed.json)"
+          START="${{ github.event.inputs.start_date || '' }}"
+          if [ -z "$START" ]; then
+            START="$(jq -r '.[0].date' public/weeklyfeed.json)"
           fi
-          YEAR="$(date -d "$START_INPUT" +%Y)"
-          YM="$(date -d "$START_INPUT" +%Y-%m)"
+          YEAR=$(date -d "$START" +%Y)
+          YM=$(date -d "$START" +%Y-%m)
+          AUTH_CSV="data/saints/${YEAR}/saints_authority_${YM}.csv"
+
+          echo "[saints] start=$START auth=$AUTH_CSV"
           python -m scripts.generate_saints_weekly \
-            --start "$START_INPUT" \
-            --authority "data/saints/${YEAR}/saints_authority_${YM}.csv" \
+            --start "$START" \
+            --authority "$AUTH_CSV" \
             --out public/weeklydevotion.json
 
       - name: Merge saints into weeklyfeed.json
