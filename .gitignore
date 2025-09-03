@@ -1,5 +1,6 @@
 .vercel
 node_modules
+<<<<<<< Updated upstream
 dist/
 
 /mobile35refresh.expo/
@@ -9,3 +10,5 @@ dist/
 __pycache__/
 *.py[cod]
 *$py.class
+=======
+>>>>>>> Stashed changes
