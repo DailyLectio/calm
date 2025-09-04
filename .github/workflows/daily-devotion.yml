@@ -1,9 +1,10 @@
----
+name: Daily Devotion
+
 on:
   schedule:
-    - cron: 0 7 * * *
-  workflow_dispatch: null
-name: Daily Devotion
+    - cron: '0 7 * * *'   # Runs daily at 07:00 UTC
+  workflow_dispatch:
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -11,48 +12,90 @@ jobs:
       contents: write
     env:
       APP_TZ: America/New_York
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Generate full devotion (via Perplexity)
+
+      - name: Build public/devotions-full.json and public/devotions.json
         run: |
-          # Replace with your Perplexity CLI/task invocation
-          perple_generate --task full-exegesis > public/devotions-full.json
-      - name: Generate summary JSON (via Perplexity)
+          python3 - <<PY
+          import json, pathlib
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          # Load weekly feed
+          src = pathlib.Path("public/weeklyfeed.json")
+          data = json.loads(src.read_text(encoding="utf-8"))
+
+          # Compute today in App TZ
+          today = datetime.now(ZoneInfo("America/New_York")).date()
+
+          # Parse ISO dates
+          def parse_iso(s):
+              try:
+                  return datetime.fromisoformat(s).date()
+              except:
+                  return None
+
+          # Map dates to entries
+          by_date = { parse_iso(item.get("date","")): item for item in data if parse_iso(item.get("date","")) }
+
+          # Pick today's entry or most recent past
+          if today in by_date:
+              entry = by_date[today]
+          else:
+              past_dates = [d for d in by_date if d <= today]
+              entry = by_date[max(past_dates)] if past_dates else list(by_date.values())[-1]
+
+          # Write summary JSON
+          out_summary = pathlib.Path("public/devotions.json")
+          out_summary.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
+
+          # Create placeholder full JSON
+          out_full = pathlib.Path("public/devotions-full.json")
+          out_full.write_text("{}", encoding="utf-8")
+
+          print(f"Wrote summary for {entry['date']}")
+          PY
+
+      - name: Validate JSON files against schema
         run: |
-          perple_generate --task synopsis > public/devotions.json
-      - name: Validate JSON against schema
-        run: >
           pip install jsonschema
-
-          python - <<PY
-
+          python3 - <<PY
           import json, pathlib, sys
-
           from jsonschema import validate, ValidationError
 
-          schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
+          schema = json.loads(pathlib.Path("schemas/devotion.schema.json").read_text())
+          errors = False
 
-          for f in ['public/devotions.json', 'public/devotions-full.json']:
-              data = json.loads(pathlib.Path(f).read_text())
-              validate(instance=data, schema=schema)
+          for file in ["public/devotions.json", "public/devotions-full.json"]:
+              data = json.loads(pathlib.Path(file).read_text())
+              try:
+                  validate(instance=data, schema=schema)
+                  print(f"{file}: valid")
+              except ValidationError as e:
+                  print(f"{file}: validation error: {e.message}")
+                  errors = True
+
+          if errors:
+              sys.exit(1)
           PY
+
       - name: Archive previous files
         run: |
           today=$(date -u +'%Y-%m-%d')
           mkdir -p archive/public/daily/$today
-          mv public/devotions.json archive/public/daily/$today/
+          mv public/devotions.json archive/public/daily/$today/ || true
           mv public/devotions-full.json archive/public/daily/$today/ || true
-      - name: Commit & push
-        run: >
+
+      - name: Commit & push changes
+        run: |
           git config user.name "github-actions[bot]"
-
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add public/devotions.json public/devotions-full.json archive/public/daily/$today/*
-
           if ! git diff --cached --quiet; then
             git commit -m "Daily devotions for $today"
             git push

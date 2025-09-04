@@ -16,9 +16,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: pip install jsonschema
+        run: pip install jq jsonschema
 
-      - name: Validate JSON files
+      - name: Snapshot — show key values from single object
+        run: |
+          echo "date\tcycle\tweekdayCycle"
+          jq -r '"\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
+
+      - name: Validate JSON against schema
         run: |
           python - <<PY
           import json, pathlib, sys
@@ -26,12 +31,12 @@ jobs:
           schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
           errors = False
           for f in ['public/devotions.json', 'public/devotions-full.json']:
+              data = json.loads(pathlib.Path(f).read_text())
               try:
-                  data = json.loads(pathlib.Path(f).read_text())
                   validate(instance=data, schema=schema)
-                  print(f"{f} is valid")
+                  print(f"{f}: valid")
               except ValidationError as e:
-                  print(f"Validation failed for {f}: {e.message}")
+                  print(f"{f}: validation error: {e.message}")
                   errors = True
           if errors:
               sys.exit(1)
