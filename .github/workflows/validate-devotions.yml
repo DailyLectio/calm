@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'public/devotions.json'
-      - 'public/devotions-full.json'
       - 'schemas/devotion.schema.json'
   workflow_dispatch:
 
@@ -19,32 +18,25 @@ jobs:
       - name: Install dependencies
         run: pip install jq jsonschema
 
-            - name: Snapshot — show key values from first array element
+      - name: Snapshot — show key values from first array element
         run: |
           echo "date\tcycle\tweekdayCycle"
           jq -r '.[0] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
 
-      - name: Validate JSON files against schema
+      - name: Validate JSON against schema
         run: |
           pip install jsonschema
           python3 - <<PY
           import json, pathlib, sys
           from jsonschema import validate, ValidationError
 
-          schema = json.loads(
-              pathlib.Path("schemas/devotion.schema.json").read_text()
-          )
-          errors = False
+          schema = json.loads(pathlib.Path("schemas/devotion.schema.json").read_text())
+          data = json.loads(pathlib.Path("public/devotions.json").read_text())
 
-          for filename in ["public/devotions.json"]:
-              data = json.loads(pathlib.Path(filename).read_text())
-              try:
-                  validate(instance=data, schema=schema)
-                  print(f"{filename}: valid")
-              except ValidationError as e:
-                  print(f"{filename}: validation error: {e.message}")
-                  errors = True
-
-          if errors:
+          try:
+              validate(instance=data, schema=schema)
+              print("public/devotions.json: valid")
+          except ValidationError as e:
+              print("public/devotions.json: validation error:", e.message)
               sys.exit(1)
           PY
