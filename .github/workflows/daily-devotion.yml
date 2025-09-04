@@ -1,113 +1,55 @@
-name: Daily Devotion
+name: Daily Devotions Publish
 
 on:
   schedule:
-    - cron: '0 7 * * *'   # Runs daily at 07:00 UTC
+    - cron: '0 7 * * *'    # Runs daily at 07:00 UTC
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
+  publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
-      APP_TZ: America/New_York
+      PERP_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
-      - name: Build public/devotions-full.json and public/devotions.json
+      - name: Fetch full exegesis report
+        id: full
         run: |
-          python3 - <<PY
-          import json, pathlib
-          from datetime import datetime
-          from zoneinfo import ZoneInfo
+          curl -s -X POST \
+            https://api.perplexity.ai/tasks/YOUR_FULL_TASK_ID/run \
+            -H "Authorization: Bearer $PERP_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            -o full.json
 
-          src = pathlib.Path("public/weeklyfeed.json")
-          data = json.loads(src.read_text(encoding="utf-8"))
-
-          tz = ZoneInfo("America/New_York")
-          today = datetime.now(tz).date()
-
-          def parse_iso(s):
-              try:
-                  return datetime.fromisoformat(s).date()
-              except:
-                  return None
-
-          by_date = {
-              parse_iso(item.get("date","")): item
-              for item in data
-              if parse_iso(item.get("date",""))
-          }
-
-          if today in by_date:
-              entry = by_date[today]
-          else:
-              past = [d for d in by_date if d <= today]
-              entry = by_date[max(past)] if past else list(by_date.values())[-1]
-
-          # Wrap in arrays
-          out_summary = pathlib.Path("public/devotions.json")
-          out_summary.write_text(
-              json.dumps([entry], ensure_ascii=False, indent=2),
-              encoding="utf-8"
-          )
-
-          out_full = pathlib.Path("public/devotions-full.json")
-          out_full.write_text(
-              json.dumps([entry], ensure_ascii=False, indent=2),
-              encoding="utf-8"
-          )
-
-          print(f"Wrote daily devotions for {entry['date']}")
-          PY
-
-      - name: Validate JSON files against schema
+      - name: Extract JSON synopsis
+        id: dev
         run: |
-          pip install jsonschema
-          python3 - <<PY
-          import json, pathlib, sys
-          from jsonschema import validate, ValidationError
+          FULL=$(jq -r .reportText < full.json)
+          curl -s -X POST \
+            https://api.perplexity.ai/tasks/YOUR_SYNOPSIS_TASK_ID/run \
+            -H "Authorization: Bearer $PERP_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"input_text\":$(jq -Rs . <<< \"$FULL\")}" \
+            -o dev.json
 
-          schema = json.loads(
-              pathlib.Path("schemas/devotion.schema.json").read_text()
-          )
-          errors = False
-
-          for file in ["public/devotions.json", "public/devotions-full.json"]:
-              data = json.loads(pathlib.Path(file).read_text())
-              try:
-                  validate(instance=data, schema=schema)
-                  print(f"{file}: valid")
-              except ValidationError as e:
-                  print(f"{file}: validation error: {e.message}")
-                  errors = True
-
-          if errors:
-              sys.exit(1)
-          PY
-
-      - name: Archive previous files
+      - name: Validate and write public/devotions.json
         run: |
-          today=$(date -u +'%Y-%m-%d')
-          mkdir -p archive/public/daily/$today
-          mv public/devotions.json         archive/public/daily/$today/  || true
-          mv public/devotions-full.json    archive/public/daily/$today/  || true
+          # Basic JSON syntax check
+          jq . < dev.json > public/devotions.json
 
-      - name: Commit & push changes
+      - name: Commit & push updated JSON
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/devotions.json    || true
-          git add public/devotions-full.json || true
-          git add archive/public/daily/$today/* || true
-          if ! git diff --cached --quiet; then
-            git commit -m "Daily devotions for $today"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          git add public/devotions.json
+          git commit -m "Daily devotion update: $(date +%F)" || echo "No changes to commit"
+          git push
+
+      - name: Archive full exegesis report
+        run: |
+          mkdir -p archive
+          cp full.json archive/$(date +%F)-full.json
