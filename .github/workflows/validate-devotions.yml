@@ -62,3 +62,4 @@ EOF
 
           # Run the validation
           python3 validate.py
+        
