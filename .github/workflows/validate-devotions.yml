@@ -8,15 +8,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
       - name: Install dependencies
-        run: pip install jq jsonschema
+        run: |
+          pip install jq jsonschema
 
       - name: Snapshot — show key values from first array element
         run: |
@@ -27,25 +33,7 @@ jobs:
           echo "date\tcycle\tweekdayCycle"
           jq -r '.[0] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
 
-      - name: Validate JSON against schema
+      - name: Run JSON Schema validation
         run: |
-          if [ ! -s public/devotions.json ]; then
-            echo "public/devotions.json is missing or empty; skipping validation."
-            exit 0
-          fi
-          pip install jsonschema
-          python3 -c "
-import json, pathlib, sys
-from jsonschema import validate, ValidationError
-schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
-try:
-    data = json.loads(pathlib.Path('public/devotions.json').read_text())
-    validate(instance=data, schema=schema)
-    print('public/devotions.json is valid')
-except ValidationError as e:
-    print('Validation error:', e.message)
-    sys.exit(1)
-except Exception as e:
-    print('Error:', e)
-    sys.exit(1)
-"
+          chmod +x scripts/validate_devotions_advanced.py
+          ./scripts/validate_devotions_advanced.py
