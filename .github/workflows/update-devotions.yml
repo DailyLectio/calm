@@ -7,7 +7,7 @@ on:
 
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-  MODEL:            "perplexity-2023.09.30"
+  MODEL:            "perplexity/sonar"
   MAX_TOKENS:       1500
   TRIM_CHARS:       4000
 
