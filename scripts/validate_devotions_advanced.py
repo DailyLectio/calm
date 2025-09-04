@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import json
 import sys
 from pathlib import Path
@@ -21,9 +22,18 @@ def validate_array(path: Path) -> int:
         print(f"[skip] {path.relative_to(ROOT)} missing or empty")
         return 0
 
-    raw = json.loads(path.read_text(encoding="utf-8"))
-    data = raw if isinstance(raw, list) else ([raw] if isinstance(raw, dict) else [])
-    if not isinstance(data, list):
+    raw_text = path.read_text(encoding="utf-8")
+    try:
+        raw = json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        print(f"[error] {path.relative_to(ROOT)} JSON decode error: {e}")
+        return 1
+
+    if isinstance(raw, list):
+        data = raw
+    elif isinstance(raw, dict):
+        data = [raw]
+    else:
         print(f"[error] {path.relative_to(ROOT)} must be JSON object or array")
         return 1
 
@@ -38,12 +48,14 @@ def validate_array(path: Path) -> int:
             errors += 1
 
     if errors == 0:
-        print(f"[ok] {path.relative_to(ROOT)} valid ({len(data)} entr{'y' if len(data)==1 else 'ies'})")
+        count = len(data)
+        noun = "entry" if count == 1 else "entries"
+        print(f"[ok] {path.relative_to(ROOT)} valid ({count} {noun})")
+
     return 1 if errors else 0
 
 def main():
     exit_code = 0
-    # Validate both JSON outputs
     exit_code |= validate_array(ROOT / "public" / "devotions.json")
     exit_code |= validate_array(ROOT / "public" / "devotions-full.json")
     sys.exit(exit_code)
