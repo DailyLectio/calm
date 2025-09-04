@@ -20,14 +20,19 @@ jobs:
       # Task 1
       - name: Fetch raw exegesis (Task 1)
         run: |
-          cat << 'EOF' > payload1.json
+          # Use unquoted here-doc so variables expand
+          cat << EOF > payload1.json
           {
             "prompt": "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day’s reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \"Detailed Scriptural Exegesis:\" and write an in-depth, paragraph-length exegesis of the scriptural passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.",
             "model":    "${MODEL}",
             "max_tokens": ${MAX_TOKENS}
           }
           EOF
+
+          # Validate JSON structure before sending
           jq . payload1.json
+
+          # Call the API
           curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
