@@ -50,7 +50,6 @@ jobs:
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       # Task 2: Detailed Exegesis → public/devotions-full.json
-      # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
           # Build and send payload
@@ -79,6 +78,10 @@ jobs:
             | sed -E '1s/^``````$//' \
             > public/devotions-full.json
 
+          # Wrap in array
+          jq -s . public/devotions-full.json > public/devotions-full.tmp.json
+          mv public/devotions-full.tmp.json public/devotions-full.json
+
       # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
         run: |
@@ -104,6 +107,10 @@ jobs:
           jq -r '.choices[0].message.content' resp3.json \
             | sed -E '1s/^``````$//' \
             > public/devotions.json
+
+          # Wrap in array
+          jq -s . public/devotions.json > public/devotions.tmp.json
+          mv public/devotions.tmp.json public/devotions.json
 
       - name: Feed JSON (Task 3)
         run: |
