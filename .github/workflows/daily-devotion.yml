@@ -26,38 +26,42 @@ jobs:
           from datetime import datetime
           from zoneinfo import ZoneInfo
 
-          # Load weekly feed
           src = pathlib.Path("public/weeklyfeed.json")
           data = json.loads(src.read_text(encoding="utf-8"))
 
-          # Compute today in App TZ
           tz = ZoneInfo("America/New_York")
           today = datetime.now(tz).date()
 
-          # Parse ISO dates
           def parse_iso(s):
               try:
                   return datetime.fromisoformat(s).date()
               except:
                   return None
 
-          # Map dates to entries
-          by_date = { parse_iso(item.get("date","")): item for item in data if parse_iso(item.get("date","")) }
+          by_date = {
+              parse_iso(item.get("date","")): item
+              for item in data
+              if parse_iso(item.get("date",""))
+          }
 
-          # Pick today's entry or most recent past
           if today in by_date:
               entry = by_date[today]
           else:
               past = [d for d in by_date if d <= today]
               entry = by_date[max(past)] if past else list(by_date.values())[-1]
 
-          # Write summary JSON
+          # Wrap in arrays to satisfy schema
           out_summary = pathlib.Path("public/devotions.json")
-          out_summary.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
+          out_summary.write_text(
+              json.dumps([entry], ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
 
-          # Placeholder full JSON (copy summary or expand later)
           out_full = pathlib.Path("public/devotions-full.json")
-          out_full.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
+          out_full.write_text(
+              json.dumps([entry], ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
 
           print(f"Wrote daily devotions for {entry['date']}")
           PY
@@ -69,7 +73,9 @@ jobs:
           import json, pathlib, sys
           from jsonschema import validate, ValidationError
 
-          schema = json.loads(pathlib.Path("schemas/devotion.schema.json").read_text())
+          schema = json.loads(
+              pathlib.Path("schemas/devotion.schema.json").read_text()
+          )
           errors = False
 
           for file in ["public/devotions.json", "public/devotions-full.json"]:
@@ -89,8 +95,8 @@ jobs:
         run: |
           today=$(date -u +'%Y-%m-%d')
           mkdir -p archive/public/daily/$today
-          mv public/devotions.json archive/public/daily/$today/ || true
-          mv public/devotions-full.json archive/public/daily/$today/ || true
+          mv public/devotions.json        archive/public/daily/$today/ || true
+          mv public/devotions-full.json   archive/public/daily/$today/ || true
 
       - name: Commit & push changes
         run: |
