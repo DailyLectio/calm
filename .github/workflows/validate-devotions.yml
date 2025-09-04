@@ -6,6 +6,7 @@ on:
       - 'public/devotions.json'
       - 'public/devotions-full.json'
       - 'schemas/devotion.schema.json'
+  workflow_dispatch:
 
 jobs:
   lint:
