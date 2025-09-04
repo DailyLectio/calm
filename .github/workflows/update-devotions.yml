@@ -52,19 +52,20 @@ jobs:
       # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
-          cat << EOF > payload2.json
-          {
-            "model": "${MODEL}",
-            "messages": [
-              {
-                "role": "user",
-                "content": "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\".\\n\\n$(sed 's/"/\\"/g' raw_trimmed.txt)"
-              }
-            ],
-            "max_tokens": ${MAX_TOKENS},
-            "temperature": 0.2
-          }
-          EOF
+          RAW=$(< raw_trimmed.txt)
+          # Build payload with jq to ensure proper escaping
+          jq -n \
+            --arg model "$MODEL" \
+            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\"." \
+            --arg text "$RAW" \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temp 0.2 \
+            '{model: $model,
+              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
+              max_tokens: $max_tokens,
+              temperature: $temp
+            }' > payload2.json
+
           jq . payload2.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -75,19 +76,19 @@ jobs:
       # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
         run: |
-          cat << EOF > payload3.json
-          {
-            "model": "${MODEL}",
-            "messages": [
-              {
-                "role": "user",
-                "content": "From the following devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section.\\n\\n$(sed 's/"/\\"/g' raw_trimmed.txt)"
-              }
-            ],
-            "max_tokens": ${MAX_TOKENS},
-            "temperature": 0.2
-          }
-          EOF
+          RAW=$(< raw_trimmed.txt)
+          jq -n \
+            --arg model "$MODEL" \
+            --arg prompt "From the following devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section." \
+            --arg text "$RAW" \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temp 0.2 \
+            '{model: $model,
+              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
+              max_tokens: $max_tokens,
+              temperature: $temp
+            }' > payload3.json
+
           jq . payload3.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
