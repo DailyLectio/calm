@@ -59,32 +59,12 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install validation tools
+      - name: Install jsonschema
+        run: pip install jsonschema
+
+      - name: Run advanced JSON validation
         run: |
-          pip install jsonschema jq
-
-      - name: Validate JSONs
-        run: |
-          python - << 'EOF'
-import json, pathlib, sys
-from jsonschema import validate, ValidationError
-
-schema = json.loads(pathlib.Path("schemas/devotion.schema.json").read_text())
-
-for fname in ["public/devotions.json", "public/devotions-full.json"]:
-    path = pathlib.Path(fname)
-    if not path.exists() or path.stat().st_size == 0:
-        print(f"{fname} is missing or empty; skipping validation.")
-        continue
-
-    data = json.loads(path.read_text())
-    try:
-        validate(instance=data, schema=schema)
-        print(f"{fname} is valid")
-    except ValidationError as e:
-        print(f"{fname} invalid:", e.message)
-        sys.exit(1)
-EOF
+          ./scripts/validate_devotions_advanced.py
 
       - name: Archive and commit
         run: |
