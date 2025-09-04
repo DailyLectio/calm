@@ -2,22 +2,22 @@ name: Update Devotions via Perplexity API
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # daily at 07:00 UTC
+    - cron: '0 7 * * *'
   workflow_dispatch:
 
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
   MODEL:            "perplexity-2023.09.30"
   MAX_TOKENS:       1500
+  TRIM_CHARS:       4000   # max characters of raw_exegesis to send
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Task 1: Generate raw exegesis
+      # Task 1
       - name: Fetch raw exegesis (Task 1)
         run: |
           cat << 'EOF' > payload1.json
@@ -27,47 +27,46 @@ jobs:
             "max_tokens": ${MAX_TOKENS}
           }
           EOF
+          jq . payload1.json
           curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload1.json \
             -o task1_raw.json
 
-      - name: Debug Task 1 output
+      - name: Extract raw text (trimmed)
         run: |
-          echo "=== Task 1 JSON ==="
-          jq . task1_raw.json
-          echo "=== end ==="
+          jq -r .completion_text task1_raw.json > raw_exegesis.txt
+          head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
-      - name: Extract raw text
-        run: jq -r .completion_text task1_raw.json > raw_exegesis.txt
-
-      # Task 2: Detailed Exegesis → public/devotions-full.json
+      # Task 2
       - name: Detailed Exegesis (Task 2)
         run: |
-          cat << 'EOF' > payload2.json
+          cat << EOF > payload2.json
           {
-            "prompt": "Given the following raw devotional text, extract the entire section starting with the heading \"Detailed Scriptural Exegesis:\" and everything that follows until the end. Return it in a single JSON object with key \"exegesis\". Raw text:\n\n'''$(< raw_exegesis.txt)'''",
+            "prompt": "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the raw devotional text. Return it as a JSON object with key \"exegesis\". Raw text:\\n$(sed 's/"/\\"/g' raw_trimmed.txt)",
             "model":    "${MODEL}",
             "max_tokens": ${MAX_TOKENS}
           }
           EOF
+          jq . payload2.json
           curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload2.json \
             -o devotions-full.json
 
-      # Task 3: Feed JSON → public/devotions.json
+      # Task 3
       - name: Feed JSON (Task 3)
         run: |
-          cat << 'EOF' > payload3.json
+          cat << EOF > payload3.json
           {
-            "prompt": "From the following raw devotional text, extract only these fields and return a single JSON object with those keys: \"date\", \"quote\", \"quoteCitation\", \"firstReading\", \"psalmSummary\", \"gospelSummary\", \"saintReflection\", \"dailyPrayer\", \"theologicalSynthesis\". Do NOT include the Detailed Scriptural Exegesis section. Raw text:\n\n'''$(< raw_exegesis.txt)'''",
+            "prompt": "From the raw devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section. Raw text:\\n$(sed 's/"/\\"/g' raw_trimmed.txt)",
             "model":    "${MODEL}",
             "max_tokens": ${MAX_TOKENS}
           }
           EOF
+          jq . payload3.json
           curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -80,14 +79,12 @@ jobs:
           mv devotions-full.json public/devotions-full.json
           mv devotions.json      public/devotions.json
 
-      # --- Debug generated JSON ---
       - name: Debug generated JSON
         run: |
           echo "=== public/devotions.json ==="
-          cat public/devotions.json || echo "(file missing or empty)"
-          echo
+          cat public/devotions.json
           echo "=== public/devotions-full.json ==="
-          cat public/devotions-full.json || echo "(file missing or empty)"
+          cat public/devotions-full.json
 
       - name: Set up Python for validation
         uses: actions/setup-python@v4
