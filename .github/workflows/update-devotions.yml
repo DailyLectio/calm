@@ -108,8 +108,11 @@ jobs:
       - name: Publish JSON files
         run: |
           mkdir -p public
-          mv devotions-full.json public/devotions-full.json
-          mv devotions.json      public/devotions.json
+          # Move the generated files into public/
+          mv public/devotions-full.json public/devotions-full.json 2>/dev/null || mv devotions-full.json public/devotions-full.json
+          mv public/devotions.json      public/devotions.json      2>/dev/null || mv devotions.json      public/devotions.json
+          echo "Files in public/:"
+          ls public
 
       - name: Debug generated JSON
         run: |
