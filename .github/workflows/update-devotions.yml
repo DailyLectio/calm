@@ -1,0 +1,94 @@
+name: Update Devotions via Perplexity API
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 7am UTC daily
+  workflow_dispatch:
+
+env:
+  PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+  TASK_1_ID: ${{ secrets.TASK_1_ID }}
+  TASK_2_ID: ${{ secrets.TASK_2_ID }}
+  TASK_3_ID: ${{ secrets.TASK_3_ID }}
+
+jobs:
+  update-devotions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Task 1 - Get Raw Exegesis Text
+        id: task1
+        run: |
+          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_1_ID}/run" \
+            -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}' > task1_raw.json
+
+      - name: Extract Task 1 raw reportText
+        id: extract_task1_text
+        run: |
+          TEXT=$(jq -r .reportText < task1_raw.json)
+          echo "$TEXT" > raw_exegesis.txt
+
+      - name: Run Task 2 - Detailed Exegesis JSON
+        run: |
+          TEXT=$(cat raw_exegesis.txt)
+          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_2_ID}/run" \
+            -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"input_text\":$(jq -Rs . <<< \"$TEXT\")}" > devotions-full.json
+
+      - name: Run Task 3 - Feed JSON (Categorized Summary)
+        run: |
+          TEXT=$(cat raw_exegesis.txt)
+          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_3_ID}/run" \
+            -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"input_text\":$(jq -Rs . <<< \"$TEXT\")}" > devotions.json
+
+      - name: Save JSON files
+        run: |
+          mkdir -p public
+          mv devotions-full.json public/devotions-full.json
+          mv devotions.json public/devotions.json
+
+      - name: Install validation tools
+        run: pip install jsonschema
+
+      - name: Validate JSONs
+        run: |
+          python3 - <<PY
+import json, pathlib, sys
+from jsonschema import validate, ValidationError
+schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
+for filename in ['public/devotions.json', 'public/devotions-full.json']:
+    try:
+        data = json.loads(pathlib.Path(filename).read_text())
+        validate(instance=data, schema=schema)
+        print(f'{filename} is valid')
+    except ValidationError as e:
+        print(f'Validation error in {filename}: {e.message}')
+        sys.exit(1)
+PY
+
+      - name: Archive previous files
+        run: |
+          today=$(date -u +%F)
+          mkdir -p archive/public/daily/$today
+          cp public/devotions.json        archive/public/daily/$today/
+          cp public/devotions-full.json   archive/public/daily/$today/
+
+      - name: Commit & push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/devotions.json public/devotions-full.json archive/public/daily/$today/*
+          if ! git diff --cached --quiet; then
+            git commit -m "Daily devotion update: $today"
+            git push
+          else
+            echo 'No changes to commit.'
+          fi
