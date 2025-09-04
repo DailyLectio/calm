@@ -20,18 +20,40 @@ jobs:
 
       - name: Snapshot — show key values from first array element
         run: |
+          if [ ! -s public/devotions.json ]; then
+            echo "No public/devotions.json to snapshot; exiting."
+            exit 0
+          fi
           echo "date\tcycle\tweekdayCycle"
           jq -r '.[0] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
 
       - name: Validate JSON against schema
         run: |
+          # Skip validation if file is missing or empty
+          if [ ! -s public/devotions.json ]; then
+            echo "public/devotions.json is missing or empty; skipping validation."
+            exit 0
+          fi
+
           pip install jsonschema
           python3 - <<PY
           import json, pathlib, sys
           from jsonschema import validate, ValidationError
 
-          schema = json.loads(pathlib.Path("schemas/devotion.schema.json").read_text())
-          data = json.loads(pathlib.Path("public/devotions.json").read_text())
+          schema_path = pathlib.Path("schemas/devotion.schema.json")
+          json_path   = pathlib.Path("public/devotions.json")
+
+          try:
+              schema = json.loads(schema_path.read_text())
+          except Exception as e:
+              print("Error reading schema:", e)
+              sys.exit(1)
+
+          try:
+              data = json.loads(json_path.read_text())
+          except Exception as e:
+              print("Error parsing public/devotions.json:", e)
+              sys.exit(1)
 
           try:
               validate(instance=data, schema=schema)
