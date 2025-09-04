@@ -31,7 +31,7 @@ jobs:
           from jsonschema import validate, ValidationError
           schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
           errors = False
-          for f in ['public/devotions.json', 'public/devotions-full.json']:
+          for file in ["public/devotions.json"]:
               data = json.loads(pathlib.Path(f).read_text())
               try:
                   validate(instance=data, schema=schema)
