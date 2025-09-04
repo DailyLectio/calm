@@ -7,9 +7,8 @@ on:
 
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-  TASK_1_ID:          ${{ secrets.TASK_1_ID }}
-  TASK_2_ID:          ${{ secrets.TASK_2_ID }}
-  TASK_3_ID:          ${{ secrets.TASK_3_ID }}
+  MODEL:            "perplexity-2023.09.30"
+  MAX_TOKENS:       1500
 
 jobs:
   publish:
@@ -19,33 +18,54 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # Task 1: Generate raw exegesis
       - name: Fetch raw exegesis (Task 1)
         run: |
-          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_1_ID}/run" \
+          curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
+            -d '{
+              "prompt": "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day’s reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \\"Detailed Scriptural Exegesis:\\" and write an in-depth, paragraph-length exegesis of the scriptural passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.",
+              "model":     "'${MODEL}'",
+              "max_tokens": ${MAX_TOKENS}
+            }' \
             -o task1_raw.json
 
-      - name: Write raw text to file
+      - name: Debug Task 1 output
         run: |
-          jq -r .reportText task1_raw.json > raw_exegesis.txt
+          echo "=== Task 1 JSON ==="
+          jq . task1_raw.json
+          echo "=== end ==="
 
-      - name: Generate full JSON (Task 2)
+      - name: Extract raw text
+        run: jq -r .completion_text task1_raw.json > raw_exegesis.txt
+
+      # Task 2: Detailed Exegesis → public/devotions-full.json
+      - name: Detailed Exegesis (Task 2)
         run: |
-          TEXT=$(jq -Rs . < raw_exegesis.txt)
-          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_2_ID}/run" \
+          RAW=$(< raw_exegesis.txt)
+          curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d "{\"input_text\":$TEXT}" \
+            -d '{
+              "prompt": "Given the following raw devotional text, extract the entire section starting with the heading \\"Detailed Scriptural Exegesis:\\" and everything that follows until the end. Return it in a single JSON object with key \\"exegesis\\". Raw text:\\n\\n'''${RAW}'''",
+              "model":     "'${MODEL}'",
+              "max_tokens": ${MAX_TOKENS}
+            }' \
             -o devotions-full.json
 
-      - name: Generate summary JSON (Task 3)
+      # Task 3: Feed JSON → public/devotions.json
+      - name: Feed JSON (Task 3)
         run: |
-          TEXT=$(jq -Rs . < raw_exegesis.txt)
-          curl -s -X POST "https://api.perplexity.ai/tasks/${TASK_3_ID}/run" \
+          RAW=$(< raw_exegesis.txt)
+          curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d "{\"input_text\":$TEXT}" \
+            -d '{
+              "prompt": "From the following raw devotional text, extract only these fields and return a single JSON object with those keys: \\"date\\", \\"quote\\", \\"quoteCitation\\", \\"firstReading\\", \\"psalmSummary\\", \\"gospelSummary\\", \\"saintReflection\\", \\"dailyPrayer\\", \\"theologicalSynthesis\\". Do NOT include the Detailed Scriptural Exegesis section. Raw text:\\n\\n'''${RAW}'''",
+              "model":     "'${MODEL}'",
+              "max_tokens": ${MAX_TOKENS}
+            }' \
             -o devotions.json
 
       - name: Publish JSON files
@@ -54,17 +74,16 @@ jobs:
           mv devotions-full.json public/devotions-full.json
           mv devotions.json      public/devotions.json
 
-      - name: Set up Python
+      - name: Set up Python for validation
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Install jsonschema
+      - name: Install validation tools
         run: pip install jsonschema
 
       - name: Run advanced JSON validation
-        run: |
-          ./scripts/validate_devotions_advanced.py
+        run: ./scripts/validate_devotions_advanced.py
 
       - name: Archive and commit
         run: |
@@ -72,11 +91,9 @@ jobs:
           mkdir -p archive/public/daily/$today
           cp public/devotions.json        archive/public/daily/$today/
           cp public/devotions-full.json   archive/public/daily/$today/
-
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/devotions*.json archive/public/daily/$today/*
-
           if ! git diff --cached --quiet; then
             git commit -m "Daily devotions: $today"
             git push
