@@ -31,7 +31,8 @@ jobs:
           data = json.loads(src.read_text(encoding="utf-8"))
 
           # Compute today in App TZ
-          today = datetime.now(ZoneInfo("America/New_York")).date()
+          tz = ZoneInfo("America/New_York")
+          today = datetime.now(tz).date()
 
           # Parse ISO dates
           def parse_iso(s):
@@ -47,18 +48,18 @@ jobs:
           if today in by_date:
               entry = by_date[today]
           else:
-              past_dates = [d for d in by_date if d <= today]
-              entry = by_date[max(past_dates)] if past_dates else list(by_date.values())[-1]
+              past = [d for d in by_date if d <= today]
+              entry = by_date[max(past)] if past else list(by_date.values())[-1]
 
           # Write summary JSON
           out_summary = pathlib.Path("public/devotions.json")
           out_summary.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
 
-          # Create placeholder full JSON
+          # Placeholder full JSON (copy summary or expand later)
           out_full = pathlib.Path("public/devotions-full.json")
-          out_full.write_text("{}", encoding="utf-8")
+          out_full.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
 
-          print(f"Wrote summary for {entry['date']}")
+          print(f"Wrote daily devotions for {entry['date']}")
           PY
 
       - name: Validate JSON files against schema
