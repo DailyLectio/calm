@@ -2,25 +2,26 @@ name: Update Devotions via Perplexity API
 
 on:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '0 7 * * *'  # daily at 07:00 UTC
   workflow_dispatch:
 
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
   MODEL:            "perplexity-2023.09.30"
   MAX_TOKENS:       1500
-  TRIM_CHARS:       4000   # max characters of raw_exegesis to send
+  TRIM_CHARS:       4000
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      # Task 1
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Task 1: Generate raw exegesis
       - name: Fetch raw exegesis (Task 1)
         run: |
-          # Use unquoted here-doc so variables expand
           cat << EOF > payload1.json
           {
             "prompt": "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day’s reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \"Detailed Scriptural Exegesis:\" and write an in-depth, paragraph-length exegesis of the scriptural passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.",
@@ -28,11 +29,7 @@ jobs:
             "max_tokens": ${MAX_TOKENS}
           }
           EOF
-
-          # Validate JSON structure before sending
           jq . payload1.json
-
-          # Call the API
           curl -s https://api.perplexity.ai/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -44,7 +41,7 @@ jobs:
           jq -r .completion_text task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
-      # Task 2
+      # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
           cat << EOF > payload2.json
@@ -61,7 +58,7 @@ jobs:
             -d @payload2.json \
             -o devotions-full.json
 
-      # Task 3
+      # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
         run: |
           cat << EOF > payload3.json
@@ -87,9 +84,10 @@ jobs:
       - name: Debug generated JSON
         run: |
           echo "=== public/devotions.json ==="
-          cat public/devotions.json
+          cat public/devotions.json || echo "(missing or empty)"
+          echo
           echo "=== public/devotions-full.json ==="
-          cat public/devotions-full.json
+          cat public/devotions-full.json || echo "(missing or empty)"
 
       - name: Set up Python for validation
         uses: actions/setup-python@v4
