@@ -19,10 +19,10 @@ jobs:
       - name: Install dependencies
         run: pip install jq jsonschema
 
-      - name: Snapshot — show key values from single object
+            - name: Snapshot — show key values from first array element
         run: |
           echo "date\tcycle\tweekdayCycle"
-          jq -r '"\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
+          jq -r '.[0] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
 
       - name: Validate JSON files against schema
         run: |
