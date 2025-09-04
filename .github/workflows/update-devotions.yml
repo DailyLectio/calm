@@ -105,14 +105,27 @@ jobs:
             | sed -E '1s/^``````$//' \
             > public/devotions.json
 
-      - name: Publish JSON files
+      - name: Feed JSON (Task 3)
         run: |
-          mkdir -p public
-          # Move the generated files into public/
-          mv public/devotions-full.json public/devotions-full.json 2>/dev/null || mv devotions-full.json public/devotions-full.json
-          mv public/devotions.json      public/devotions.json      2>/dev/null || mv devotions.json      public/devotions.json
-          echo "Files in public/:"
-          ls public
+          RAW=$(< raw_trimmed.txt)
+          jq -n \
+            --arg model "$MODEL" \
+            --arg prompt "From the following devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section." \
+            --arg text "$RAW" \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temp 0.2 \
+            '{model: $model,
+              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
+              max_tokens: $max_tokens,
+              temperature: $temp
+            }' > payload3.json
+
+          jq . payload3.json
+          curl -s https://api.perplexity.ai/chat/completions \
+            -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d @payload3.json \
+            -o devotions.json
 
       - name: Debug generated JSON
         run: |
