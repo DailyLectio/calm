@@ -29,36 +29,31 @@ jobs:
 
       - name: Validate JSON against schema
         run: |
-          # Skip validation if file is missing or empty
           if [ ! -s public/devotions.json ]; then
             echo "public/devotions.json is missing or empty; skipping validation."
             exit 0
           fi
-
           pip install jsonschema
-          python3 - <<PY
-          import json, pathlib, sys
-          from jsonschema import validate, ValidationError
+          cat > validate.py << 'EOF'
+import json
+import pathlib
+import sys
+from jsonschema import validate, ValidationError
 
-          schema_path = pathlib.Path("schemas/devotion.schema.json")
-          json_path   = pathlib.Path("public/devotions.json")
+schema = json.loads(pathlib.Path('schemas/devotion.schema.json').read_text())
 
-          try:
-              schema = json.loads(schema_path.read_text())
-          except Exception as e:
-              print("Error reading schema:", e)
-              sys.exit(1)
+try:
+    data = json.loads(pathlib.Path('public/devotions.json').read_text())
+except Exception as e:
+    print("Failed to load JSON:", e)
+    sys.exit(1)
 
-          try:
-              data = json.loads(json_path.read_text())
-          except Exception as e:
-              print("Error parsing public/devotions.json:", e)
-              sys.exit(1)
+try:
+    validate(instance=data, schema=schema)
+    print("public/devotions.json is valid")
+except ValidationError as e:
+    print("Validation error:", e.message)
+    sys.exit(1)
+EOF
 
-          try:
-              validate(instance=data, schema=schema)
-              print("public/devotions.json: valid")
-          except ValidationError as e:
-              print("public/devotions.json: validation error:", e.message)
-              sys.exit(1)
-          PY
+          python3 validate.py
