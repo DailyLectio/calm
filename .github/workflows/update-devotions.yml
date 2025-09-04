@@ -50,10 +50,11 @@ jobs:
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       # Task 2: Detailed Exegesis → public/devotions-full.json
+      # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
+          # Build and send payload
           RAW=$(< raw_trimmed.txt)
-          # Build payload with jq to ensure proper escaping
           jq -n \
             --arg model "$MODEL" \
             --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\"." \
@@ -66,12 +67,17 @@ jobs:
               temperature: $temp
             }' > payload2.json
 
-          jq . payload2.json
+          # Call the API
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload2.json \
-            -o devotions-full.json
+            -o resp2.json
+
+          # Extract the JSON inside the code fences
+          jq -r '.choices[0].message.content' resp2.json \
+            | sed -E '1s/^``````$//' \
+            > public/devotions-full.json
 
       # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
@@ -89,12 +95,15 @@ jobs:
               temperature: $temp
             }' > payload3.json
 
-          jq . payload3.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload3.json \
-            -o devotions.json
+            -o resp3.json
+
+          jq -r '.choices[0].message.content' resp3.json \
+            | sed -E '1s/^``````$//' \
+            > public/devotions.json
 
       - name: Publish JSON files
         run: |
