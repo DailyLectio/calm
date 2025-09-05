@@ -1,68 +1,77 @@
 name: Update Devotions via Perplexity API
-
-on:
+'on':
   schedule:
-    - cron: '0 7 * * *'  # daily at 07:00 UTC
-  workflow_dispatch:
-
+    - cron: 0 7 * * *
+  workflow_dispatch: null
 env:
-  PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-  MODEL: "sonar"
+  PERPLEXITY_API_KEY: '${{ secrets.PERPLEXITY_API_KEY }}'
+  MODEL: sonar
   MAX_TOKENS: 1500
   TRIM_CHARS: 4000
-
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # Task 1: Generate raw exegesis
       - name: Fetch raw exegesis (Task 1)
-        run: |
+        run: >
+          cat > user1.txt << 'EOF'
+
+          Provide a daily exegesis of the Roman Catholic readings, psalms, and
+          saint of the day; begin with a single summary quote with citation
+          (e.g. Gn 1:15), followed by a theological summary of the day's
+          reflections and applications, then a 3–5 sentence summary of each
+          category (first readings, psalm, gospel, saint). After that, include a
+          section titled "Detailed Scriptural Exegesis:" and write an in-depth,
+          paragraph-length exegesis of the passages with historical context. End
+          with an original summary prayer encompassing the day's overarching
+          spiritual messages.
+
+          EOF
+
+
           jq -n \
             --arg model "$MODEL" \
-            --arg content "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \"Detailed Scriptural Exegesis:\" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages." \
-            --argjson max_tokens ${MAX_TOKENS:-1500} \
-            --argjson temp 0.2 \
-            --argjson search_domains '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
+            --rawfile content user1.txt \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temperature 0.2 \
+            --argjson search_domain_filter '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
             --arg search_recency "week" \
             '{model: $model,
               messages: [{role:"user", content: $content}],
               max_tokens: $max_tokens,
-              temperature: $temp,
-              search_domain_filter: $search_domains,
+              temperature: $temperature,
+              search_domain_filter: $search_domain_filter,
               search_recency_filter: $search_recency
             }' > payload1.json
 
-          jq . payload1.json
+          jq empty payload1.json
+
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload1.json \
             -o task1_raw.json
-
       - name: Extract raw text (trimmed)
         run: |
           jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
-
-      # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
-          RAW=$(< raw_trimmed.txt)
+          cat raw_trimmed.txt > user2.txt
           jq -n \
             --arg model "$MODEL" \
-            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\"." \
-            --arg text "$RAW" \
-            --argjson max_tokens ${MAX_TOKENS:-1500} \
-            --argjson temp 0.2 \
+            --rawfile text user2.txt \
+            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it. Return as {\"exegesis\": ... }." \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temperature 0.2 \
             '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
-              temperature: $temp
+              temperature: $temperature
             }' > payload2.json
 
+          jq empty payload2.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -75,23 +84,22 @@ jobs:
 
           jq -s . public/devotions-full.json > public/devotions-full.tmp.json
           mv public/devotions-full.tmp.json public/devotions-full.json
-
-      # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
         run: |
-          RAW=$(< raw_trimmed.txt)
+          cat raw_trimmed.txt > user3.txt
           jq -n \
             --arg model "$MODEL" \
-            --arg prompt "From the following devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section." \
-            --arg text "$RAW" \
-            --argjson max_tokens ${MAX_TOKENS:-1500} \
-            --argjson temp 0.2 \
+            --rawfile text user3.txt \
+            --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
+            --argjson max_tokens $MAX_TOKENS \
+            --argjson temperature 0.2 \
             '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
-              temperature: $temp
+              temperature: $temperature
             }' > payload3.json
 
+          jq empty payload3.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -104,33 +112,21 @@ jobs:
 
           jq -s . public/devotions.json > public/devotions.tmp.json
           mv public/devotions.tmp.json public/devotions.json
-
-      # Publish JSON files
       - name: Publish JSON files
         run: |
           mkdir -p public
-          echo "Files in public/:"
-          ls public
-
-      # Debug generated JSON
-      - name: Debug generated JSON
+          ls -l public
+      - name: Debug JSON
         run: |
-          echo "=== public/devotions.json ==="
-          cat public/devotions.json || echo "(missing)"
+          cat public/devotions.json || echo "devotions.json missing"
           echo
-          echo "=== public/devotions-full.json ==="
-          cat public/devotions-full.json || echo "(missing)"
-
-      # Validate JSON
-      - name: Set up Python for validation
-        uses: actions/setup-python@v4
+          cat public/devotions-full.json || echo "devotions-full.json missing"
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: 3.x
       - run: pip install jsonschema
-      - name: Run advanced JSON validation
+      - name: Run JSON validation
         run: ./scripts/validate_devotions_advanced.py
-
-      # Archive & commit
       - name: Archive and commit
         run: |
           today=$(date -u +%F)
