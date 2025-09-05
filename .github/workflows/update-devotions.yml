@@ -86,12 +86,12 @@ jobs:
 
       - name: Debug raw exegesis JSON
         run: |
-          jq -r '.choices.message.content' resp2.json | head -20
+          jq -r '.choices[0].message.content' resp2.json | head -20
 
       - name: Build public/devotions-full.json
         run: |
-          jq -r '.choices[0].message.content' resp2.json
-            | sed -E '1s/^``````$//'
+          jq -r '.choices[0].message.content' resp2.json \
+            | sed -E '1s/^``````$//' \
             | jq . \
             | jq -s '.' \
             > public/devotions-full.json
