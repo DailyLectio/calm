@@ -17,15 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Task 1: Fetch raw exegesis
       - name: Debug MAX_TOKENS (Task 1)
-        run: echo "Task 1 MAX_TOKENS is '$MAX_TOKENS'"
+        run: echo "Task 1 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
 
       - name: Fetch raw exegesis (Task 1)
         run: |
           cat > user1.txt << 'EOF'
-          Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3-5 sentence summary of each category (first readings, psalm, gospel, saint). After that, include a section titled "Detailed Scriptural Exegesis:" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.
+          Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel, saint). After that, include a section titled "Detailed Scriptural Exegesis:" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.
           EOF
 
+          # Build payload and validate
           jq -n \
             --arg model "$MODEL" \
             --rawfile content user1.txt \
@@ -33,16 +35,16 @@ jobs:
             --argjson temperature 0.2 \
             --argjson search_domain_filter '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
             --arg search_recency "week" \
-            '{
-              model: $model,
+            '{model: $model,
               messages: [{role:"user", content: $content}],
               max_tokens: $max_tokens,
               temperature: $temperature,
               search_domain_filter: $search_domain_filter,
               search_recency_filter: $search_recency
-            }' > payload1.json
+            }' \
+          | jq . > payload1.json
 
-          jq empty payload1.json
+          # Call API
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -54,76 +56,71 @@ jobs:
           jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
+      # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Debug MAX_TOKENS (Task 2)
-        run: echo "Task 2 MAX_TOKENS is '$MAX_TOKENS'"
+        run: echo "Task 2 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
 
       - name: Detailed Exegesis (Task 2)
         run: |
           mkdir -p public
-          cat raw_trimmed.txt > user2.txt
           jq -n \
             --arg model "$MODEL" \
-            --rawfile text user2.txt \
-            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it. Return as {\"exegesis\": \"...\"}." \
+            --rawfile text raw_trimmed.txt \
+            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it as {\"exegesis\": …}." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{
-              model: $model,
+            '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
-            }' > payload2.json
+            }' \
+          | jq . > payload2.json
 
-          jq empty payload2.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload2.json \
             -o resp2.json
 
+          # Strip fences, validate, wrap in array
           jq -r '.choices[0].message.content' resp2.json \
-            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
-            > public/devotions-full.json
+            | sed -E '1s/^``````$//' \
+            | jq . | jq -s . > public/devotions-full.json
 
-          jq -s . public/devotions-full.json > public/devotions-full.tmp.json
-          mv public/devotions-full.tmp.json public/devotions-full.json
-
+      # Task 3: Feed JSON → public/devotions.json
       - name: Debug MAX_TOKENS (Task 3)
-        run: echo "Task 3 MAX_TOKENS is '$MAX_TOKENS'"
+        run: echo "Task 3 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
 
       - name: Feed JSON (Task 3)
         run: |
-          cat raw_trimmed.txt > user3.txt
+          mkdir -p public
           jq -n \
             --arg model "$MODEL" \
-            --rawfile text user3.txt \
-            --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
+            --rawfile text raw_trimmed.txt \
+            --arg prompt "Extract these fields in order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{
-              model: $model,
+            '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
-            }' > payload3.json
+            }' \
+          | jq . > payload3.json
 
-          jq empty payload3.json
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload3.json \
             -o resp3.json
 
+          # Strip fences, validate, wrap in array
           jq -r '.choices[0].message.content' resp3.json \
-            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
-            > public/devotions.json
+            | sed -E '1s/^``````$//' \
+            | jq . | jq -s . > public/devotions.json
 
-          jq -s . public/devotions.json > public/devotions.tmp.json
-          mv public/devotions.tmp.json public/devotions.json
-
+      # Publish & Debug
       - name: Publish JSON files
         run: |
-          mkdir -p public
           ls -l public
 
       - name: Debug JSON
