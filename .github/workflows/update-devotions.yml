@@ -23,7 +23,7 @@ jobs:
           jq -n \
             --arg model "$MODEL" \
             --arg content "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \"Detailed Scriptural Exegesis:\" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages." \
-            --argjson max_tokens "${MAX_TOKENS:-1500}" \
+            --argjson max_tokens ${MAX_TOKENS:-1500} \
             --argjson temp 0.2 \
             --argjson search_domains '["wikipedia.org","nature.com","-reddit.com"]' \
             --arg search_recency "week" \
@@ -55,7 +55,7 @@ jobs:
             --arg model "$MODEL" \
             --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\"." \
             --arg text "$RAW" \
-            --argjson max_tokens "${MAX_TOKENS:-1500}" \
+            --argjson max_tokens ${MAX_TOKENS:-1500} \
             --argjson temp 0.2 \
             '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
@@ -84,7 +84,7 @@ jobs:
             --arg model "$MODEL" \
             --arg prompt "From the following devotional text, extract and return these fields in a JSON object: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis. Do NOT include the Detailed Scriptural Exegesis section." \
             --arg text "$RAW" \
-            --argjson max_tokens "${MAX_TOKENS:-1500}" \
+            --argjson max_tokens ${MAX_TOKENS:-1500} \
             --argjson temp 0.2 \
             '{model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
@@ -105,7 +105,7 @@ jobs:
           jq -s . public/devotions.json > public/devotions.tmp.json
           mv public/devotions.tmp.json public/devotions.json
 
-      # Publish (ensure files exist under public/)
+      # Publish JSON files
       - name: Publish JSON files
         run: |
           mkdir -p public
