@@ -90,11 +90,10 @@ jobs:
 
       - name: Build public/devotions-full.json
         run: |
-          EX=$(jq -r '.choices[0].message.content' resp2.json)
-          jq -n --arg ex "$EX" '[{exegesis:$ex}]' > public/devotions-full.json
-            | sed '/^```
-            | jq . \
-            | jq -s '.' \
+          # Capture raw exegesis (no backticks, jq -r strips quotes)
+          EX="$(jq -r '.choices[0].message.content' resp2.json)"
+          # Write JSON array with an object containing exegesis
+          printf '[{"exegesis":%s}]' "$(jq -Rs . <<<"$EX")" \
             > public/devotions-full.json
 
       - name: Feed JSON (Task 3)
