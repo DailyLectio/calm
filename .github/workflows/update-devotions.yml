@@ -150,11 +150,8 @@ jobs:
       - name: Archive and commit devotions data
         run: |
           set -e
-
-          # Always make sure we're up-to-date FIRST THING
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase
 
           today=$(date -u +%F)
           mkdir -p archive/public/daily/$today
