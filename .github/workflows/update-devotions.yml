@@ -17,10 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug MAX_TOKENS (Task 1)
-        run: |
-          echo "Task 1 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
-
       - name: Fetch raw exegesis (Task 1)
         run: |
           cat > user1.txt << 'EOF'
@@ -54,15 +50,18 @@ jobs:
           jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
-      - name: Debug MAX_TOKENS (Task 2)
+      - name: Debug trimmed raw text
         run: |
-          echo "Task 2 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
+          echo "=== raw_trimmed.txt ==="
+          if [[ -s raw_trimmed.txt ]]; then
+            head -n 20 raw_trimmed.txt
+          else
+            echo "(raw_trimmed.txt is empty)"
+          fi
 
       - name: Detailed Exegesis (Task 2)
         run: |
           mkdir -p public
-          
-          # Build and call API
           jq -n \
             --arg model "$MODEL" \
             --rawfile text raw_trimmed.txt \
@@ -73,8 +72,7 @@ jobs:
               messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
-            }' \
-          > payload2.json
+            }' > payload2.json
 
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -82,16 +80,18 @@ jobs:
             -d @payload2.json \
             -o resp2.json
 
-          # Extract, strip fences, validate, and wrap in array
+      - name: Debug resp2.json
+        run: |
+          echo "=== resp2.json ==="
+          jq . resp2.json || cat resp2.json
+
+      - name: Build public/devotions-full.json
+        run: |
           jq -r '.choices[0].message.content' resp2.json \
             | sed -E '1s/^``````$//' \
             | jq . \
             | jq -s '.' \
             > public/devotions-full.json
-
-      - name: Debug MAX_TOKENS (Task 3)
-        run: |
-          echo "Task 3 MAX_TOKENS is '${MAX_TOKENS:-unset}'"
 
       - name: Feed JSON (Task 3)
         run: |
@@ -103,11 +103,10 @@ jobs:
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
             '{model: $model,
-              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
+              messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
-            }' \
-          | jq . > payload3.json
+            }' > payload3.json
 
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -115,9 +114,18 @@ jobs:
             -d @payload3.json \
             -o resp3.json
 
+      - name: Debug resp3.json
+        run: |
+          echo "=== resp3.json ==="
+          jq . resp3.json || cat resp3.json
+
+      - name: Build public/devotions.json
+        run: |
           jq -r '.choices[0].message.content' resp3.json \
             | sed -E '1s/^``````$//' \
-            | jq . | jq -s . > public/devotions.json
+            | jq . \
+            | jq -s '.' \
+            > public/devotions.json
 
       - name: Publish JSON files
         run: |
@@ -125,9 +133,11 @@ jobs:
 
       - name: Debug JSON
         run: |
-          cat public/devotions.json || echo "devotions.json missing"
+          echo "=== public/devotions.json ==="
+          cat public/devotions.json || echo "(missing)"
           echo
-          cat public/devotions-full.json || echo "devotions-full.json missing"
+          echo "=== public/devotions-full.json ==="
+          cat public/devotions-full.json || echo "(missing)"
 
       - uses: actions/setup-python@v4
         with:
