@@ -123,8 +123,10 @@ jobs:
           cat public/devotions-full.json || echo "(missing)"
 
       # Validate
-      - uses: actions/setup-python@v4
-        with: python-version: '3.x'
+      - name: Set up Python for validation
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
       - run: pip install jsonschema
       - name: Run advanced JSON validation
         run: ./scripts/validate_devotions_advanced.py
