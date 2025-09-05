@@ -61,18 +61,20 @@ jobs:
       - name: Detailed Exegesis (Task 2)
         run: |
           mkdir -p public
+          
+          # Build and call API
           jq -n \
             --arg model "$MODEL" \
             --rawfile text raw_trimmed.txt \
-            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it. Respond ONLY with a JSON array of strings, each entry being a paragraph of exegesis." \
+            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it as a JSON object with key \"exegesis\"." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
             '{model: $model,
-              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
+              messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' \
-          | jq . > payload2.json
+          > payload2.json
 
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -80,9 +82,12 @@ jobs:
             -d @payload2.json \
             -o resp2.json
 
+          # Extract, strip fences, validate, and wrap in array
           jq -r '.choices[0].message.content' resp2.json \
             | sed -E '1s/^``````$//' \
-            | jq . > public/devotions-full.json
+            | jq . \
+            | jq -s '.' \
+            > public/devotions-full.json
 
       - name: Debug MAX_TOKENS (Task 3)
         run: |
