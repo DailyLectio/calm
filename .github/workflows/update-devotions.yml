@@ -90,8 +90,8 @@ jobs:
 
       - name: Build public/devotions-full.json
         run: |
-          jq -r '.choices.message.content' resp2.json \
-            | sed -E '1s/^```json\s*//; $s/\s*```
+          jq -r '.choices[0].message.content' resp2.json
+            | sed -E '1s/^``````$//'
             | jq . \
             | jq -s '.' \
             > public/devotions-full.json
