@@ -20,20 +20,19 @@ jobs:
       # Task 1: Generate raw exegesis
       - name: Fetch raw exegesis (Task 1)
         run: |
-          jq -n \
-            --arg model "$MODEL" \
-            --arg content "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day’s reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \"Detailed Scriptural Exegesis:\" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages." \
-            --argjson max_tokens $MAX_TOKENS \
-            --argjson temp 0.2 \
-            --argjson search_domains '["wikipedia.org","nature.com","-reddit.com"]' \
-            --arg search_recency "week" \
-            '{model: $model,
-              messages: [{role:"user", content: $content}],
-              max_tokens: $max_tokens,
-              temperature: $temp,
-              search_domain_filter: $search_domains,
-              search_recency_filter: $search_recency
-            }' > payload1.json
+          cat << EOF > payload1.json
+          {
+            "model": "${MODEL}",
+            "messages": [{
+              "role": "user",
+              "content": "Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day’s reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel saint). After that, include a section titled \\\"Detailed Scriptural Exegesis:\\\" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day’s overarching spiritual messages."
+            }],
+            "max_tokens": ${MAX_TOKENS},
+            "temperature": 0.2,
+            "search_domain_filter": ["wikipedia.org","nature.com","-reddit.com"],
+            "search_recency_filter": "week"
+          }
+          EOF
 
           jq . payload1.json
           curl -s https://api.perplexity.ai/chat/completions \
@@ -47,10 +46,11 @@ jobs:
           jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
-      # Task 2: Detailed Exegesis
+            # Task 2: Detailed Exegesis → public/devotions-full.json
       - name: Detailed Exegesis (Task 2)
         run: |
           RAW=$(< raw_trimmed.txt)
+          # Build and send payload
           jq -n \
             --arg model "$MODEL" \
             --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it from the following devotional text. Return it as a JSON object with key \"exegesis\"." \
@@ -61,7 +61,8 @@ jobs:
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temp
-            }' > payload2.json
+            }' \
+            > payload2.json
 
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -69,14 +70,16 @@ jobs:
             -d @payload2.json \
             -o resp2.json
 
+          # Strip code fences and write
           jq -r '.choices[0].message.content' resp2.json \
             | sed -E '1s/^``````$//' \
             > public/devotions-full.json
 
+          # Wrap in an array for validation
           jq -s . public/devotions-full.json > public/devotions-full.tmp.json
           mv public/devotions-full.tmp.json public/devotions-full.json
 
-      # Task 3: Feed JSON
+      # Task 3: Feed JSON → public/devotions.json
       - name: Feed JSON (Task 3)
         run: |
           RAW=$(< raw_trimmed.txt)
@@ -90,7 +93,8 @@ jobs:
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temp
-            }' > payload3.json
+            }' \
+            > payload3.json
 
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
@@ -145,3 +149,4 @@ jobs:
           else
             echo "No changes."
           fi
+
