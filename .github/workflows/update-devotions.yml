@@ -84,10 +84,14 @@ jobs:
           echo "=== resp2.json ==="
           jq . resp2.json || cat resp2.json
 
+      - name: Debug raw exegesis JSON
+        run: |
+          jq -r '.choices.message.content' resp2.json | head -20
+
       - name: Build public/devotions-full.json
         run: |
-          jq -r '.choices[0].message.content' resp2.json \
-            | sed -E '1s/^``````$//' \
+          jq -r '.choices.message.content' resp2.json \
+            | sed -E '1s/^```json\s*//; $s/\s*```
             | jq . \
             | jq -s '.' \
             > public/devotions-full.json
