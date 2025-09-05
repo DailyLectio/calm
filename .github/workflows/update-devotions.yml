@@ -22,7 +22,6 @@ jobs:
           cat > user1.txt << 'EOF'
           Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel, saint). After that, include a section titled "Detailed Scriptural Exegesis:" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.
           EOF
-
           jq -n \
             --arg model "$MODEL" \
             --rawfile content user1.txt \
@@ -30,7 +29,8 @@ jobs:
             --argjson temperature 0.2 \
             --argjson search_domain_filter '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
             --arg search_recency "week" \
-            '{model: $model,
+            '{
+              model: $model,
               messages: [{role:"user", content: $content}],
               max_tokens: $max_tokens,
               temperature: $temperature,
@@ -38,7 +38,6 @@ jobs:
               search_recency_filter: $search_recency
             }' \
           | jq . > payload1.json
-
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -68,12 +67,12 @@ jobs:
             --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it as a JSON object with key \"exegesis\"." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{model: $model,
+            '{
+              model: $model,
               messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' > payload2.json
-
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -88,7 +87,7 @@ jobs:
       - name: Build public/devotions-full.json
         run: |
           jq -r '.choices[0].message.content' resp2.json \
-            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
+            | sed -E '1s/^``````$//' \
             | jq . \
             | jq -s '.' \
             > public/devotions-full.json
@@ -102,12 +101,12 @@ jobs:
             --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{model: $model,
+            '{
+              model: $model,
               messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' > payload3.json
-
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -122,7 +121,7 @@ jobs:
       - name: Build public/devotions.json
         run: |
           jq -r '.choices[0].message.content' resp3.json \
-            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
+            | sed -E '1s/^``````$//' \
             | jq . \
             | jq -s '.' \
             > public/devotions.json
@@ -148,17 +147,23 @@ jobs:
       - name: Run JSON validation
         run: ./scripts/validate_devotions_advanced.py
 
-      - name: Archive and commit
+      - name: Archive and commit devotions data
         run: |
+          set -e
           today=$(date -u +%F)
           mkdir -p archive/public/daily/$today
-          cp public/devotions*.json archive/public/daily/$today/
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp public/devotions*.json archive/public/daily/$today/ || true
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --rebase
+
           git add public/devotions*.json archive/public/daily/$today/*
-          if ! git diff --quiet; then
+
+          if ! git diff --cached --quiet; then
             git commit -m "Daily devotions: $today"
             git push
           else
-            echo "No changes."
+            echo "No changes to commit."
           fi
