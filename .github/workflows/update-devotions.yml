@@ -1,43 +1,40 @@
 name: Update Devotions via Perplexity API
-'on':
+
+on:
   schedule:
-    - cron: 0 7 * * *
-  workflow_dispatch: null
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
 env:
-  PERPLEXITY_API_KEY: '${{ secrets.PERPLEXITY_API_KEY }}'
+  PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
   MODEL: sonar
   MAX_TOKENS: 1500
   TRIM_CHARS: 4000
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Debug MAX_TOKENS (Task 1)
+        run: echo "Task 1 MAX_TOKENS is '$MAX_TOKENS'"
+
       - name: Fetch raw exegesis (Task 1)
-        run: >
+        run: |
           cat > user1.txt << 'EOF'
-
-          Provide a daily exegesis of the Roman Catholic readings, psalms, and
-          saint of the day; begin with a single summary quote with citation
-          (e.g. Gn 1:15), followed by a theological summary of the day's
-          reflections and applications, then a 3â€“5 sentence summary of each
-          category (first readings, psalm, gospel, saint). After that, include a
-          section titled "Detailed Scriptural Exegesis:" and write an in-depth,
-          paragraph-length exegesis of the passages with historical context. End
-          with an original summary prayer encompassing the day's overarching
-          spiritual messages.
-
+          Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3-5 sentence summary of each category (first readings, psalm, gospel, saint). After that, include a section titled "Detailed Scriptural Exegesis:" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.
           EOF
-
 
           jq -n \
             --arg model "$MODEL" \
             --rawfile content user1.txt \
-            --argjson max_tokens $MAX_TOKENS \
+            --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
             --argjson search_domain_filter '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
             --arg search_recency "week" \
-            '{model: $model,
+            '{
+              model: $model,
               messages: [{role:"user", content: $content}],
               max_tokens: $max_tokens,
               temperature: $temperature,
@@ -46,26 +43,32 @@ jobs:
             }' > payload1.json
 
           jq empty payload1.json
-
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload1.json \
             -o task1_raw.json
+
       - name: Extract raw text (trimmed)
         run: |
           jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
+
+      - name: Debug MAX_TOKENS (Task 2)
+        run: echo "Task 2 MAX_TOKENS is '$MAX_TOKENS'"
+
       - name: Detailed Exegesis (Task 2)
         run: |
+          mkdir -p public
           cat raw_trimmed.txt > user2.txt
           jq -n \
             --arg model "$MODEL" \
             --rawfile text user2.txt \
-            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it. Return as {\"exegesis\": ... }." \
-            --argjson max_tokens $MAX_TOKENS \
+            --arg prompt "Extract the section starting with \"Detailed Scriptural Exegesis:\" and everything after it. Return as {\"exegesis\": \"...\"}." \
+            --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{model: $model,
+            '{
+              model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
@@ -79,11 +82,15 @@ jobs:
             -o resp2.json
 
           jq -r '.choices[0].message.content' resp2.json \
-            | sed -E '1s/^``````$//' \
+            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
             > public/devotions-full.json
 
           jq -s . public/devotions-full.json > public/devotions-full.tmp.json
           mv public/devotions-full.tmp.json public/devotions-full.json
+
+      - name: Debug MAX_TOKENS (Task 3)
+        run: echo "Task 3 MAX_TOKENS is '$MAX_TOKENS'"
+
       - name: Feed JSON (Task 3)
         run: |
           cat raw_trimmed.txt > user3.txt
@@ -91,9 +98,10 @@ jobs:
             --arg model "$MODEL" \
             --rawfile text user3.txt \
             --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
-            --argjson max_tokens $MAX_TOKENS \
+            --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature 0.2 \
-            '{model: $model,
+            '{
+              model: $model,
               messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
@@ -107,26 +115,32 @@ jobs:
             -o resp3.json
 
           jq -r '.choices[0].message.content' resp3.json \
-            | sed -E '1s/^``````$//' \
+            | sed -E '1s/^```json\s*//; $s/\s*```$//' \
             > public/devotions.json
 
           jq -s . public/devotions.json > public/devotions.tmp.json
           mv public/devotions.tmp.json public/devotions.json
+
       - name: Publish JSON files
         run: |
           mkdir -p public
           ls -l public
+
       - name: Debug JSON
         run: |
           cat public/devotions.json || echo "devotions.json missing"
           echo
           cat public/devotions-full.json || echo "devotions-full.json missing"
+
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: '3.x'
+
       - run: pip install jsonschema
+
       - name: Run JSON validation
         run: ./scripts/validate_devotions_advanced.py
+
       - name: Archive and commit
         run: |
           today=$(date -u +%F)
