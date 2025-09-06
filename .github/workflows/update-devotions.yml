@@ -14,6 +14,7 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -46,8 +47,7 @@ jobs:
 
       - name: Extract raw text (trimmed)
         run: |
-          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
-          head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
+          jq -r ".choices[0].message.content" task1_raw.json > raw_trimmed.txt
 
       - name: Debug trimmed raw text
         run: |
@@ -69,7 +69,7 @@ jobs:
             --argjson temperature 0.2 \
             '{
               model: $model,
-              messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
+              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' > payload2.json
@@ -87,14 +87,13 @@ jobs:
       - name: Debug raw exegesis JSON
         run: |
           echo "=== resp2.json choices[0].message.content ==="
-          jq -r '.choices[0].message.content' resp2.json | head -20
+          jq -r ".choices[0].message.content" resp2.json | head -20
 
       - name: Build public/devotions-full.json
         run: |
-          jq -r '.choices[0].message.content' resp2.json \
-            | grep -v '^```
+          jq -r ".choices[0].message.content" resp2.json \
+            | grep -v "^```
             | jq . \
-            | jq -s '.' \
             > public/devotions-full.json
 
       - name: Feed JSON (Task 3)
@@ -108,14 +107,10 @@ jobs:
             --argjson temperature 0.2 \
             '{
               model: $model,
-              messages:[{
-                role:"user",
-                content: ($prompt + "\n\n" + $text)
-              }],
+              messages: [{role:"user", content: ($prompt + "\n\n" + $text)}],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' > payload3.json
-
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -130,12 +125,12 @@ jobs:
       - name: Debug raw summary content
         run: |
           echo "=== resp3.json choices.message.content ==="
-          jq -r '.choices.message.content' resp3.json | head -20
+          jq -r ".choices.message.content" resp3.json | head -20
 
       - name: Build public/devotions.json
         run: |
-          jq -r '.choices.message.content' resp3.json \
-            | grep -v '^```' \
+          jq -r ".choices.message.content" resp3.json \
+            | grep -v "^```" \
             | jq . \
             > public/devotions.json
 
@@ -158,20 +153,4 @@ jobs:
       - run: pip install jsonschema
 
       - name: Run JSON validation
-        run: ./scripts/validate_devotions_advanced.py
-
-      - name: Archive and commit devotions data
-        run: |
-          set -e
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          today=$(date -u +%F)
-          mkdir -p archive/public/daily/$today
-          cp public/devotions*.json archive/public/daily/$today/ || true
-          git add public/devotions*.json archive/public/daily/$today/*
-          if ! git diff --cached --quiet; then
-            git commit -m "Daily devotions: $today"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+        run: ./scripts/validate_dev
