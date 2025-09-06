@@ -124,11 +124,9 @@ jobs:
 
       - name: Build public/devotions.json
         run: |
-          jq -r '.choices.message.content' resp3.json \
-            | sed '/^```/d' \
-            | jq . \
-            | jq -s '.' \
-            > public/devotions.json
+          jq -r '.choices[0].message.content' resp3.json | \
+            sed '/^```
+            jq . > public/devotions.json
 
       - name: Publish JSON files
         run: |
