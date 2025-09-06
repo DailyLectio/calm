@@ -46,8 +46,7 @@ jobs:
 
       - name: Extract raw text (trimmed)
         run: |
-          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
-          head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
+          jq -r '.choices[0].message.content' task1_raw.json > raw_trimmed.txt
 
       - name: Debug trimmed raw text
         run: |
@@ -103,7 +102,7 @@ jobs:
           jq -n \
             --arg model "$MODEL" \
             --rawfile text raw_trimmed.txt \
-            --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis. Return as one JSON object." \
+            --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis, usccbLink. Return as one JSON object."\
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
             --argjson temperature:0.2 \
             '{

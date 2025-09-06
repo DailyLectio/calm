@@ -1,7 +1,10 @@
-name: Update Daily Devotion (weekly → daily passthrough)
+name: Update Daily Devotion
 
 on:
-  workflow_dispatch: {}   # manual only
+  schedule:
+    # 7:00 AM Eastern ≈ 11:00 UTC
+    - cron: '0 08 * * *'
+  workflow_dispatch:
 
 jobs:
   update-devotion:
@@ -9,7 +12,7 @@ jobs:
     permissions:
       contents: write
     env:
-      APP_TZ: America/New_York
+      APP_TZ: America/New_York     # <-- one place for TZ for all steps
 
     steps:
       - name: Checkout repo (main, full history)
@@ -23,65 +26,37 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build public/devotions.json from public/weeklyfeed.json
+      # ---- Optional preflight sanity check (recommended) ----
+      # This step FAILS EARLY if today's date isn't found in public/weeklyfeed.json
+      - name: Sanity check weeklyfeed for today
+        env:
+          APP_TZ: America/New_York   # Tampa is Eastern Time; change if you prefer
         run: |
           python3 - <<'PY'
-          import json, os, pathlib
-          from datetime import datetime, date
-          try:
-              from zoneinfo import ZoneInfo
-          except Exception:
-              ZoneInfo = None
-
-          src = pathlib.Path("public/weeklyfeed.json")
-          if not src.exists():
-              raise SystemExit("ERROR: public/weeklyfeed.json not found")
-
-          data = json.loads(src.read_text(encoding="utf-8"))
-          if not isinstance(data, list):
-              raise SystemExit("ERROR: public/weeklyfeed.json must be a top-level list")
-
-          tz = os.environ.get("APP_TZ","America/New_York")
-          today = (datetime.now(ZoneInfo(tz)).date() if ZoneInfo else date.today())
-
-          def parse(x):
-              try: return datetime.fromisoformat(str(x)).date()
-              except: return None
-
-          by = {}
-          for row in data:
-              if not isinstance(row, dict): 
-                  continue
-              dts = parse(row.get("date"))
-              if dts:
-                  by[dts] = row
-
-          if not by:
-              raise SystemExit("ERROR: weeklyfeed has no valid date rows")
-
-          pick = by.get(today)
-          if pick is None:
-              past = [k for k in by if k <= today]
-              pick = by[max(past)] if past else list(by.values())[-1]
-
-          outp = pathlib.Path("public/devotions.json")
-          outp.write_text(json.dumps(pick, ensure_ascii=False, indent=2), encoding="utf-8")
-          print("[daily] wrote", outp, "for", pick.get("date"))
+          import json, os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          tz = os.environ.get("APP_TZ","UTC")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+          data = json.load(open("public/weeklyfeed.json"))
+          found = any(str(e.get("date","")).strip()==today for e in data)
+          print("tz=", tz, "today=", today, "found=", found)
+          raise SystemExit(0 if found else 1)
           PY
 
-      - name: Show public/devotions.json
-        run: head -n 60 public/devotions.json || true
+      - name: Run daily devotion update (Python)
+        env:
+          APP_TZ: America/New_York
+        run: |
+          python3 update_daily_devotion.py --tz "$APP_TZ"
 
       - name: Commit and push changes
-        if: github.ref == 'refs/heads/main'
         run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/devotions.json || true
-          if ! git diff --cached --quiet; then
-            git commit -m "Daily: publish devotions.json from weeklyfeed.json"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add public/devotions.json dist/devotions.json
+          git diff --staged --quiet || git commit -m "Daily devotion update for $(date +%Y-%m-%d)"
+          # If your repo path is different, change the owner/repo here:
+          git push https://x-access-token:${GH_PAT}@github.com/DailyLectio/calm.git HEAD:main
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
