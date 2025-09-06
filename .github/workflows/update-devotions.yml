@@ -124,8 +124,8 @@ jobs:
 
       - name: Build public/devotions.json
         run: |
-           jq -r '.choices.message.content' resp3.json | grep -v '^```' | jq . > public/devotions.json
-
+         CONTENT="$(jq -r '.choices[0].message.content' resp3.json)"
+          echo "$CONTENT" | grep -v '^```
       - name: Publish JSON files
         run: |
           ls -l public
