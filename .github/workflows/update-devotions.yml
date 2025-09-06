@@ -1,28 +1,27 @@
+---
 name: Update Devotions via Perplexity API
-
 on:
   schedule:
     - cron: 0 7 * * *
   workflow_dispatch: null
-
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
   MODEL: sonar
   MAX_TOKENS: 4000
   TRIM_CHARS: 4000
-
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      
       - name: Fetch raw exegesis (Task 1)
-        run: |
+        run: >
           cat > user1.txt << 'EOF'
+
           Provide a daily exegesis of the Roman Catholic readings, psalms, and saint of the day; begin with a single summary quote with citation (e.g. Gn 1:15), followed by a theological summary of the day's reflections and applications, then a 3–5 sentence summary of each category (first readings, psalm, gospel, saint). After that, include a section titled "Detailed Scriptural Exegesis:" and write an in-depth, paragraph-length exegesis of the passages with historical context. End with an original summary prayer encompassing the day's overarching spiritual messages.
+
           EOF
+
           jq -n \
             --arg model "$MODEL" \
             --rawfile content user1.txt \
@@ -43,11 +42,9 @@ jobs:
             -H "Content-Type: application/json" \
             -d @payload1.json \
             -o task1_raw.json
-
       - name: Extract raw text (trimmed)
         run: |
           jq -r ".choices[0].message.content" task1_raw.json > raw_trimmed.txt
-
       - name: Debug trimmed raw text
         run: |
           echo "=== raw_trimmed.txt ==="
@@ -56,12 +53,14 @@ jobs:
           else
             echo "(raw_trimmed.txt is empty)"
           fi
-
       - name: Detailed Exegesis (Task 2)
-        run: |
+        run: >
           mkdir -p public
+
           PROMPT='Extract the section starting with "Detailed Scriptural Exegesis:" and everything after it as a JSON object with key "exegesis". The exegesis must be a full 700-1000 word plain text with \n line breaks allowed; no HTML.'
+
           PROMPT_TEXT="${PROMPT}"$'\n\n'"$(cat raw_trimmed.txt)"
+
           jq -n \
             --arg model "$MODEL" \
             --arg content "$PROMPT_TEXT" \
@@ -78,28 +77,27 @@ jobs:
             -H "Content-Type: application/json" \
             -d @payload2.json \
             -o resp2.json
-
       - name: Debug resp2.json
         run: |
           echo "=== resp2.json ==="
           jq . resp2.json || cat resp2.json
-
       - name: Debug raw exegesis JSON
         run: |
           echo "=== resp2.json choices[0].message.content ==="
           jq -r ".choices[0].message.content" resp2.json | head -20
-
       - name: Build public/devotions-full.json
         run: |
           jq -r ".choices[0].message.content" resp2.json > resp2_raw.txt
           grep -v '^```
           jq . resp2_clean.txt > public/devotions-full.json
-
       - name: Feed JSON (Task 3)
-        run: |
+        run: >
           mkdir -p public
+
           PROMPT='Extract these fields as JSON object in exact order: date (ISO YYYY-MM-DD), quote (max 20 words), quoteCitation, firstReading (120-180 words prose), secondReading (string or null), psalmSummary (60-120 words), gospelSummary (120-180 words prose), dailyPrayer (3-6 sentences), saintReflection (120-180 words), theologicalSynthesis (3-6 sentences), exegesis (700-1000 words, plain text with \n, no HTML), tags (array 0-12 strings), usccbLink (URL), cycle (e.g., "Year C"), weekdayCycle (e.g., "Cycle I"), feast (string), gospelReference, gospelRef (duplicate), firstReadingRef, secondReadingRef (string or null), psalmRef, lectionaryKey. Return valid JSON matching this schema.'
+
           PROMPT_TEXT="${PROMPT}"$'\n\n'"$(cat raw_trimmed.txt)"
+
           jq -n \
             --arg model "$MODEL" \
             --arg content "$PROMPT_TEXT" \
@@ -116,27 +114,22 @@ jobs:
             -H "Content-Type: application/json" \
             -d @payload3.json \
             -o resp3.json
-
       - name: Debug resp3.json
         run: |
           echo "=== resp3.json ==="
           jq . resp3.json || cat resp3.json
-
       - name: Debug raw summary content
         run: |
           echo "=== resp3.json choices.message.content ==="
           jq -r ".choices.message.content" resp3.json | head -20
-
       - name: Build public/devotions.json
         run: |
           jq -r ".choices.message.content" resp3.json > resp3_raw.txt
           grep -v '^```' resp3_raw.txt > resp3_clean.txt
           jq . resp3_clean.txt > public/devotions.json
-
       - name: Publish JSON files
         run: |
           ls -l public
-
       - name: Debug JSON
         run: |
           echo "=== public/devotions.json ==="
@@ -144,31 +137,34 @@ jobs:
           echo
           echo "=== public/devotions-full.json ==="
           cat public/devotions-full.json || echo "(missing)"
-
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
-
       - run: pip install jsonschema
-
       - name: Run JSON validation
         run: ./scripts/validate_devotions_advanced.py
-
       - name: Archive and commit devotions data
-        run: |
+        run: >
           set -e
+
 
           git config --global user.name "github-actions[bot]"
 
+
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
 
           today=$(date -u +%F)
 
+
           mkdir -p archive/public/daily/$today
+
 
           cp public/devotions*.json archive/public/daily/$today/ || true
 
+
           git add public/devotions*.json archive/public/daily/$today/*
+
 
           if ! git diff --cached --quiet; then
             git commit -m "Daily devotions: $today"
