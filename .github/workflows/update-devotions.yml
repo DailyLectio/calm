@@ -46,7 +46,7 @@ jobs:
 
       - name: Extract raw text (trimmed)
         run: |
-          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
+          jq -r '.choices.message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       - name: Debug trimmed raw text
@@ -86,14 +86,14 @@ jobs:
 
       - name: Debug raw exegesis JSON
         run: |
-          jq -r '.choices[0].message.content' resp2.json | head -20
+          jq -r '.choices.message.content' resp2.json | head -20
 
       - name: Build public/devotions-full.json
         run: |
-          # Capture raw exegesis (no backticks, jq -r strips quotes)
-          EX="$(jq -r '.choices[0].message.content' resp2.json)"
-          # Write JSON array with an object containing exegesis
-          printf '[{"exegesis":%s}]' "$(jq -Rs . <<<"$EX")" \
+          jq -r '.choices.message.content' resp2.json \
+            | grep -v '^```' \
+            | jq . \
+            | jq -s '.' \
             > public/devotions-full.json
 
       - name: Feed JSON (Task 3)
@@ -122,10 +122,18 @@ jobs:
           echo "=== resp3.json ==="
           jq . resp3.json || cat resp3.json
 
+      - name: Debug raw summary content
+        run: |
+          echo "=== raw summary content ==="
+          jq -r '.choices.message.content' resp3.json | head -20
+
       - name: Build public/devotions.json
         run: |
-         CONTENT="$(jq -r '.choices[0].message.content' resp3.json)"
-          echo "$CONTENT" | grep -v '^```
+          jq -r '.choices.message.content' resp3.json \
+            | grep -v '^```
+            | jq . \
+            > public/devotions.json
+
       - name: Publish JSON files
         run: |
           ls -l public
@@ -152,13 +160,10 @@ jobs:
           set -e
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
           today=$(date -u +%F)
           mkdir -p archive/public/daily/$today
           cp public/devotions*.json archive/public/daily/$today/ || true
-
           git add public/devotions*.json archive/public/daily/$today/*
-
           if ! git diff --cached --quiet; then
             git commit -m "Daily devotions: $today"
             git push
