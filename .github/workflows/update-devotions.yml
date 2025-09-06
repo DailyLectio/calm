@@ -46,7 +46,7 @@ jobs:
 
       - name: Extract raw text (trimmed)
         run: |
-          jq -r '.choices.message.content' task1_raw.json > raw_exegesis.txt
+          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
           head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       - name: Debug trimmed raw text
