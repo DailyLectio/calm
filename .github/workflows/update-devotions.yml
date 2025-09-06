@@ -153,4 +153,20 @@ jobs:
       - run: pip install jsonschema
 
       - name: Run JSON validation
-        run: ./scripts/validate_dev
+        run: ./scripts/validate_devotions_advanced.py
+
+      - name: Archive and commit devotions data
+        run: |
+          set -e
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          today=$(date -u +%F)
+          mkdir -p archive/public/daily/$today
+          cp public/devotions*.json archive/public/daily/$today/ || true
+          git add public/devotions*.json archive/public/daily/$today/*
+          if ! git diff --cached --quiet; then
+            git commit -m "Daily devotions: $today"
+            git push
+          else
+            echo "No changes to commit."
+          fi
