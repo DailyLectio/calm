@@ -46,7 +46,8 @@ jobs:
 
       - name: Extract raw text (trimmed)
         run: |
-          jq -r '.choices[0].message.content' task1_raw.json > raw_trimmed.txt
+          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
+          head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       - name: Debug trimmed raw text
         run: |
@@ -102,15 +103,19 @@ jobs:
           jq -n \
             --arg model "$MODEL" \
             --rawfile text raw_trimmed.txt \
-            --arg prompt "Extract these fields in this order: date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis, usccbLink. Return as one JSON object."\
+            --arg prompt "Extract these fields in this order as a JSON object: date (YYYY-MM-DD), quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, dailyPrayer, saintReflection, theologicalSynthesis, tags, usccbLink, cycle, weekdayCycle, feast, gospelReference, gospelRef, firstReadingRef, secondReadingRef, psalmRef, lectionaryKey. Return one well-formed JSON object." \
             --argjson max_tokens "${MAX_TOKENS:-1500}" \
-            --argjson temperature:0.2 \
+            --argjson temperature 0.2 \
             '{
               model: $model,
-              messages:[{role:"user", content: ($prompt + "\n\n" + $text)}],
+              messages:[{
+                role:"user",
+                content: ($prompt + "\n\n" + $text)
+              }],
               max_tokens: $max_tokens,
               temperature: $temperature
             }' > payload3.json
+
           curl -s https://api.perplexity.ai/chat/completions \
             -H "Authorization: Bearer ${PERPLEXITY_API_KEY}" \
             -H "Content-Type: application/json" \
