@@ -86,7 +86,8 @@ jobs:
 
       - name: Debug raw exegesis JSON
         run: |
-          jq -r '.choices.message.content' resp2.json | head -20
+          jq -r '.choices[0].message.content' task1_raw.json > raw_exegesis.txt
+          head -c ${TRIM_CHARS} raw_exegesis.txt > raw_trimmed.txt
 
       - name: Build public/devotions-full.json
         run: |
