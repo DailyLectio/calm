@@ -11,7 +11,7 @@
       ]
     },
     {
-  "source": "/exp/(.*)\\.json",
+  "source": "/exp/devotions.json",
   "headers": [
     { "key": "Access-Control-Allow-Origin", "value": "*" },
     { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
