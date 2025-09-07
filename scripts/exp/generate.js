@@ -30,6 +30,11 @@ tags: ["Faith", "Hope", "Resurrection"]
 # First Reading Summary
 120-180 words of flowing prose about today's first reading...
 
+# Second Reading Summary
+Write 60-120 words about today's second reading *only if* \`secondReadingRef\` is non-null.
+- If there *is* a secondReadingRef, provide a thoughtful reflection based on that citation.
+- If secondReadingRef is null (no second reading), write: "No second reading today."
+
 # Psalm Summary
 60-120 words about how the psalm supports the theme...
 
@@ -92,10 +97,10 @@ After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`
 function stripCodeFences(text) {
   // normalize newlines first
   text = text.replace(/\r\n/g, '\n');
-  if (text.startsWith('```')) {
+  if (text.startsWith('```
     text = text.replace(/^```[^\n]*\n/, ''); // opening fence + optional language
   }
-  if (text.endsWith('```')) {
+  if (text.endsWith('```
     text = text.replace(/\n?```$/, ''); // closing fence
   }
   return text;
