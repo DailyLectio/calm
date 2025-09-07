@@ -5,11 +5,13 @@ const MODEL = process.env.MODEL || 'sonar';
 
 async function generateMarkdown() {
   console.log('Starting markdown generation...');
-  
+
   const today = new Date().toISOString().split('T')[0];
+
   const prompt = `Generate a complete Catholic daily devotion as structured Markdown with YAML frontmatter for ${today}.
 
 Format exactly like this:
+
 ---
 date: "${today}"
 quote: "Short inspirational quote from today's Gospel (max 20 words)"
@@ -46,19 +48,19 @@ tags: ["Faith", "Hope", "Resurrection"]
 # Detailed Scriptural Exegesis
 700-1000 words of in-depth, scholarly exegesis with historical context. Include line breaks for readability. No HTML formatting.
 
-Please include ALL sections and make sure the YAML frontmatter is complete with all fields.`;
+After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`;
 
   const payload = {
     model: MODEL,
-    messages: [{role: "user", content: prompt}],
-    max_tokens: 4000,
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 5000,
     temperature: 0.2,
     search_domain_filter: ["wikipedia.org", "bible.usccb.org", "catholicculture.org", "-reddit.com"],
     search_recency_filter: "week"
   };
 
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    const res = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
@@ -67,19 +69,36 @@ Please include ALL sections and make sure the YAML frontmatter is complete with 
       body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
-    let markdown = data.choices[0].message.content;
-    
-    // Clean up markdown fences if present
-    markdown = markdown.replace(/^``````$/, '');
-    markdown = markdown.replace(/^``````$/, '');
-    
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
+    }
+
+    const data = await res.json();
+    let markdown = data?.choices?.[0]?.message?.content ?? '';
+
+    // Strip surrounding code fences if the model wrapped the response
+    markdown = stripCodeFences(markdown).trim();
+
+    await fs.mkdir('public/exp', { recursive: true });
     await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
     console.log('✅ Complete markdown generated successfully');
   } catch (error) {
     console.error('❌ Error:', error);
     process.exit(1);
   }
+}
+
+function stripCodeFences(text) {
+  // normalize newlines first
+  text = text.replace(/\r\n/g, '\n');
+  if (text.startsWith('```')) {
+    text = text.replace(/^```[^\n]*\n/, ''); // opening fence + optional language
+  }
+  if (text.endsWith('```')) {
+    text = text.replace(/\n?```$/, ''); // closing fence
+  }
+  return text;
 }
 
 generateMarkdown();
