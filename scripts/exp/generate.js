@@ -81,3 +81,5 @@ Please include ALL sections and make sure the YAML frontmatter is complete with 
     process.exit(1);
   }
 }
+
+generateMarkdown();
