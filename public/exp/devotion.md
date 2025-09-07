@@ -1,57 +1,47 @@
 ---
 date: "2025-09-07"
-quote: "Whoever does not carry his own cross and come after me cannot be my disciple."
-quoteCitation: "Lk 14:27"
+quote: "If anyone comes to me without hating his father and mother, he cannot be my disciple."
+quoteCitation: "Lk 14:26"
 cycle: "Year C"
 weekdayCycle: "Cycle I"
-feast: "Twenty-Third Sunday in Ordinary Time"
+feast: "Ordinary Time"
 usccbLink: "https://bible.usccb.org/bible/readings/090725.cfm"
 gospelReference: "Luke 14:25-33"
 firstReadingRef: "Wisdom 9:13-18a"
 secondReadingRef: "Philemon 9b-10, 12-17"
 psalmRef: "Psalm 90:3-4, 5-6, 12-13, 14 and 17"
-tags: ["Discipleship", "Cross", "Wisdom", "Faith", "Commitment"]
+tags: ["Discipleship", "Wisdom", "Commitment"]
 ---
 
-# First Reading Summary
-The first reading from the Book of Wisdom reflects on the profound mystery of God's wisdom and human limitations. It acknowledges that human beings, being finite, cannot fully comprehend the divine plans or the workings of God's providence. The passage invites humility, recognizing that God's wisdom surpasses all human understanding and that true wisdom is a gift from God, granted to those who seek it with a pure heart. This reading sets the tone for the Gospel's call to discipleship, emphasizing the need for reliance on divine wisdom rather than human calculation.
+# First Reading Summary  
+The first reading from the Book of Wisdom reflects on the profound mystery of God's wisdom and human limitations. It emphasizes that human beings, being finite, cannot fully comprehend God's plans or the workings of divine providence. The passage highlights the contrast between the infinite wisdom of God and the limited understanding of mankind, underscoring the need for divine assistance to grasp spiritual truths. This reading invites believers to seek God's wisdom humbly, recognizing that true understanding comes from God alone and not from human intellect or effort.
 
-# Psalm Summary
-Psalm 90 complements the theme of human limitation and divine eternity. It contrasts the fleeting nature of human life with God's everlasting presence and mercy. The psalmist prays for God's compassion and guidance, asking that God's favor be upon the people and that their work be blessed. This prayer for wisdom and endurance aligns with the readings' call to trust in God's plan amid life's challenges.
+# Psalm Summary  
+Psalm 90 complements the theme of human limitation by meditating on the brevity and frailty of human life compared to God's eternal nature. It acknowledges that human days are fleeting and filled with toil, but it also prays for God's compassion and favor to grant wisdom and joy. The psalmist asks God to teach us to number our days rightly so that we may gain a heart of wisdom, reinforcing the first reading's call for divine guidance in our earthly journey.
 
-# Gospel Summary
-In the Gospel from Luke, Jesus presents a challenging teaching on the cost of discipleship. He demands total commitment, stating that anyone who wishes to follow Him must "hate" their closest family ties and even their own life in comparison to their love for Him. This hyperbolic language underscores the radical priority Jesus requires. Additionally, Jesus insists that disciples must carry their own cross, symbolizing the acceptance of suffering and sacrifice. The passage concludes with a call to count the cost carefully before committing, highlighting the seriousness and totality of following Christ.
+# Gospel Summary  
+In the Gospel from Luke, Jesus speaks candidly about the demands of discipleship. He uses strong language, saying that one must "hate" even close family members to be His disciple, which is understood as a call to prioritize allegiance to Christ above all else. Jesus stresses the necessity of carrying one's own cross and being willing to renounce all attachments that hinder following Him. This passage challenges believers to evaluate their commitment and to embrace the cost of discipleship with total dedication and self-sacrifice.
 
-# Saint Reflection
-While there is no specific saint commemorated on this day, the theme of radical discipleship resonates with many saints who exemplified total commitment to Christ. Saints like St. Francis of Assisi or St. Teresa of Calcutta embraced the cross of self-denial and service, embodying the Gospel's call. Their lives remind us that true discipleship involves surrendering personal attachments and embracing God's will, trusting in His wisdom and grace as reflected in today's readings.
+# Saint Reflection  
+While there is no specific saint feast today, the readings resonate with the spirit of saints who exemplified radical discipleship and wisdom, such as St. Augustine or St. Teresa of Avila. These saints embraced the call to prioritize God above all worldly ties and sought divine wisdom to navigate the challenges of faith. Their lives remind us that true discipleship requires both humility before God's mystery and courageous commitment to His call, echoing the themes of today’s readings.
 
-# Daily Prayer
-Lord Jesus, grant me the grace to carry my cross with courage and faith. Help me to prioritize your will above all earthly ties and to seek your wisdom in every decision. Strengthen my heart to follow you without hesitation, trusting that your love sustains me through every trial. May I always remember that true life is found in surrender to you. Amen.
+# Daily Prayer  
+Lord Jesus, grant me the grace to follow You wholeheartedly, even when the path is difficult. Teach me to seek Your wisdom above all human understanding and to carry my cross with patience and love. Help me to detach from anything that keeps me from loving You fully. May Your Spirit guide me in faith and perseverance, that I may be counted among Your faithful disciples. Amen.
 
-# Theological Synthesis
-Today's readings unify around the theme of **the cost and wisdom of discipleship**. The Book of Wisdom reminds us of our human limitations and the necessity of divine wisdom. The Psalm echoes this by praying for God's enduring mercy and guidance. The Gospel starkly presents the demands of following Christ, emphasizing sacrifice and total commitment. Together, they call believers to a faith that is both humble in its dependence on God and courageous in its willingness to embrace the cross.
+# Theological Synthesis  
+Today's readings unify around the theme of **the cost and wisdom of discipleship**. The Book of Wisdom and Psalm 90 highlight human limitations and the necessity of divine wisdom, while the Gospel calls for a radical reordering of priorities to follow Christ. Together, they teach that true discipleship demands humility, self-denial, and a deep reliance on God's guidance. This synthesis challenges believers to embrace the cross and seek God's wisdom as the foundation for faithful living.
 
-# Detailed Scriptural Exegesis
-The readings for the Twenty-Third Sunday in Ordinary Time, Year C, present a profound meditation on the nature of discipleship, wisdom, and human limitation.
+# Detailed Scriptural Exegesis  
+The first reading from the Book of Wisdom 9:13-18a presents a profound meditation on the inscrutability of God's wisdom. The author reflects on the human inability to fathom the divine plan, emphasizing the vast gulf between God's infinite knowledge and human finitude. This passage is situated within a broader context where Wisdom literature extols the value of divine wisdom as a gift that enlightens the mind and guides moral living. The author acknowledges that human reason alone is insufficient to grasp the mysteries of creation and providence, thus underscoring the necessity of prayerful petition for wisdom. This humility before God’s wisdom sets the tone for the day's theme of discipleship, where reliance on God surpasses human understanding.
 
-The **first reading** from *Wisdom 9:13-18a* opens with a rhetorical question about who can truly know the mind of God or comprehend His will. This passage reflects the ancient Jewish understanding of the vast gulf between divine omniscience and human finitude. The author acknowledges that human beings, created with limited intellect and experience, cannot grasp the full scope of God's plans. This humility before divine wisdom is a recurring biblical theme, emphasizing that true understanding comes only through God's revelation and grace.
+Psalm 90 complements this by contrasting the eternal nature of God with the transient nature of human life. The psalmist poetically describes human life as fleeting "like grass" that withers quickly, highlighting the brevity and vulnerability of human existence. This awareness leads to a plea for God’s compassion and for the gift of wisdom to live rightly. The psalm’s request to "teach us to number our days" is a call to live with an eternal perspective, valuing each moment as an opportunity for faithful obedience and growth in wisdom. This prayerful reflection on mortality and divine mercy prepares the believer to hear the Gospel’s call to radical discipleship.
 
-The plea for wisdom to be granted "from on high" underscores the belief that wisdom is a divine gift, not merely a human achievement. The passage also highlights the practical implications of this wisdom: it enables one to govern justly, to discern right from wrong, and to lead a life pleasing to God. This sets the stage for the Gospel's call to discipleship, where human understanding alone is insufficient without God's guidance.
+The Gospel passage from Luke 14:25-33 is a challenging discourse on the demands of following Jesus. The hyperbolic language of "hating" one’s family members is a Semitic expression meaning to love less by comparison, indicating that allegiance to Christ must surpass all other loyalties. Jesus calls His followers to a total commitment that involves self-denial and readiness to bear the cross, symbolizing suffering and sacrifice. The passage also includes two parables about counting the cost before building a tower or going to war, illustrating the prudence and seriousness required in discipleship. This teaching confronts the believer with the reality that discipleship is not merely a sentimental or easy path but one that requires deliberate and costly commitment.
 
-The **Psalm 90** complements this theme by contrasting the eternal nature of God with the transitory nature of human life. The psalmist reflects on the brevity of life, likening it to grass that withers, and prays for God's compassion and favor. The request that God "teach us to number our days aright" is a call to live wisely and with awareness of our mortality, echoing the wisdom literature's emphasis on prudence and reverence for God.
+Theologically, these readings together emphasize that true wisdom is inseparable from the willingness to follow Christ fully, even when it entails suffering and loss. The Book of Wisdom’s emphasis on divine insight aligns with the Gospel’s call to prioritize God’s kingdom above all else. The psalm’s meditation on human frailty invites a humble acceptance of life’s limitations and a trust in God’s eternal care. This triad of readings forms a cohesive message: human beings must seek God’s wisdom to understand the demands of discipleship and be prepared to embrace the cross as the path to eternal life.
 
-The **Gospel reading from Luke 14:25-33** presents one of the most demanding teachings of Jesus on discipleship. The use of the word "hate" in relation to family members is a Semitic expression of preference, meaning that one's love for Christ must surpass all other attachments. This radical call to prioritize Jesus above even the closest human relationships challenges the listener to reconsider the nature of loyalty and love.
+Historically, the Book of Wisdom was composed in a Hellenistic Jewish context, aiming to encourage fidelity to God amid cultural challenges. Its emphasis on wisdom as a divine gift reflects the Jewish tradition of valuing wisdom literature as a guide for righteous living. The psalm, attributed to Moses, serves as a timeless prayer for God’s mercy and guidance, reinforcing the covenantal relationship between God and His people. Luke’s Gospel, written for a predominantly Gentile audience, stresses the universal call to discipleship and the radical nature of Jesus’ message, challenging social and familial norms of the time.
 
-Jesus then introduces the metaphor of carrying one's cross, a vivid image of self-denial, suffering, and readiness to face persecution or hardship for the sake of the Kingdom. The cross here is not merely a symbol of death but of the daily sacrifices and trials inherent in following Christ.
-
-The concluding verses urge potential disciples to "count the cost," using examples of building a tower or a king preparing for battle. This pragmatic advice stresses the seriousness of the commitment required. Discipleship is not a casual or easy path but one that demands foresight, perseverance, and total dedication.
-
-The **second reading from Philemon 9b-10, 12-17** (though not always included in the Sunday liturgy) adds a personal dimension to the theme of reconciliation and transformation through Christ. Paul appeals to Philemon to receive Onesimus, a runaway slave turned Christian brother, not as a slave but as a beloved member of the Christian community. This letter exemplifies the practical outworking of discipleship in relationships, calling for forgiveness, love, and unity that transcend social divisions.
-
-Together, these readings invite believers to embrace a discipleship characterized by humility, wisdom, sacrifice, and love. They challenge the faithful to recognize their limitations, seek God's wisdom, and commit wholeheartedly to following Christ, even when it demands personal cost.
-
-Historically, the Book of Wisdom was composed to encourage the Jewish community to trust in God's providence amid adversity, emphasizing wisdom as the path to righteousness. Luke's Gospel, written for a predominantly Gentile audience, stresses the universal call to discipleship and the radical demands of the Gospel message. Paul's letter to Philemon reflects the early Christian ethic of brotherhood that breaks down social barriers.
-
-In sum, the readings for this Sunday call the Church to a mature faith that embraces the mystery of God's wisdom and the challenge of living as true disciples who carry their cross daily, trusting in God's sustaining grace.
+In sum, the readings for September 7, 2025, invite believers to a profound reflection on the nature of wisdom and the cost of discipleship. They call for a humble recognition of human limitations, a prayerful seeking of divine wisdom, and a courageous commitment to follow Christ above all else. This message remains deeply relevant for contemporary Christians navigating the complexities of faith and life.
 
 <!-- END -->
