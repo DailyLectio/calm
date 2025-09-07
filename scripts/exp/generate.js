@@ -31,9 +31,9 @@ tags: ["Faith", "Hope", "Resurrection"]
 120-180 words of flowing prose about today's first reading...
 
 # Second Reading Summary
-Write 60-120 words about today's second reading *only if* \`secondReadingRef\` is non-null.
-- If there *is* a secondReadingRef, provide a thoughtful reflection based on that citation.
-- If secondReadingRef is null (no second reading), write: "No second reading today."
+Write 60–120 words about today's second reading *only if* \\`secondReadingRef\\` is non-null.
+- If there *is* a \\`secondReadingRef\\`, provide a thoughtful reflection based on that citation.
+- If \\`secondReadingRef\\` is null (no second reading), write: "No second reading today."
 
 # Psalm Summary
 60-120 words about how the psalm supports the theme...
