@@ -1,0 +1,47 @@
+name: Exp Markdown to JSON Devotions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+env:
+  PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+  MODEL: sonar
+  MAX_TOKENS: 4000
+
+jobs:
+  exp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd scripts/exp
+          npm install
+      
+      - name: Generate Markdown Devotion
+        run: |
+          mkdir -p public/exp
+          node scripts/exp/generate.js
+      
+      - name: Debug output
+        run: |
+          echo "=== Generated Markdown ==="
+          head -50 public/exp/devotion.md || echo "No markdown file generated"
+      
+      - name: Commit results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/exp/
+          if ! git diff --cached --quiet; then
+            git commit -m "Exp: devotions $(date -u +%F)"
+            git push
+          fi

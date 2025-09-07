@@ -1,0 +1,12 @@
+{
+  "name": "exp-devotions",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "unified": "^11.0.4",
+    "remark-parse": "^11.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "mdast-util-to-string": "^4.0.0"
+  }
+}
