@@ -7,7 +7,7 @@ on:
 
 env:
   PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-  MODEL: sonar
+  MODEL: research
   MAX_TOKENS: 4000
   TRIM_CHARS: 4000
 
@@ -28,7 +28,7 @@ jobs:
             --rawfile content user1.txt \
             --argjson max_tokens "$MAX_TOKENS" \
             --argjson temperature 0.2 \
-            --argjson search_domain_filter '["wikipedia.org","bible.usccb.org","catholicculture.org","-reddit.com"]' \
+            --argjson search_domain_filter '["bible.usccb.org","catholicculture.org","-reddit.com"]' \
             --arg search_recency "week" \
             '{
               model: $model,
