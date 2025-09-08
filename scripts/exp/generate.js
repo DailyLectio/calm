@@ -80,10 +80,10 @@ After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`
     }
 
     const data = await res.json();
-    let markdown = data?.choices?.[0]?.message?.content ?? '';
+    let markdown = data.choices?.[0]?.message?.content || '';
 
-    // Strip surrounding code fences if the model wrapped the response
-    markdown = stripCodeFences(markdown).trim();
+    // Strip surrounding code fences if present
+    markdown = stripCodeFences(markdown);
 
     await fs.mkdir('public/exp', { recursive: true });
     await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
@@ -95,15 +95,23 @@ After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`
 }
 
 function stripCodeFences(text) {
-  // normalize newlines first
-  text = text.replace(/\r\n/g, '\n');
-  if (text.startsWith('```
-    text = text.replace(/^```[^\n]*\n/, ''); // opening fence + optional language
+  if (!text) return text;
+  let t = text.replace(/\r\n/g, '\n').trim();
+  // Remove leading ```
+  if (t.startsWith('```')) {
+    const lines = t.split('\n');
+    // drop first line
+    lines.shift();
+    t = lines.join('\n');
   }
-  if (text.endsWith('```
-    text = text.replace(/\n?```$/, ''); // closing fence
+  // Remove trailing ```
+  if (t.endsWith('```')) {
+    const lines = t.split('\n');
+    // drop last line
+    lines.pop();
+    t = lines.join('\n');
   }
-  return text;
+  return t.trim();
 }
 
 generateMarkdown();
