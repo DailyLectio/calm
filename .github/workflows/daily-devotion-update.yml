@@ -1,21 +1,30 @@
 name: Update Daily Devotion
 
 on:
-  # Run this immediately after the weekly workflow finishes successfully
+  # Fire automatically when the weekly job finishes successfully
   workflow_run:
     workflows: ["Generate Weekly Devotions (Fri–Thu)"]
     types: [completed]
 
-  # Still allow manual triggers
-  workflow_dispatch:
+  # Safety net: also run every day around 3:35am Eastern
+  # (EST=UTC-5 → 08:35; EDT=UTC-4 → 07:35)
+  schedule:
+    - cron: "35 8 * * *"   # ~03:35 EST
+    - cron: "35 7 * * *"   # ~03:35 EDT
+
+  # Manual button in Actions
+  workflow_dispatch: {}
 
 concurrency:
-  group: daily-devotion-${{ github.ref }}
-  cancel-in-progress: false
+  group: daily-devotion
+  cancel-in-progress: true
 
 jobs:
   update-devotion:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # If triggered by weekly, only proceed on success
+    if: |
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,58 +43,40 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Only needed if your update script imports third-party libs (it doesn't now)
-      # Safe to leave; it’s quick. Remove if truly stdlib-only.
-      - name: Install deps (fast)
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-input requests jsonschema openai || true
-
-      # Fail fast if today is not found in weeklyfeed.json
+      # Fail fast if today's date isn't in weeklyfeed.json
       - name: Sanity check weeklyfeed for today
-        env:
-          APP_TZ: America/New_York
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           import json, os, sys
           from datetime import datetime
+          from zoneinfo import ZoneInfo
+          tz = os.environ.get("APP_TZ","America/New_York")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
           try:
-              from zoneinfo import ZoneInfo
-          except Exception:
-              ZoneInfo = None
-          tz = os.environ.get("APP_TZ","UTC")
-          today = (datetime.now(ZoneInfo(tz)).date().isoformat()
-                   if ZoneInfo else datetime.utcnow().date().isoformat())
-          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
-              data = json.load(f)
-          ok = any(isinstance(e,dict) and str(e.get("date","")).strip()==today for e in data)
-          print("tz=", tz, "today=", today, "found=", ok)
-          sys.exit(0 if ok else 1)
+            data = json.load(open("public/weeklyfeed.json", "r", encoding="utf-8"))
+          except Exception as e:
+            print("[error] weeklyfeed.json missing or unreadable:", e)
+            sys.exit(1)
+          found = any(str(e.get("date","")).strip()==today for e in data if isinstance(e,dict))
+          print("tz=", tz, "today=", today, "found=", found)
+          sys.exit(0 if found else 1)
           PY
 
-      - name: Run daily devotion update
-        env:
-          APP_TZ: America/New_York
+      - name: Run daily devotion update (Python)
         run: |
-          set -euo pipefail
-          python update_daily_devotion.py --tz "$APP_TZ"
+          python3 update_daily_devotion.py --tz "$APP_TZ"
 
       - name: Commit and push changes
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           set -euo pipefail
-          git config --local user.name "GitHub Action"
-          git config --local user.email "action@github.com"
-          # Stage only files that actually exist
-          test -f public/devotions.json && git add public/devotions.json || true
-          test -f dist/devotions.json && git add dist/devotions.json || true
-          # Archive updates (index + per-day files) if your script wrote them
-          git add public/past_reflections || true
-
+          git config --local user.name  "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/devotions.json dist/devotions.json public/past_reflections/ public/past_reflections/index.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "Daily devotion update for $(date -u +%Y-%m-%d)"
-            git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main
+            exit 0
           fi
+          git commit -m "Daily devotion update for $(TZ=$APP_TZ date +%Y-%m-%d)"
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main
