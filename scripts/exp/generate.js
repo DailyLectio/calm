@@ -1,11 +1,11 @@
+// Node 18+ (global fetch)
 import fs from 'fs/promises';
-import yaml from 'yaml'; // npm i yaml
 
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 const MODEL = process.env.MODEL || 'research';
 
 async function generateMarkdown() {
-  console.log('Starting markdown generation...');
+  console.log('Starting markdown generation…');
 
   if (!PERPLEXITY_API_KEY) {
     console.error('❌ Missing PERPLEXITY_API_KEY env var.');
@@ -15,7 +15,7 @@ async function generateMarkdown() {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const [y, m, d] = today.split('-');
   const yy = y.slice(-2);
-  const mmddyy = `${m}${d}${yy}`; // e.g., "090825"
+  const mmddyy = `${m}${d}${yy}`; // e.g., 2025-09-08 -> "090825"
 
   const suggestedSources = [
     { name: "Vatican News", url: "https://www.vaticannews.va" },
@@ -31,7 +31,7 @@ async function generateMarkdown() {
   ];
   const sourcesComment = suggestedSources.map((s, i) => `${i + 1}. ${s.name} - ${s.url}`).join('\n');
 
-  // Ask for valid YAML with all fields used downstream. No code fences.
+  // Ask for valid YAML frontmatter + placeholders only. No code fences.
   const prompt = `Generate a Catholic daily devotion as Markdown with YAML frontmatter for ${today}.
 Rules:
 - Do NOT include Markdown code fences.
@@ -89,14 +89,14 @@ Provide a 700–1000 word scholarly exegesis with historical context.
     messages: [{ role: "user", content: prompt }],
     max_tokens: 5000,
     temperature: 0.2,
+    // Removed "-reddit.com"
     search_domain_filter: [
       "bible.usccb.org",
       "vaticannews.va",
       "catholicculture.org",
       "catholic.org",
       "ewtn.com",
-      "catholicnewsagency.com",
-      "-reddit.com"
+      "catholicnewsagency.com"
     ],
     search_recency_filter: "week"
   };
@@ -120,18 +120,18 @@ Provide a 700–1000 word scholarly exegesis with historical context.
     let markdown = data.choices?.[0]?.message?.content || '';
     markdown = stripCodeFences(markdown);
 
-    // Optional sanity check: ensure it begins with frontmatter
+    // Optional visibility check
     if (!/^\s*---\s*\n/.test(markdown)) {
-      console.warn('⚠️ Model output did not start with YAML frontmatter. Writing as-is for visibility.');
+      console.warn('⚠️ Output did not start with YAML frontmatter. Writing as-is for visibility.');
     }
 
     await fs.mkdir('public/exp', { recursive: true });
     await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
+    console.log('✅ Wrote public/exp/devotion.md');
 
-    console.log('✅ Complete markdown generated successfully');
-
-    // Optional: parse frontmatter and emit JSON alongside
-    // await emitJson(markdown);
+    // Always emit JSON
+    await emitJson(markdown);
+    console.log('✅ Wrote public/exp/devotions.json');
 
   } catch (error) {
     console.error('❌ Error:', error?.stack || error);
@@ -139,7 +139,7 @@ Provide a 700–1000 word scholarly exegesis with historical context.
   }
 }
 
-// Robustly strip leading/trailing triple backtick fences, including ```markdown
+// Robustly strip leading/trailing triple-backtick fences, including ```markdown
 function stripCodeFences(text) {
   if (!text) return text;
   let t = String(text).replace(/\r\n/g, '\n').trim();
@@ -154,12 +154,12 @@ function stripCodeFences(text) {
   // Remove a trailing ``` fence, tolerating trailing spaces/newlines
   const trimmed = t.trimEnd();
   if (trimmed.endsWith(fence)) {
-    // find last occurrence of a line that is exactly ```
+    // Find last occurrence of a line that is exactly ```
     const lastFenceIdx = trimmed.lastIndexOf('\n' + fence);
     if (lastFenceIdx !== -1) {
       t = trimmed.slice(0, lastFenceIdx).trimEnd();
     } else {
-      // fence may be at start with no preceding newline
+      // fence may be at the end with no preceding newline
       t = trimmed.slice(0, trimmed.length - fence.length).trimEnd();
     }
   }
@@ -167,36 +167,142 @@ function stripCodeFences(text) {
   return t.trim();
 }
 
-// Optional helper to emit JSON from YAML frontmatter (wire up if needed)
+/**
+ * Emit JSON alongside the MD by parsing YAML frontmatter.
+ * Uses 'yaml' package if present; otherwise falls back to a minimal parser.
+ */
 async function emitJson(markdown) {
-  try {
-    const match = markdown.match(/^---\s*\n([\s\S]*?)\n---/);
-    if (!match) return;
-
-    const front = yaml.parse(match[1] || '');
-    const secondMissing = front.secondReadingRef == null ||
-      String(front.secondReadingRef).trim().toLowerCase() === 'null';
-
-    const jsonOut = {
-      date: front.date || '',
-      quote: front.quote || '',
-      quoteCitation: front.quoteCitation || '',
-      cycle: front.cycle || '',
-      weekdayCycle: front.weekdayCycle || '',
-      feast: front.feast || 'Ordinary Time',
-      usccbLink: front.usccbLink || '',
-      gospelReference: front.gospelReference || '',
-      firstReadingRef: front.firstReadingRef || '',
-      secondReadingRef: secondMissing ? null : front.secondReadingRef,
-      psalmRef: front.psalmRef || '',
-      tags: Array.isArray(front.tags) ? front.tags : []
-    };
-
-    await fs.writeFile('public/exp/devotions.json', JSON.stringify(jsonOut, null, 2), 'utf8');
-    console.log('📝 Wrote public/exp/devotions.json');
-  } catch (e) {
-    console.warn('⚠️ Could not emit JSON from frontmatter:', e?.message || e);
+  const fm = extractFrontmatter(markdown);
+  if (!fm) {
+    console.warn('⚠️ No frontmatter found; writing minimal devotions.json.');
+    await fs.writeFile('public/exp/devotions.json', JSON.stringify({ error: 'no-frontmatter' }, null, 2), 'utf8');
+    return;
   }
+
+  // Try dynamic import of yaml; if not present, use fallback
+  let parsed;
+  try {
+    const yaml = await importYamlIfAvailable();
+    parsed = yaml ? yaml.parse(fm) : parseYamlFallback(fm);
+  } catch {
+    parsed = parseYamlFallback(fm);
+  }
+
+  const secondMissing =
+    parsed.secondReadingRef == null ||
+    String(parsed.secondReadingRef).trim().toLowerCase() === 'null' ||
+    String(parsed.secondReadingRef).trim().toLowerCase() === 'none';
+
+  const jsonOut = {
+    date: parsed.date || '',
+    quote: parsed.quote || '',
+    quoteCitation: parsed.quoteCitation || '',
+    cycle: parsed.cycle || '',
+    weekdayCycle: parsed.weekdayCycle || '',
+    feast: parsed.feast || 'Ordinary Time',
+    usccbLink: parsed.usccbLink || '',
+    gospelReference: parsed.gospelReference || '',
+    firstReadingRef: parsed.firstReadingRef || '',
+    secondReadingRef: secondMissing ? null : parsed.secondReadingRef || '',
+    psalmRef: parsed.psalmRef || '',
+    tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    // Optional placeholders (ignored if your consumer doesn’t use them)
+    sections: {
+      firstReadingSummary: 'PLACEHOLDER_120_180_WORDS',
+      secondReadingSummary: secondMissing ? 'No second reading today.' : 'PLACEHOLDER_60_120_WORDS',
+      psalmSummary: 'PLACEHOLDER_60_120_WORDS',
+      gospelSummary: 'PLACEHOLDER_120_180_WORDS',
+      saintReflection: 'PLACEHOLDER_120_180_WORDS',
+      dailyPrayer: 'PLACEHOLDER_3_6_SENTENCES',
+      theologicalSynthesis: 'PLACEHOLDER_3_6_SENTENCES',
+      detailedExegesis: 'PLACEHOLDER_700_1000_WORDS'
+    }
+  };
+
+  await fs.writeFile('public/exp/devotions.json', JSON.stringify(jsonOut, null, 2), 'utf8');
+}
+
+function extractFrontmatter(md) {
+  if (!md) return null;
+  const m = md.match(/^---\s*\n([\s\S]*?)\n---/);
+  return m ? m[1] : null;
+}
+
+// Try to import 'yaml' if it exists; return null if not
+async function importYamlIfAvailable() {
+  try {
+    // eslint-disable-next-line n/no-unsupported-features/es-syntax
+    const mod = await import('yaml');
+    return mod && (mod.default || mod);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Minimal YAML fallback parser for the specific schema we expect.
+ * Supports:
+ *  - simple "key: value" scalars (quoted or unquoted)
+ *  - null/None
+ *  - tags: [ "a", "b", "c" ]
+ */
+function parseYamlFallback(str) {
+  const out = {};
+  const lines = String(str).split('\n');
+
+  // Join multi-line array in brackets onto one line if the model breaks lines
+  let buf = [];
+  let assembling = false;
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (!assembling && /\btags\s*:\s*\[/.test(line) && !/\]\s*$/.test(line)) {
+      assembling = true;
+      buf.push(line);
+      continue;
+    }
+    if (assembling) {
+      buf[buf.length - 1] += ' ' + line.trim();
+      if (/\]\s*$/.test(line)) assembling = false;
+      continue;
+    }
+    buf.push(line);
+  }
+
+  for (const raw of buf) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    const idx = line.indexOf(':');
+    if (idx === -1) continue;
+    const key = line.slice(0, idx).trim();
+    let val = line.slice(idx + 1).trim();
+
+    // Strip enclosing quotes
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+
+    // Null-ish
+    if (/^(null|NULL|None|none)$/i.test(val)) {
+      out[key] = null;
+      continue;
+    }
+
+    // Array case for tags
+    if (key === 'tags' && /^\[.*\]$/.test(val)) {
+      try {
+        // Normalize single quotes to double quotes for JSON.parse
+        const jsonish = val.replace(/'/g, '"');
+        out[key] = JSON.parse(jsonish);
+      } catch {
+        out[key] = [];
+      }
+      continue;
+    }
+
+    out[key] = val;
+  }
+
+  return out;
 }
 
 generateMarkdown();
