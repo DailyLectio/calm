@@ -42,7 +42,7 @@ Format exactly like this using these neutral examples:
 ---
 date: "1939-12-07"
 quote: "Short inspirational quote from today's Gospel (max 20 words)"
-quoteCitation: "Nj 1:21"
+quoteCitation: "Njg 1:21"
 cycle: "Year X"
 weekdayCycle: "Cycle Y"
 feast: "Memorial of Saint Marlowe"
@@ -124,12 +124,12 @@ After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`
 function stripCodeFences(text) {
   if (!text) return text;
   let t = text.replace(/\r\n/g, '\n').trim();
-  if (t.startsWith('```
+  if (t.startsWith('```')) {
     const lines = t.split('\n');
     lines.shift();
     t = lines.join('\n');
   }
-  if (t.endsWith('```')) {
+  if (t.endsWith('```
     const lines = t.split('\n');
     lines.pop();
     t = lines.join('\n');
