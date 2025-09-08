@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-const MODEL = process.env.MODEL || 'sonar';
+const MODEL = process.env.MODEL || 'research';
 
 async function generateMarkdown() {
   console.log('Starting markdown generation...');
@@ -12,7 +12,7 @@ async function generateMarkdown() {
   }
 
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  // Build MMDDYY for USCCB link (e.g., 2025-09-07 -> 090725)
+  // Build MMDDYY for USCCB link (e.g., 2025-09-08 -> 090825)
   const [y, m, d] = today.split('-');
   const yy = y.slice(-2);
   const mmddyy = `${m}${d}${yy}`;
@@ -37,22 +37,17 @@ async function generateMarkdown() {
   const prompt = `Generate a Catholic daily devotion as Markdown with YAML frontmatter for ${today}.
 Rules:
 - Do NOT include code fences.
-- Use valid YAML frontmatter FIRST, starting the file with '---' and ending the block with '---'.
+- Use valid YAML frontmatter FIRST, starting with '---' and ending with '---'.
 - Use today's date and the USCCB link for today.
-- Use placeholder text (no real prose). Keep sections exactly as specified.
-
+- Use clear headings only; no placeholder citations or example references.
 ---
 date: "${today}"
 quote: "Short inspirational quote from today's Gospel (max 20 words)"
-quoteCitation: "Jn 1:1" # neutral placeholder
+quoteCitation: "Jn 1:1"
 cycle: "Year X"
 weekdayCycle: "Cycle Y"
 feast: "Ordinary Time"
 usccbLink: "https://bible.usccb.org/bible/readings/${mmddyy}.cfm"
-gospelReference: "Gospel 10:2-24" # neutral placeholder
-firstReadingRef: "First 1:1-10" # neutral placeholder
-secondReadingRef: null # use null when intentionally omitted
-psalmRef: "Psalm 1:1-6" # neutral placeholder
 tags: ["Tag1", "Tag2", "Tag3"]
 ---
 
@@ -61,31 +56,28 @@ ${sourcesComment}
 -->
 
 # First Reading Summary
-120-180 words of flowing prose about today's first reading...
+Provide a 120–180 word reflection on today’s first reading.
 
 # Second Reading Summary
-Write 60-120 words about today's second reading only if secondReadingRef is non-null.
-If there is no secondReadingRef (no second reading), write exactly: "No second reading today."
+If there is a second reading, provide 60–120 words of reflection; otherwise write "No second reading today."
 
 # Psalm Summary
-60-120 words about how the psalm supports the theme...
+Provide a 60–120 word reflection on today’s psalm.
 
 # Gospel Summary
-120-180 words of flowing prose about today's Gospel...
+Provide a 120–180 word reflection on today’s gospel.
 
 # Saint Reflection
-120-180 words about today's saint/feast explicitly linking to the readings and theme...
+Provide a 120–180 word reflection on today’s saint or feast.
 
 # Daily Prayer
-3-6 sentences of original prayer encompassing the day's spiritual messages...
+Provide a 3–6 sentence original prayer.
 
 # Theological Synthesis
-3-6 sentences showing the unifying theme connecting all readings and saint...
+Provide a 3–6 sentence synthesis connecting all readings and the saint.
 
 # Detailed Scriptural Exegesis
-700-1000 words of in-depth, scholarly exegesis with historical context. No HTML formatting.
-
-<!-- END -->`;
+Provide a 700–1000 word scholarly exegesis with historical context.`;
 
   const payload = {
     model: MODEL,
@@ -93,12 +85,12 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
     max_tokens: 5000,
     temperature: 0.2,
     search_domain_filter: [
-      "vaticannews.va",
       "bible.usccb.org",
+      "vaticannews.va",
       "catholicculture.org",
       "catholic.org",
       "ewtn.com",
-      "catholicnewsagency.com",
+      "catholicnewsagency.com"
     ],
     search_recency_filter: "week"
   };
@@ -120,15 +112,13 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
 
     const data = await res.json();
     let markdown = data.choices?.[0]?.message?.content || '';
-
     markdown = stripCodeFences(markdown);
 
     await fs.mkdir('public/exp', { recursive: true });
     await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
-
     console.log('✅ Complete markdown generated successfully');
 
-    // TODO (optional): parse frontmatter and also emit public/exp/devotions.json
+    // TODO: parse frontmatter and emit public/exp/devotions.json if needed
 
   } catch (error) {
     console.error('❌ Error:', error);
@@ -139,20 +129,13 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
 function stripCodeFences(text) {
   if (!text) return text;
   let t = text.replace(/\r\n/g, '\n').trim();
-
-  if (t.startsWith('```')) {
-    const lines = t.split('\n');
-    lines.shift(); // remove first line containing opening ```
-    t = lines.join('\n');
+  if (t.startsWith('```
+    t = t.substring(3).trimStart();
   }
-
   if (t.endsWith('```')) {
-    const lines = t.split('\n');
-    lines.pop(); // remove last line containing closing ```
-    t = lines.join('\n');
+    t = t.substring(0, t.length - 3).trimEnd();
   }
-
-  return t.trim();
+  return t;
 }
 
 generateMarkdown();
