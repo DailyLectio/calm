@@ -95,7 +95,7 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
     search_domain_filter: [
       "vaticannews.va",
       "bible.usccb.org",
-      "catholicculture.org",xf
+      "catholicculture.org",
       "catholic.org",
       "ewtn.com",
       "catholicnewsagency.com",
