@@ -95,7 +95,7 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
     search_domain_filter: [
       "vaticannews.va",
       "bible.usccb.org",
-      "catholicculture.org",
+      "catholicculture.org",xf
       "catholic.org",
       "ewtn.com",
       "catholicnewsagency.com",
@@ -139,16 +139,19 @@ If there is no secondReadingRef (no second reading), write exactly: "No second r
 function stripCodeFences(text) {
   if (!text) return text;
   let t = text.replace(/\r\n/g, '\n').trim();
-  if (t.startsWith('```
+
+  if (t.startsWith('```')) {
     const lines = t.split('\n');
-    lines.shift();
+    lines.shift(); // remove first line containing opening ```
     t = lines.join('\n');
   }
+
   if (t.endsWith('```')) {
     const lines = t.split('\n');
-    lines.pop();
+    lines.pop(); // remove last line containing closing ```
     t = lines.join('\n');
   }
+
   return t.trim();
 }
 
