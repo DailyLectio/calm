@@ -4,12 +4,12 @@ USCCB-only weekly generator (no local fallbacks).
 
 - Fetches bible.usccb.org daily pages (.../MMDDYY.cfm) with requests.
 - Extracts Reading I / Responsorial Psalm / Gospel robustly.
-- If labels are missing, uses a heuristic: detect all Scripture refs in the
-  header and classify (Gospels -> Gospel, Psalm/Ps/Psalms -> Psalm, else First/Second).
+- If labels are missing, uses a limited heuristic: detect refs in header and classify
+  (Gospels -> Gospel, Psalm/Ps/Psalms -> Psalm, else First/Second).
 - If (first, psalm, gospel) can't be derived, exits with a clear message.
 
 FAST SCRAPE CHECK (no OpenAI, no writes):
-    USCCB_PRECHECK=1 START_DATE=2025-09-01 DAYS=30 python scripts/generate_weekly.py
+    USCCB_PRECHECK=1 START_DATE=2025-09-01 DAYS=7 python scripts/generate_weekly.py
 """
 
 import html as ihtml
@@ -22,10 +22,8 @@ from collections import OrderedDict
 from typing import List, Dict, Any
 
 import requests
-# ------------------ [2aa] HARDENING: retry/backoff for HTTP -------------------
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-# -----------------------------------------------------------------------------
 
 # ---------- repo paths ----------
 ROOT         = Path(__file__).resolve().parents[1]
@@ -41,30 +39,68 @@ TEMP_REPAIR    = float(os.getenv("GEN_TEMP_REPAIR", "0.45"))
 TEMP_QUOTE     = float(os.getenv("GEN_TEMP_QUOTE", "0.35"))
 
 def safe_chat(client, *, temperature, response_format, messages, model=None):
-    use_model = (model or MODEL)
+    """
+    Create a chat completion while gracefully handling models that don't allow
+    custom temperature (e.g., some GPT-5 variants). If the model rejects the
+    'temperature' param, retry without it. Also supports fallback model.
+    """
+    def _create(use_model, allow_temp=True):
+        kwargs = {
+            "model": use_model,
+            "response_format": response_format,
+            "messages": messages,
+        }
+        # Heuristic: GPT-5* models currently require default temperature.
+        if allow_temp and (temperature is not None) and not str(use_model).startswith("gpt-5"):
+            kwargs["temperature"] = temperature
+        return client.chat.completions.create(**kwargs)
+
+    use_model = model or MODEL
     try:
-        return client.chat.completions.create(
-            model=use_model, temperature=temperature,
-            response_format=response_format, messages=messages,
-        )
+        return _create(use_model, allow_temp=True)
     except Exception as e:
         msg = str(e).lower()
-        if any(k in msg for k in ("model","permission","not found","unknown")) and FALLBACK_MODEL != use_model:
+
+        # If the error is specifically about temperature being unsupported, retry without it
+        if ("temperature" in msg and "only the default (1) value is supported" in msg) or \
+           ("unsupported_value" in msg and "temperature" in msg):
+            try:
+                return _create(use_model, allow_temp=False)
+            except Exception:
+                pass
+
+        # If it's a model availability issue, fall back (also without temp if needed)
+        if any(k in msg for k in ("model", "permission", "not found", "unknown")) and FALLBACK_MODEL != use_model:
             print(f"[warn] model '{use_model}' not available; falling back to '{FALLBACK_MODEL}'")
-            return client.chat.completions.create(
-                model=FALLBACK_MODEL, temperature=temperature,
-                response_format=response_format, messages=messages,
-            )
+            try:
+                return _create(FALLBACK_MODEL, allow_temp=True)
+            except Exception as e2:
+                # Try once more without temperature in case fallback has same restriction
+                msg2 = str(e2).lower()
+                if ("temperature" in msg2 and "only the default (1) value is supported" in msg2) or \
+                   ("unsupported_value" in msg2 and "temperature" in msg2):
+                    return _create(FALLBACK_MODEL, allow_temp=False)
+                raise
+
+        # Not a temperature issue and no fallback path handled it
         raise
 
 # ---------- output contract ----------
 KEY_ORDER = [
-    "date","quote","quoteCitation","firstReading","psalmSummary","gospelSummary","saintReflection",
-    "dailyPrayer","theologicalSynthesis","exegesis","secondReading","tags","usccbLink","cycle",
-    "weekdayCycle","feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef",
-    "gospelRef","lectionaryKey",
+    "date","quote","quoteCitation",
+    "firstReading","secondReading",
+    "psalmSummary","gospelSummary","saintReflection",
+    "dailyPrayer","theologicalSynthesis","exegesis",
+    "tags",
+    # refs / meta
+    "usccbLink","cycle","weekdayCycle","feast",
+    "gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef",
+    "lectionaryKey",
 ]
-NULLABLE_STR_FIELDS = ("secondReading", "feast", "secondReadingRef")
+NULLABLE_STR_FIELDS = {
+    "secondReading", "feast", "firstReadingRef", "secondReadingRef",
+    "psalmRef", "gospelRef", "gospelReference", "lectionaryKey"
+}
 
 # ---------- enums / normalization ----------
 CYCLE_MAP   = {"A":"Year A","B":"Year B","C":"Year C","Year A":"Year A","Year B":"Year B","Year C":"Year C"}
@@ -153,14 +189,14 @@ def clean_tags(val) -> List[str]:
         if len(out)>=12: break
     return out
 
-def lectionary_key(meta: Dict[str, str]) -> str:
+def make_lectionary_key(meta: Dict[str, str]) -> str:
     parts = [meta.get("firstRef","").replace(" ",""),
              meta.get("psalmRef","").replace(" ",""),
              meta.get("gospelRef","").replace(" ",""),
              meta.get("cycle",""), meta.get("weekday","")]
     return "|".join(p for p in parts if p)
 
-# ------------------ [2aa] HARDENING: shared requests.Session ------------------
+# ---------- requests session with retry ----------
 _retry = Retry(
     total=4, backoff_factor=0.5,
     status_forcelist=(429, 500, 502, 503, 504),
@@ -170,9 +206,8 @@ _retry = Retry(
 SESSION = requests.Session()
 SESSION.mount("https://", HTTPAdapter(max_retries=_retry))
 SESSION.mount("http://",  HTTPAdapter(max_retries=_retry))
-# -----------------------------------------------------------------------------
 
-# ---------- robust USCCB scraping (requests + regex only) ----------
+# ---------- robust USCCB scraping ----------
 UA_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -191,15 +226,12 @@ BOOK_PATTERN = (
     r"1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|"
     r"1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation))"
 )
-
-# Allow hyphen and en-dash in verse lists using ASCII '-' and \u2013.
 REF_RE = re.compile(
     rf"({BOOK_PATTERN}\s+\d+(?::[0-9,\-\u2013\s]+)?(?:\s*(?:and|;)\s*[0-9:,\-\u2013\s]+)*)",
     flags=re.I
 )
 
 def _html_to_text(html: str) -> str:
-    # keep block breaks
     txt = re.sub(r"(?i)</(p|li|h\d|div|br|tr|section)>", "\n", html)
     txt = re.sub(r"(?is)<script.*?</script>", " ", txt)
     txt = re.sub(r"(?is)<style.*?</style>", " ", txt)
@@ -219,7 +251,6 @@ def _fetch_usccb_text(d: date) -> str:
     url = usccb_link(d)
     r = SESSION.get(url, headers=UA_HEADERS, timeout=20)
     if r.status_code != 200 or not r.text:
-        # alternate daily endpoint sometimes works
         alt = f"https://bible.usccb.org/bible/readings?date={d.isoformat()}"
         r = SESSION.get(alt, headers=UA_HEADERS, timeout=20)
         if r.status_code != 200 or not r.text:
@@ -237,10 +268,9 @@ def _find_ref_after(labels: List[str], text: str, near=800) -> str:
     return ""
 
 def _heuristic_assign(text: str) -> Dict[str,str]:
-    """Fallback when explicit labels aren't found."""
+    """Limited fallback when explicit labels aren't found."""
     head = text[:3000]
     refs = [m.group(1) for m in REF_RE.finditer(head)]
-    # de-dup while preserving order
     seen, uniq = set(), []
     for r in refs:
         rr = _normalize_psalm_name(r)
@@ -248,11 +278,11 @@ def _heuristic_assign(text: str) -> Dict[str,str]:
             seen.add(rr.lower()); uniq.append(rr)
     out = {"firstRef":"", "secondRef":"", "psalmRef":"", "gospelRef":""}
     for r in uniq:
-        if any(g in r.lower() for g in ("matthew","mark","luke","john")) and not out["gospelRef"]:
+        low = r.lower()
+        if any(g in low for g in ("matthew","mark","luke","john")) and not out["gospelRef"]:
             out["gospelRef"] = r; continue
-        if "psalm" in r.lower() and not out["psalmRef"]:
+        if "psalm" in low and not out["psalmRef"]:
             out["psalmRef"] = r; continue
-    # the rest are first/second (if present)
     leftovers = [r for r in uniq if r not in (out["gospelRef"], out["psalmRef"])][:2]
     if leftovers:
         out["firstRef"] = leftovers[0]
@@ -263,17 +293,11 @@ def _heuristic_assign(text: str) -> Dict[str,str]:
 def fetch_usccb_meta(d: date) -> Dict[str,str]:
     txt = _fetch_usccb_text(d)
 
-    # Try explicit label capture first
-    first = _find_ref_after(
-        ["Reading I", "Reading 1", "First Reading", "First Reading:"], txt)
-    second = _find_ref_after(
-        ["Reading II", "Reading 2", "Second Reading", "Second Reading:"], txt)
-    psalm = _find_ref_after(
-        ["Responsorial Psalm", "Responsorial Psalm:"], txt)
-    gospel = _find_ref_after(
-        ["Gospel", "Gospel:"], txt)
+    first = _find_ref_after(["Reading I","Reading 1","First Reading","First Reading:"], txt)
+    second = _find_ref_after(["Reading II","Reading 2","Second Reading","Second Reading:"], txt)
+    psalm = _find_ref_after(["Responsorial Psalm","Responsorial Psalm:"], txt)
+    gospel = _find_ref_after(["Gospel","Gospel:"], txt)
 
-    # Heuristic fallback
     if not (first and psalm and gospel):
         guess = _heuristic_assign(txt)
         first  = first  or guess["firstRef"]
@@ -281,16 +305,14 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
         psalm  = psalm  or guess["psalmRef"]
         gospel = gospel or guess["gospelRef"]
 
-    # Require the core triple
     if not (first and psalm and gospel):
         raise SystemExit(f"USCCB parse incomplete for {d.isoformat()} (first/psalm/gospel required)")
 
-    # Best-effort feast/saint from the page title line
+    # Best-effort feast/saint detection (optional)
     feast = ""
     m = re.search(r"(?im)^\s*(?:Memorial|Feast|Solemnity|Optional Memorial|Saint|St\.)[^\n]+", txt)
     if m: feast = m.group(0).strip()
 
-    # Try to extract a Saint's name from that line
     saintName = ""
     m2 = re.search(r"(Saint|St\.)\s+([A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+)*)", feast or "")
     if m2:
@@ -307,76 +329,10 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
         "saintName": saintName,
         "saintNote": "",
         "url": usccb_link(d),
+        "rawText": txt[:800],  # tiny slice for debugging if needed
     }
 
-# ---------- main content generation ----------
-def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
-    def S(k, default=""):
-        v = draft.get(k)
-        if v is None: return default
-        s = str(v).strip()
-        return s if s else default
-
-    second_reading = draft.get("secondReading")
-    if isinstance(second_reading,str): second_reading = second_reading.strip() or ""
-    elif second_reading is None:       second_reading = ""
-    else:                              second_reading = str(second_reading).strip() or ""
-
-    second_ref = draft.get("secondReadingRef")
-    if isinstance(second_ref,str): second_ref = second_ref.strip() or ""
-    elif second_ref is None:       second_ref = ""
-    else:                          second_ref = str(second_ref).strip() or ""
-    if not second_ref:
-        second_ref = meta.get("secondRef","") or ""
-
-    # fallback for quoteCitation if the model forgot it
-    qc = S("quoteCitation") or S("gospelReference") or meta.get("gospelRef","") \
-         or S("firstReadingRef") or meta.get("firstRef","")
-
-    obj = {
-        "date": ds,
-        "quote": S("quote"),
-        "quoteCitation": qc,
-        "firstReading": S("firstReading"),
-        "psalmSummary": S("psalmSummary"),
-        "gospelSummary": S("gospelSummary"),
-        "saintReflection": S("saintReflection"),
-        "dailyPrayer": S("dailyPrayer"),
-        "theologicalSynthesis": S("theologicalSynthesis"),
-        "exegesis": S("exegesis"),
-        "secondReading": second_reading,
-        "tags": clean_tags(draft.get("tags")),
-        "usccbLink": usccb_link(d),
-        "cycle": S("cycle") or meta["cycle"],
-        "weekdayCycle": S("weekdayCycle") or meta["weekday"],
-        "feast": S("feast") or meta["feast"],
-        "gospelReference": S("gospelReference") or meta["gospelRef"],
-        "firstReadingRef": S("firstReadingRef") or meta["firstRef"],
-        "secondReadingRef": second_ref,
-        "psalmRef": S("psalmRef") or meta["psalmRef"],
-        "gospelRef": S("gospelRef") or meta["gospelRef"],
-        "lectionaryKey": S("lectionaryKey") or lk,
-    }
-    return obj
-
-def _order_keys(entry: Dict[str, Any]) -> OrderedDict:
-    ordered = OrderedDict()
-    for k in KEY_ORDER:
-        if k in NULLABLE_STR_FIELDS and (entry.get(k) is None):
-            ordered[k] = ""
-        else:
-            ordered[k] = entry.get(k, "" if k in NULLABLE_STR_FIELDS else ([] if k=="tags" else ""))
-    return ordered
-
-def normalize_day(entry: Dict[str, Any]) -> OrderedDict:
-    entry = _normalize_enums(_normalize_refs(entry))
-    if isinstance(entry.get("tags"), str):
-        entry["tags"] = [s.strip() for s in entry["tags"].split(",") if s.strip()]
-    elif not isinstance(entry.get("tags"), list):
-        entry["tags"] = []
-    return _order_keys(entry)
-
-# --------------- [2B] FALLBACK BLOCK for missing model fields -----------------
+# ---------- fallbacks for missing model text ----------
 FALLBACK_SENTENCES = {
     "quote": "Fix your eyes on Christ.",
     "firstReading": "A brief summary of the first reading encouraging faithfulness.",
@@ -389,16 +345,9 @@ FALLBACK_SENTENCES = {
 }
 
 def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
-    """
-    Mutates `draft` in-place with minimal, safe defaults so required fields are
-    never empty. This only runs if the model omitted something.
-    """
-    # textual fields (keep incredibly short; schema only checks non-empty)
     for k, default in FALLBACK_SENTENCES.items():
         if not str(draft.get(k, "")).strip():
             draft[k] = default
-
-    # quotes often missing a citation; set a safe one if absent
     if not str(draft.get("quoteCitation", "")).strip():
         draft["quoteCitation"] = (
             draft.get("gospelReference")
@@ -407,9 +356,109 @@ def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
             or meta.get("firstRef")
             or "Scripture"
         )
-# -----------------------------------------------------------------------------
 
+# ---------- canonicalization ----------
+def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
+    def S(k, default=""):
+        v = draft.get(k)
+        if v is None: return default
+        s = str(v).strip()
+        return s if s else default
 
+    # normalize second reading text & ref
+    second_reading = draft.get("secondReading")
+    if isinstance(second_reading,str): second_reading = second_reading.strip() or ""
+    elif second_reading is None:       second_reading = ""
+    else:                              second_reading = str(second_reading).strip() or ""
+
+    second_ref = S("secondReadingRef") or meta.get("secondRef","") or ""
+
+    # fields from the draft (with defaults)
+    quote                 = S("quote")
+    quoteCitation         = S("quoteCitation") or S("gospelReference") or meta.get("gospelRef","") \
+                            or S("firstReadingRef") or meta.get("firstRef","")
+    first_reading         = S("firstReading")
+    psalm_summary         = S("psalmSummary")
+    gospel_summary        = S("gospelSummary")
+    daily_prayer          = S("dailyPrayer")
+    saint_reflection      = S("saintReflection")
+    theological_synthesis = S("theologicalSynthesis")
+    exegesis              = S("exegesis")
+    tags                  = clean_tags(draft.get("tags"))
+
+    # refs/meta (prefer model, then meta)
+    first_ref        = S("firstReadingRef") or meta.get("firstRef","")
+    psalm_ref        = S("psalmRef") or meta.get("psalmRef","")
+    gospel_ref       = S("gospelRef") or meta.get("gospelRef","")
+    gospel_reference = S("gospelReference") or meta.get("gospelRef","")
+    feast            = S("feast") or meta.get("feast","")
+    cycle            = S("cycle") or meta.get("cycle","Year C")
+    weekday_cycle    = S("weekdayCycle") or meta.get("weekday","Cycle I")
+    usccb_url        = meta.get("url") or usccb_link(d)
+
+    obj = {
+        "date": ds,
+        "quote": quote,
+        "quoteCitation": quoteCitation,
+        "firstReading": first_reading,
+        "secondReading": second_reading,
+        "psalmSummary": psalm_summary,
+        "gospelSummary": gospel_summary,
+        "saintReflection": saint_reflection,
+        "dailyPrayer": daily_prayer,
+        "theologicalSynthesis": theological_synthesis,
+        "exegesis": exegesis,
+
+        # meta / refs
+        "tags": tags,
+        "usccbLink": usccb_url,
+        "cycle": cycle,
+        "weekdayCycle": weekday_cycle,
+        "feast": feast,
+        "gospelReference": gospel_reference,
+        "firstReadingRef": first_ref,
+        "secondReadingRef": second_ref,
+        "psalmRef": psalm_ref,
+        "gospelRef": gospel_ref,
+        "lectionaryKey": lk,
+    }
+
+    # guarantee nullable-string fields use ""
+    for k in NULLABLE_STR_FIELDS:
+        if obj.get(k) is None:
+            obj[k] = ""
+    if obj.get("tags") is None:
+        obj["tags"] = []
+
+    return obj
+
+# ---------- ordering / normalization ----------
+def _order_keys(entry: Dict[str, Any]) -> OrderedDict:
+    # normalize nullables → ""
+    for k in NULLABLE_STR_FIELDS:
+        if entry.get(k) is None:
+            entry[k] = ""
+    if entry.get("tags") is None:
+        entry["tags"] = []
+    out = OrderedDict()
+    for k in KEY_ORDER:
+        if k == "tags":
+            out[k] = entry.get(k, [])
+        elif k in NULLABLE_STR_FIELDS:
+            out[k] = entry.get(k, "") or ""
+        else:
+            out[k] = entry.get(k, "")
+    return out
+
+def normalize_day(entry: Dict[str, Any]) -> OrderedDict:
+    entry = _normalize_enums(_normalize_refs(entry))
+    if isinstance(entry.get("tags"), str):
+        entry["tags"] = [s.strip() for s in entry["tags"].split(",") if s.strip()]
+    elif not isinstance(entry.get("tags"), list):
+        entry["tags"] = []
+    return _order_keys(entry)
+
+# ---------- main ----------
 def main():
     print(f"[info] tz={APP_TZ} start={START} days={DAYS} model={MODEL}")
 
@@ -442,7 +491,8 @@ def main():
         for ds in wanted_dates:
             d = date.fromisoformat(ds)
             meta = fetch_usccb_meta(d)
-            print(f"[ok] {ds}: First={meta['firstRef']} | Psalm={meta['psalmRef']} | Gospel={meta['gospelRef']}")
+            saint = f" | Saint={meta['saintName']}" if meta.get("saintName") else ""
+            print(f"[ok] {ds}: First={meta['firstRef']} | Psalm={meta['psalmRef']} | Gospel={meta['gospelRef']}{saint}")
         return
 
     client = OpenAI()
@@ -450,7 +500,9 @@ def main():
     for ds in wanted_dates:
         d = date.fromisoformat(ds)
         meta = fetch_usccb_meta(d)
-        lk   = lectionary_key(meta)
+        if not meta.get("saintName"):
+            print(f"[warn] {ds}: no saint name detected from page title; proceeding without it.")
+        lk   = make_lectionary_key(meta)
 
         user_msg = "\n".join([
             f"Date: {ds}",
@@ -461,10 +513,10 @@ def main():
             f"  First:  {meta['firstRef']}",
             f"  Psalm:  {meta['psalmRef']}",
             f"  Gospel: {meta['gospelRef']}",
-            f"Saint: {meta['saintName']} - {meta['saintNote']}",
+            f"Saint: {meta.get('saintName','')}",
         ])
 
-        # --- main generation ---
+        # main generation
         resp = safe_chat(
             client,
             temperature=TEMP_MAIN,
@@ -489,7 +541,7 @@ def main():
 
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 
-    # --- optional JSON Schema validation (array-level) ---
+    # optional JSON Schema validation (array-level)
     if validator:
         errs = list(validator.iter_errors(out))
         if errs:

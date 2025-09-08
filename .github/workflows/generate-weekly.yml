@@ -26,8 +26,8 @@ jobs:
       OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
       GH_PAT: ${{ secrets.GH_PAT }}
       APP_TZ: America/New_York
-      GEN_MODEL: gpt-4o-mini
-      GEN_FALLBACK: gpt-4o-mini
+      GEN_MODEL: gpt-5-mini
+      GEN_FALLBACK: gpt-5-mini
       GEN_TEMP: "0.60"
       GEN_TEMP_REPAIR: "0.55"
       GEN_TEMP_QUOTE: "0.35"
