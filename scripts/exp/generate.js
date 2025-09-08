@@ -1,47 +1,19 @@
-// scripts/exp/generate.js
 import fs from 'fs/promises';
 
-// ----- Config -----
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || "";
-const MODEL = process.env.PPLX_MODEL || "sonar-general"; // or your preferred model
-const TODAY = new Date().toISOString().split('T')[0];
+const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+const MODEL = process.env.MODEL || 'sonar';
 
-// Optional overrides (CI/CLI can set these)
-// Example: SECOND_READING_REF="Romans 11:33-36" HAS_SECOND_READING="1"
-const SECOND_READING_REF = process.env.SECOND_READING_REF || "";
-const HAS_SECOND_READING = (process.env.HAS_SECOND_READING || "").toLowerCase() === "1";
+async function generateMarkdown() {
+  console.log('Starting markdown generation...');
 
-// Fail fast if key missing
-if (!PERPLEXITY_API_KEY) {
-  console.error("❌ PERPLEXITY_API_KEY is not set");
-  process.exit(1);
-}
+  const today = new Date().toISOString().split('T')[0];
 
-// Safe code-fence stripper
-function stripCodeFences(text) {
-  if (!text) return text;
-  let t = text.replace(/\r\n/g, "\n").trim();
-  if (t.startsWith("```")) {
-    // remove first line (``` or ```lang)
-    t = t.replace(/^```[^\n]*\n/, "");
-  }
-  if (t.endsWith("```")) {
-    t = t.replace(/\n?```$/, "");
-  }
-  return t.trim();
-}
-
-// Compose YAML fields for second reading
-const yamlHasSecond = HAS_SECOND_READING && SECOND_READING_REF.trim().length > 0;
-const yamlSecondRef = yamlHasSecond ? SECOND_READING_REF.trim() : null;
-
-// Prompt
-const prompt = `Generate a complete Catholic daily devotion as structured Markdown with YAML frontmatter for ${TODAY}.
+  const prompt = `Generate a complete Catholic daily devotion as structured Markdown with YAML frontmatter for ${today}.
 
 Format exactly like this:
 
 ---
-date: "${TODAY}"
+date: "${today}"
 quote: "Short inspirational quote from today's Gospel (max 20 words)"
 quoteCitation: "Jn 11:25"
 cycle: "Year C"
@@ -50,9 +22,8 @@ feast: "Memorial of Saint [Name]" or "Ordinary Time"
 usccbLink: "https://bible.usccb.org/bible/readings/MMDDYY.cfm"
 gospelReference: "John 11:17-27"
 firstReadingRef: "Deuteronomy 4:32-40"
-secondReadingRef: ${yamlSecondRef === null ? "null" : `"${yamlSecondRef}"`}
+secondReadingRef: null
 psalmRef: "Psalm 77:12-13, 14-15, 16, 21"
-hasSecondReading: ${yamlHasSecond ? "true" : "false"}
 tags: ["Faith", "Hope", "Resurrection"]
 ---
 
@@ -60,9 +31,9 @@ tags: ["Faith", "Hope", "Resurrection"]
 120-180 words of flowing prose about today's first reading...
 
 # Second Reading Summary
-Write 60–120 words **only if** hasSecondReading is true.
-- If hasSecondReading is true, reflect thoughtfully on the passage cited in secondReadingRef.
-- If hasSecondReading is false, write exactly: "No second reading today."
+Write 60-120 words about today's second reading only if secondReadingRef is non-null.
+- If there is a secondReadingRef, provide a thoughtful reflection based on that citation.
+- If there is no secondReadingRef (no second reading), write: "No second reading today."
 
 # Psalm Summary
 60-120 words about how the psalm supports the theme...
@@ -84,25 +55,21 @@ Write 60–120 words **only if** hasSecondReading is true.
 
 After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`;
 
-async function generateMarkdown() {
-  console.log("Starting markdown generation...");
-
   const payload = {
     model: MODEL,
     messages: [{ role: "user", content: prompt }],
     max_tokens: 5000,
     temperature: 0.2,
-    // Optional retrieval preferences (Perplexity-specific; safe defaults)
     search_domain_filter: ["wikipedia.org", "bible.usccb.org", "catholicculture.org", "-reddit.com"],
     search_recency_filter: "week"
   };
 
   try {
-    const res = await fetch("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
+    const res = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${PERPLEXITY_API_KEY}`,
-        "Content-Type": "application/json"
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
@@ -113,16 +80,30 @@ async function generateMarkdown() {
     }
 
     const data = await res.json();
-    let markdown = data?.choices?.[0]?.message?.content ?? "";
-    markdown = stripCodeFences(markdown);
+    let markdown = data?.choices?.[0]?.message?.content ?? '';
 
-    await fs.mkdir("public/exp", { recursive: true });
-    await fs.writeFile("public/exp/devotion.md", markdown, "utf8");
-    console.log("✅ Complete markdown generated successfully");
+    // Strip surrounding code fences if the model wrapped the response
+    markdown = stripCodeFences(markdown).trim();
+
+    await fs.mkdir('public/exp', { recursive: true });
+    await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
+    console.log('✅ Complete markdown generated successfully');
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error('❌ Error:', error);
     process.exit(1);
   }
+}
+
+function stripCodeFences(text) {
+  // normalize newlines first
+  text = text.replace(/\r\n/g, '\n');
+  if (text.startsWith('```
+    text = text.replace(/^```[^\n]*\n/, ''); // opening fence + optional language
+  }
+  if (text.endsWith('```
+    text = text.replace(/\n?```$/, ''); // closing fence
+  }
+  return text;
 }
 
 generateMarkdown();
