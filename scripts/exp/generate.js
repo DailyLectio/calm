@@ -36,10 +36,10 @@ async function generateMarkdown() {
 
   const prompt = `Generate a Catholic daily devotion as Markdown with YAML frontmatter for ${today}.
 Rules:
-- Do NOT include code fences.
-- Use valid YAML frontmatter FIRST, starting with '---' and ending with '---'.
-- Use today's date and the USCCB link for today.
-- Use clear headings only; no placeholder citations or example references.
+- Do NOT include Markdown code fences.
+- Start with YAML frontmatter delimited by '---' lines.
+- Use today's date and the USCCB link matching today.
+- Use clear headings only; no example citations inside the content.
 ---
 date: "${today}"
 quote: "Short inspirational quote from today's Gospel (max 20 words)"
@@ -77,7 +77,8 @@ Provide a 3–6 sentence original prayer.
 Provide a 3–6 sentence synthesis connecting all readings and the saint.
 
 # Detailed Scriptural Exegesis
-Provide a 700–1000 word scholarly exegesis with historical context.`;
+Provide a 700–1000 word scholarly exegesis with historical context.
+`;
 
   const payload = {
     model: MODEL,
@@ -116,6 +117,7 @@ Provide a 700–1000 word scholarly exegesis with historical context.`;
 
     await fs.mkdir('public/exp', { recursive: true });
     await fs.writeFile('public/exp/devotion.md', markdown, 'utf8');
+
     console.log('✅ Complete markdown generated successfully');
 
     // TODO: parse frontmatter and emit public/exp/devotions.json if needed
@@ -129,13 +131,17 @@ Provide a 700–1000 word scholarly exegesis with historical context.`;
 function stripCodeFences(text) {
   if (!text) return text;
   let t = text.replace(/\r\n/g, '\n').trim();
-  if (t.startsWith('```
-    t = t.substring(3).trimStart();
+  // Remove a single leading code fence line if present
+  if (t.startsWith("```
+    const idx = t.indexOf('\n');
+    if (idx !== -1) t = t.slice(idx + 1);
   }
-  if (t.endsWith('```')) {
-    t = t.substring(0, t.length - 3).trimEnd();
+  // Remove a single trailing code fence line if present
+  if (t.endsWith("```")) {
+    const idx = t.lastIndexOf('\n');
+    if (idx !== -1) t = t.slice(0, idx);
   }
-  return t;
+  return t.trim();
 }
 
 generateMarkdown();
