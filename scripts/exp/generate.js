@@ -10,28 +10,13 @@ async function generateMarkdown() {
 
   const prompt = `Generate a complete Catholic daily devotion as structured Markdown with YAML frontmatter for ${today}.
 
-Format exactly like this:
-
----
-date: "${today}"
-quote: "Short inspirational quote from today's Gospel (max 20 words)"
-quoteCitation: "Jn 11:25"
-cycle: "Year C"
-weekdayCycle: "Cycle I"
-feast: "Memorial of Saint [Name]" or "Ordinary Time"
-usccbLink: "https://bible.usccb.org/bible/readings/MMDDYY.cfm"
-gospelReference: "John 11:17-27"
-firstReadingRef: "Deuteronomy 4:32-40"
-secondReadingRef: null
-psalmRef: "Psalm 77:12-13, 14-15, 16, 21"
-tags: ["Faith", "Hope", "Resurrection"]
 ---
 
 # First Reading Summary
 120-180 words of flowing prose about today's first reading...
 
 # Second Reading Summary
-Write 60-120 words about today's second reading only if secondReadingRef is non-null.
+Write 120-180 words about today's second reading only if secondReadingRef is non-null.
 - If there is a secondReadingRef, provide a thoughtful reflection based on that citation.
 - If there is no secondReadingRef (no second reading), write: "No second reading today."
 
@@ -60,7 +45,7 @@ After the "Detailed Scriptural Exegesis" section, append the line: <!-- END -->`
     messages: [{ role: "user", content: prompt }],
     max_tokens: 5000,
     temperature: 0.2,
-    search_domain_filter: ["wikipedia.org", "bible.usccb.org", "catholicculture.org", "-reddit.com"],
+    search_domain_filter: ["bible.usccb.org", "catholicculture.org", "wikipedia.org", "-reddit.com"],
     search_recency_filter: "week"
   };
 
