@@ -5,16 +5,32 @@
   "items": {
     "type": "object",
     "properties": {
-      "date":               { "type": "string" },
-      "quote":              { "type": "string" },
-      "quoteCitation":      { "type": "string" },
-      "firstReading":       { "type": "string" },
-      "secondReading":       { "type": "string" },
-      "psalmSummary":       { "type": "string" },
-      "gospelSummary":      { "type": "string" },
-      "dailyPrayer":        { "type": "string" },
-      "saintReflection":    { "type": "string" },
-      "theologicalSynthesis": { "type": "string" }
+      "date": { "type": "string" },
+      "quote": { "type": "string" },
+      "quoteCitation": { "type": "string" },
+      "firstReading": { "type": "string" },
+      "secondReading": { "type": "string" },
+      "psalmSummary": { "type": "string" },
+      "gospelSummary": { "type": "string" },
+      "dailyPrayer": { "type": "string" },
+      "saintReflection": { "type": "string" },
+      "theologicalSynthesis": { "type": "string" },
+      "exegesis": { "type": "string" },
+
+      "usccbLink": { "type": "string" },
+      "cycle": { "type": "string" },
+      "weekdayCycle": { "type": "string" },
+      "feast": { "type": "string" },
+      "gospelReference": { "type": "string" },
+      "firstReadingRef": { "type": "string" },
+      "secondReadingRef": { "type": "string" },
+      "psalmRef": { "type": "string" },
+      "gospelRef": { "type": "string" },
+      "lectionaryKey": { "type": "string" },
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
     },
     "required": [
       "date",
@@ -26,7 +42,19 @@
       "gospelSummary",
       "dailyPrayer",
       "saintReflection",
-      "theologicalSynthesis"
+      "theologicalSynthesis",
+      "exegesis",
+      "usccbLink",
+      "cycle",
+      "weekdayCycle",
+      "feast",
+      "gospelReference",
+      "firstReadingRef",
+      "secondReadingRef",
+      "psalmRef",
+      "gospelRef",
+      "lectionaryKey",
+      "tags"
     ],
     "additionalProperties": false
   }
