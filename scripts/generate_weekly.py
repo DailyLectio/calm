@@ -1,69 +1,104 @@
-from __future__ import annotations
-import argparse, json, datetime as dt
+name: Generate Weekly Devotions (Fri–Thu)
 
-try:
-    from scripts.saints_service import (
-        load_authority, resolve_saint_for_date, choose_primary_url, enrich_with_live_fallback
-    )
-except ModuleNotFoundError:
-    try:
-        from saints_service import (
-            load_authority, resolve_saint_for_date, choose_primary_url, enrich_with_live_fallback
-        )
-    except ModuleNotFoundError:
-        import sys, pathlib
-        ROOT = pathlib.Path(__file__).resolve().parents[1]
-        if str(ROOT) not in sys.path:
-            sys.path.insert(0, str(ROOT))
-        from scripts.saints_service import (
-            load_authority, resolve_saint_for_date, choose_primary_url, enrich_with_live_fallback
-        )
+on:
+  schedule:
+    # 3:00am local NY time (handles DST by providing both)
+    - cron: "0 8 * * 2"   # 03:00 EST (UTC-5)
+    - cron: "0 7 * * 2"   # 03:00 EDT (UTC-4)
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Start date (YYYY-MM-DD). Blank = script default"
+        required: false
+        default: ""
+      days:
+        description: "How many days (default 7)"
+        required: false
+        default: "7"
 
-def make_reflection(name: str, blurb: str) -> str:
-    if blurb:
-        return blurb.strip()
-    return f"{name}—pray for us."
+jobs:
+  gen-weekly:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+      GH_PAT: ${{ secrets.GH_PAT }}
+      APP_TZ: America/New_York
+      GEN_MODEL: gpt-4o-mini
+      GEN_FALLBACK: gpt-4o-mini
+      GEN_TEMP: "0.60"
+      GEN_TEMP_REPAIR: "0.55"
+      GEN_TEMP_QUOTE: "0.35"
 
-def generate_weekly(start: dt.date, authority_csv_path, days: int = 7, live_fallback: bool = False):
-    from pathlib import Path
-    authority_csv = Path(authority_csv_path)
-    auth = load_authority(authority_csv)
-    out_days = []
-    for i in range(days):
-        d = start + dt.timedelta(days=i)
-        saint = resolve_saint_for_date(d, auth)
-        if not saint:
-            out_days.append({"date": d.isoformat(), "saint": None})
-            continue
-        saint = enrich_with_live_fallback(saint, enable=live_fallback)
-        primary_url = choose_primary_url(saint)
-        extras = [u for u in saint.resources if u != primary_url]
-        reflection = make_reflection(saint.name, saint.blurb)
-        out_days.append({
-            "date": d.isoformat(),
-            "saint": {
-                "name": saint.name,
-                "source": primary_url,
-                "resources": extras,
-                "blurb": saint.blurb,
-                "reflection": reflection,
-                "saintReflection": reflection,
-            }
-        })
-    return {"week_start": start.isoformat(), "days": out_days}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
-def main():
-    from pathlib import Path
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--start", required=True, help="YYYY-MM-DD (week start)")
-    ap.add_argument("--authority", required=True, help="Path to authority CSV")
-    ap.add_argument("--out", required=True, help="Output JSON path")
-    ap.add_argument("--days", type=int, default=7)
-    ap.add_argument("--live-fallback", action="store_true")
-    args = ap.parse_args()
-    start = dt.date.fromisoformat(args.start)
-    weekly = generate_weekly(start, args.authority, days=args.days, live_fallback=args.live_fallback)
-    Path(args.out).write_text(json.dumps(weekly, ensure_ascii=False, indent=2), encoding="utf-8")
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-if __name__ == "__main__":
-    main()
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests jsonschema openai
+      - name: Sanity check OpenAI env
+        run: |
+          python - <<'PY'
+          import os
+          print("Has OPENAI_API_KEY?", bool(os.getenv("OPENAI_API_KEY")))
+          print("Has OPENAI_PROJECT?", bool(os.getenv("OPENAI_PROJECT")))
+          PY
+      - name: Show existing weeklyfeed.json (if present)
+        run: |
+          if [ -f public/weeklyfeed.json ]; then
+            echo "SHA: $GITHUB_SHA"
+            head -n 60 public/weeklyfeed.json
+          else
+            echo "No existing public/weeklyfeed.json (first run?)"
+          fi
+      - name: USCCB precheck (no OpenAI calls)
+        run: |
+          echo "[info] tz=$APP_TZ start=${{ github.event.inputs.start_date || '' }} days=${{ github.event.inputs.days || '7' }} model=$GEN_MODEL"
+          USCCB_PRECHECK=1 START_DATE="${{ github.event.inputs.start_date }}" DAYS="${{ github.event.inputs.days }}" \
+          python scripts/generate_weekly.py
+      - name: Generate weeklyfeed.json
+        env:
+          TZ: America/New_York
+        run: |
+          set -euo pipefail
+          export START_DATE="${{ github.event.inputs.start_date }}"
+          export DAYS="${{ github.event.inputs.days }}"
+          python scripts/generate_weekly.py
+      - name: Validate weeklyfeed.json shape & fields
+        run: |
+          set -euo pipefail
+          test -f public/weeklyfeed.json
+          jq 'length==7' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; has("date") and has("quote") and has("quoteCitation") and has("firstReading") and has("psalmSummary") and has("gospelSummary") and has("saintReflection") and has("dailyPrayer") and has("theologicalSynthesis") and has("exegesis") and has("secondReading") and has("tags") and has("usccbLink") and has("cycle") and has("weekdayCycle") and has("feast") and has("gospelReference") and has("firstReadingRef") and has("secondReadingRef") and has("psalmRef") and has("gospelRef") and has("lectionaryKey"))' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
+      # ✅ Commit first, then rebase+push (fixes “cannot pull with rebase: unstaged changes”)
+      - name: Commit and push weeklyfeed.json (safe)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Stage only the generated file
+          git add public/weeklyfeed.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: weeklyfeed update (auto)"
+          # Rebase on latest remote and push our commit
+          git fetch origin main
+          git -c rebase.autoStash=true pull --rebase origin main
+          git push origin HEAD:main
