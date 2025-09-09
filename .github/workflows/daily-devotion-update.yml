@@ -30,6 +30,8 @@ jobs:
       contents: write
     env:
       APP_TZ: America/New_York
+    run: |
+    python3 update_daily_devotion.py --tz "$APP_TZ" --skip-dist
 
     steps:
       - name: Checkout repo (main, full history)
