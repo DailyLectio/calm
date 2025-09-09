@@ -22,7 +22,7 @@ concurrency:
 jobs:
   update-devotion:
     # If triggered by weekly, only proceed on success
-    if: |
+    if: >
       github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
@@ -30,8 +30,6 @@ jobs:
       contents: write
     env:
       APP_TZ: America/New_York
-    run: |
-    python3 update_daily_devotion.py --tz "$APP_TZ" --skip-dist
 
     steps:
       - name: Checkout repo (main, full history)
@@ -66,7 +64,7 @@ jobs:
 
       - name: Run daily devotion update (Python)
         run: |
-          python3 update_daily_devotion.py --tz "$APP_TZ"
+          python3 update_daily_devotion.py --tz "$APP_TZ" --skip-dist
 
       - name: Commit and push changes
         env:
@@ -75,7 +73,9 @@ jobs:
           set -euo pipefail
           git config --local user.name  "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/devotions.json dist/devotions.json public/past_reflections/ public/past_reflections/index.json
+          # If dist/ is ignored in .gitignore, -f forces add safely.
+          git add public/devotions.json public/past_reflections/ public/past_reflections/index.json
+          git add -f dist/devotions.json || true
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
