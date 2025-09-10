@@ -12,7 +12,6 @@
       "bundleIdentifier": "org.dailylectio.faithlinks",
       "supportsTablet": true
     },
-
     "android": {
       "package": "org.dailylectio.faithlinks",
       "versionCode": 1,
@@ -23,7 +22,6 @@
       },
       "permissions": []
     },
-
     "web": { "favicon": "./assets/favicon.png" },
 
     "splash": {
@@ -32,8 +30,6 @@
       "backgroundColor": "#ffffff"
     },
 
-    "extra": {
-      "eas": { "projectId": "13c142ac-4622-4aeb-8925-fbede346ef64" }
-    }
+    "extra": { "eas": { "projectId": "13c142ac-4622-4aeb-8925-fbede346ef64" } }
   }
 }
