@@ -24,9 +24,7 @@
       "permissions": []
     },
 
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+    "web": { "favicon": "./assets/favicon.png" },
 
     "splash": {
       "image": "./assets/splash-icon.png",
