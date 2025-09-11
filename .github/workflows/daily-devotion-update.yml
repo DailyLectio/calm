@@ -62,13 +62,13 @@ jobs:
           sys.exit(0 if found else 1)
           PY
 
-      - name: Optional: Log saint.json availability (non-fatal)
+      - name: "Optional - log saint.json availability (non-fatal)"
         run: |
           echo "Checking saint.json…"
-          set +e
+          set -e
           curl -I https://dailylectio.org/saint.json || true
           curl -fsSL https://dailylectio.org/saint.json | head -c 400 || echo "saint.json not available (skipping override)"
-          echo  
+          echo 
 
       - name: Run daily devotion update (Python)
         run: |
