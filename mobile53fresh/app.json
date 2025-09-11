@@ -5,9 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-
     "icon": "./assets/icon.png",
-
     "ios": {
       "bundleIdentifier": "org.dailylectio.faithlinks",
       "supportsTablet": true
@@ -22,12 +20,18 @@
       },
       "permissions": []
     },
-    "web": { "favicon": "./assets/favicon.png" },
-
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "13c142ac-4622-4aeb-8925-fbede346ef64"
+      }
     }
   }
 }

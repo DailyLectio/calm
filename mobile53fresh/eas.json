@@ -1,16 +1,8 @@
 {
-  "cli": { "version": ">= 10.0.0" },
+  "cli": { "version": ">= 10.0.0", "appVersionSource": "remote" },
   "build": {
-    "preview": {
-      "distribution": "internal",
-      "android": { "buildType": "apk" }
-    },
-    "production": {
-      "distribution": "store",
-      "android": { "buildType": "app-bundle" }
-    }
+    "preview": { "distribution": "internal", "android": { "buildType": "apk" } },
+    "production": { "distribution": "store", "android": { "buildType": "app-bundle" } }
   },
-  "submit": {
-    "production": {}
-  }
+  "submit": { "production": {} }
 }
