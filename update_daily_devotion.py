@@ -1,30 +1,12 @@
 #!/usr/bin/env python3
-"""
-Daily Devotion Update Script for FaithLinks
+# -*- coding: utf-8 -*-
 
-Pull today's entry from weeklyfeed.json and write:
-- public/devotions.json  (live)
-- dist/devotions.json    (backup)
-Also archives to:
-- public/past_reflections/YYYY/MM/YYYY-MM-DD.json
-- public/past_reflections/index.json (summary index)
-
-Flags:
-  --date YYYY-MM-DD      Use a specific date (for backfills/replays)
-  --tz America/New_York  Timezone for "today" (default UTC)
-  --dry-run              Do everything except write files
-  --skip-dist            Don't write dist/devotions.json
-  --backfill N           Include the last N days instead of only today
-"""
 from __future__ import annotations
-import argparse, json, os, sys, tempfile
-from datetime import datetime, date, timedelta
+import argparse, json, os, sys, re, urllib.request, tempfile
+from datetime import datetime, timedelta, date
 from pathlib import Path
-try:
-    from zoneinfo import ZoneInfo
-except Exception:
-    print("[fatal] Python 3.9+ required for zoneinfo", file=sys.stderr)
-    sys.exit(2)
+from zoneinfo import ZoneInfo
+from typing import Any, Dict, List, Optional
 
 # ---------- Paths ----------
 BASE_DIR = Path(__file__).resolve().parent
@@ -37,6 +19,8 @@ PUBLIC_TARGET = PUBLIC_DIR / "devotions.json"
 DIST_TARGET = DIST_DIR / "devotions.json"
 INDEX_PATH = ARCHIVE_DIR / "index.json"
 
+SAINT_URL = "https://dailylectio.org/saint.json"
+
 def iso(d: date) -> str:
     return d.isoformat()
 
@@ -45,23 +29,22 @@ def atomic_write_json(path: Path, obj) -> None:
     fd, tmp = tempfile.mkstemp(prefix=path.name, dir=str(path.parent))
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump(obj, f, indent=2, ensure_ascii=False)
+            json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
             f.write("\n")
         os.replace(tmp, path)
     finally:
         try:
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            if os.path.exists(tmp): os.remove(tmp)
         except Exception:
             pass
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--date", help="YYYY-MM-DD override")
-    p.add_argument("--tz", default="UTC", help="IANA timezone, e.g., America/New_York")
+    p.add_argument("--tz", default="America/New_York")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--skip-dist", action="store_true")
-    p.add_argument("--backfill", type=int, default=0, help="Number of days back to include")
+    p.add_argument("--backfill", type=int, default=0, help="N days back to include")
     return p.parse_args()
 
 def load_weekly(path: Path) -> list[dict]:
@@ -71,18 +54,136 @@ def load_weekly(path: Path) -> list[dict]:
         print(f"[error] Failed reading {path}: {e}", file=sys.stderr)
         sys.exit(1)
     if not isinstance(data, list):
-        print(f"[error] {path} is not a JSON array", file=sys.stderr)
-        sys.exit(1)
-    # soft-migrate: map theologicalSummary -> theologicalSynthesis if needed
+        print(f"[error] {path} must be a JSON array", file=sys.stderr); sys.exit(1)
+    # soft migrate
     for e in data:
         if isinstance(e, dict) and "theologicalSynthesis" not in e and "theologicalSummary" in e:
             e["theologicalSynthesis"] = e["theologicalSummary"]
     return data
 
+# ---------- saint helpers ----------
+def fetch_json(url: str, timeout: int = 10) -> Optional[Any]:
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            if resp.status != 200:
+                print(f"[warn] GET {url} -> HTTP {resp.status}", file=sys.stderr)
+                return None
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"[warn] fetch {url} failed: {e}", file=sys.stderr)
+        return None
+
+def _normalize_saint_entry(entry: dict) -> dict:
+    # Map your schema → standard fields we’ll use
+    name = (entry.get("name") or entry.get("saintName") or "").strip()
+    bio  = (entry.get("bio")  or entry.get("profile")   or "").strip()
+    link = (entry.get("link") or "").strip()
+    memorial = (entry.get("memorial") or "").strip()
+    return {"name": name, "bio": bio, "link": link, "memorial": memorial}
+
+def saint_for_today(saint_data: Any, today: str, weekly_feast: str = "") -> Optional[Dict[str, str]]:
+    # Supports dict keyed by date OR list of {date,...}
+    if not saint_data:
+        return None
+    if isinstance(saint_data, dict):
+        entry = saint_data.get(today)
+        if isinstance(entry, dict):
+            std = _normalize_saint_entry(entry)
+            if std["name"] or std["bio"]:
+                return std
+    if isinstance(saint_data, list):
+        for entry in saint_data:
+            if isinstance(entry, dict) and str(entry.get("date","")).strip() == today:
+                std = _normalize_saint_entry(entry)
+                if std["name"] or std["bio"]:
+                    return std
+    # fuzzy fallback using feast text
+    feast = (weekly_feast or "").lower().strip()
+    if feast and isinstance(saint_data, list):
+        for entry in saint_data:
+            if isinstance(entry, dict):
+                nm = (entry.get("saintName") or entry.get("name") or "").lower()
+                if nm and nm in feast:
+                    return _normalize_saint_entry(entry)
+    return None
+
+# ---------- tagging ----------
+THEME_MAP = {
+    r"\bhumbl(e|ity)\b": "humility",
+    r"\bhospitality\b": "hospitality",
+    r"\bmercy\b": "mercy",
+    r"\bjustice\b": "justice",
+    r"\bfaith(ful|fulness)?\b": "faith",
+    r"\bhope\b": "hope",
+    r"\blove\b|\bcharity\b": "love",
+    r"\bkingdom\b": "kingdom-values",
+    r"\bdisciples?\b": "discipleship",
+    r"\bprayer\b": "prayer",
+    r"\byouth\b|\bstudents?\b|\bteen(s)?\b": "youth",
+    r"\bconversion\b|\brepent(ance)?\b": "conversion",
+}
+
+BOOKS = [
+    "Genesis","Exodus","Leviticus","Numbers","Deuteronomy",
+    "Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings",
+    "1 Chronicles","2 Chronicles","Ezra","Nehemiah","Tobit","Judith","Esther",
+    "Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Wisdom","Sirach",
+    "Isaiah","Jeremiah","Lamentations","Baruch","Ezekiel","Daniel",
+    "Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk",
+    "Zephaniah","Haggai","Zechariah","Malachi",
+    "Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians",
+    "Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians",
+    "1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter",
+    "1 John","2 John","3 John","Jude","Revelation"
+]
+
+def auto_tags(entry: Dict[str, Any], saint_used: bool) -> list[str]:
+    existing = entry.get("tags")
+    if isinstance(existing, list) and any(str(x).strip() for x in existing):
+        return [str(x).strip() for x in existing if str(x).strip()]
+
+    text_blob = " ".join(
+        str(entry.get(k,"")) for k in
+        ("quote","firstReading","psalmSummary","gospelSummary","saintReflection","theologicalSynthesis","exegesis","dailyPrayer")
+        if isinstance(entry.get(k), str)
+    )
+    refs_blob = " ".join(
+        str(entry.get(k,"")) for k in
+        ("firstReadingRef","psalmRef","gospelRef","secondReadingRef","quoteCitation")
+        if isinstance(entry.get(k), str)
+    )
+
+    tags: list[str] = []
+    for pat, tag in THEME_MAP.items():
+        if re.search(pat, text_blob, flags=re.IGNORECASE):
+            tags.append(tag)
+    for book in BOOKS:
+        if re.search(rf"\b{re.escape(book)}\b", refs_blob):
+            tags.append(book.lower())
+    if saint_used:
+        tags.insert(0, "saints")
+
+    # dedupe, keep up to 8
+    out: list[str] = []
+    for t in tags:
+        if t not in out:
+            out.append(t)
+    return out[:8]
+
+# ---------- tidy ----------
+def clean_keys(entry: Dict[str, Any]) -> Dict[str, Any]:
+    if "gospelRef" in entry and "gospelReference" in entry:
+        entry.pop("gospelReference", None)
+    for k in ("secondReading","feast","secondReadingRef"):
+        if entry.get(k) is None:
+            entry[k] = ""
+    return entry
+
 def archive_entry(entry: dict) -> None:
-    d = entry.get("date")
-    if not d:
-        print("[warn] skipping archive: entry missing date"); return
+    d = entry.get("date"); 
+    if not d: 
+        print("[warn] no date; skip archive"); 
+        return
     yyyy, mm, _ = d.split("-")
     path = ARCHIVE_DIR / yyyy / mm / f"{d}.json"
     atomic_write_json(path, entry)
@@ -92,7 +193,6 @@ def archive_entry(entry: dict) -> None:
         if not isinstance(idx, list): idx = []
     except Exception:
         idx = []
-    # build summary row
     row = {
         "date": d,
         "quote": entry.get("quote",""),
@@ -104,66 +204,68 @@ def archive_entry(entry: dict) -> None:
         "weekdayCycle": entry.get("weekdayCycle",""),
         "path": f"/past_reflections/{yyyy}/{mm}/{d}.json"
     }
-    # replace or append
+    # replace by date, keep sorted desc
     by_date = {r.get("date"): r for r in idx if isinstance(r, dict)}
     by_date[d] = row
     new_idx = sorted(by_date.values(), key=lambda r: r["date"], reverse=True)
     atomic_write_json(INDEX_PATH, new_idx)
     print(f"[ok] archived {d} → {path}")
 
+# ---------- main ----------
 def main() -> None:
     args = parse_args()
     tz = ZoneInfo(args.tz)
     today = args.date or iso(datetime.now(tz).date())
 
     print(f"[info] tz={args.tz} today={today}")
-    print(f"[info] repo_root={BASE_DIR}")
-    print(f"[info] weekly_path={WEEKLY_PATH}")
-
     if not WEEKLY_PATH.exists():
-        print(f"[error] Source file missing: {WEEKLY_PATH}", file=sys.stderr)
-        sys.exit(1)
-
+        print(f"[error] missing {WEEKLY_PATH}", file=sys.stderr); sys.exit(1)
     weekly = load_weekly(WEEKLY_PATH)
-    dates = [str(e.get("date", "")).strip() for e in weekly if isinstance(e, dict)]
-    uniq = sorted(set(dates))
-    print(f"[info] weekly entries={len(weekly)} unique_dates={len(uniq)} "
-          f"min={uniq[0] if uniq else 'n/a'} max={uniq[-1] if uniq else 'n/a'} "
-          f"has_today={today in uniq}")
 
-    # find today's entry (still used when backfill=0)
-    entry = next((e for e in weekly if str(e.get("date","")).strip() == today), None)
+    entry = next((e for e in weekly if str(e.get("date","")).strip()==today), None)
     if not entry:
-        near = sorted(uniq + [today])
-        i = near.index(today)
-        neighbors = near[max(0, i-3): i] + near[i+1: i+4]
-        print(f"[error] No entry for {today}. Nearby dates: {neighbors}", file=sys.stderr)
-        sys.exit(1)
+        print(f"[error] weeklyfeed has no entry for {today}", file=sys.stderr); sys.exit(1)
+    entry = dict(entry)  # copy
 
-    # Build payload
+    saint_data = fetch_json(SAINT_URL)
+    saint = saint_for_today(saint_data, today, entry.get("feast","") or "")
+    saint_used = False
+    if saint:
+        title = saint["name"]
+        if saint["memorial"]:
+            title = f"{title} ({saint['memorial']})"
+        composed = f"{title}: {saint['bio']}" if title and saint["bio"] else (saint["bio"] or title)
+        if composed:
+            entry["saintReflection"] = composed
+            saint_used = True
+
+    # Ensure simple secondReading string
+    if "secondReading" not in entry or entry["secondReading"] is None:
+        entry["secondReading"] = str(entry.get("secondReadingRef") or "")
+
+    entry = clean_keys(entry)
+    entry["tags"] = auto_tags(entry, saint_used)
+
+    # backfill support (optional)
+    payload = [entry]
     if args.backfill > 0:
-        back_dates = {(datetime.now(tz) - timedelta(days=i)).date().isoformat()
-                      for i in range(args.backfill)}
-        payload = [e for e in weekly if str(e.get("date","")).strip() in back_dates]
-        payload.sort(key=lambda e: e.get("date",""), reverse=True)
-    else:
-        payload = [entry]
+        days = {(datetime.now(tz) - timedelta(days=i)).date().isoformat() for i in range(args.backfill)}
+        extra = [e for e in weekly if str(e.get("date","")).strip() in days]
+        # ensure today first, then recent others
+        rest = [e for e in extra if e.get("date") != today]
+        rest.sort(key=lambda x: x.get("date",""), reverse=True)
+        payload = [entry] + rest
 
-    print(f"[info] will write public={PUBLIC_TARGET} dist={DIST_TARGET} "
-          f"dry_run={args.dry_run} skip_dist={args.skip_dist} count={len(payload)}")
-
+    print(f"[info] writing {PUBLIC_TARGET} (count={len(payload)}) skip_dist={args.skip_dist} dry={args.dry_run}")
     if args.dry_run:
-        print("[info] dry-run: not writing files")
-        sys.exit(0)
+        print(json.dumps(payload[:1], ensure_ascii=False, indent=2)); return
 
-    # write live files
     atomic_write_json(PUBLIC_TARGET, payload)
     print(f"[ok] wrote {PUBLIC_TARGET}")
     if not args.skip_dist:
         atomic_write_json(DIST_TARGET, payload)
         print(f"[ok] wrote {DIST_TARGET}")
 
-    # archive each entry in payload
     for e in payload:
         archive_entry(e)
 
