@@ -74,29 +74,41 @@ def fetch_json(url: str, timeout: int = 10) -> Optional[Any]:
         return None
 
 def _normalize_saint_entry(entry: dict) -> dict:
-    # Map your schema → standard fields we’ll use
-    name = (entry.get("name") or entry.get("saintName") or "").strip()
-    bio  = (entry.get("bio")  or entry.get("profile")   or "").strip()
+    # Accept either saintName/profile or name/bio (yours use saintName/profile)
+    name = (entry.get("saintName") or entry.get("name") or "").strip()
+    bio  = (entry.get("profile")   or entry.get("bio")  or "").strip()
     link = (entry.get("link") or "").strip()
     memorial = (entry.get("memorial") or "").strip()
     return {"name": name, "bio": bio, "link": link, "memorial": memorial}
 
-def saint_for_today(saint_data: Any, today: str, weekly_feast: str = "") -> Optional[Dict[str, str]]:
-    # Supports dict keyed by date OR list of {date,...}
+def saint_for_today(saint_data: Any, today: str) -> Optional[Dict[str, str]]:
+    """
+    Date-only lookup. Supports:
+      1) dict keyed by date: { "YYYY-MM-DD": {...} }
+      2) list of entries:    [ { "date": "YYYY-MM-DD", ... }, ... ]
+    No feast/fuzzy fallback—weekly 'feast' can be blank forever.
+    """
     if not saint_data:
         return None
+
+    # dict keyed by date
     if isinstance(saint_data, dict):
         entry = saint_data.get(today)
         if isinstance(entry, dict):
             std = _normalize_saint_entry(entry)
             if std["name"] or std["bio"]:
                 return std
+
+    # list of entries
     if isinstance(saint_data, list):
         for entry in saint_data:
             if isinstance(entry, dict) and str(entry.get("date","")).strip() == today:
                 std = _normalize_saint_entry(entry)
                 if std["name"] or std["bio"]:
                     return std
+
+    return None
+
     # fuzzy fallback using feast text
     feast = (weekly_feast or "").lower().strip()
     if feast and isinstance(saint_data, list):
@@ -228,7 +240,7 @@ def main() -> None:
     entry = dict(entry)  # copy
 
     saint_data = fetch_json(SAINT_URL)
-    saint = saint_for_today(saint_data, today, entry.get("feast","") or "")
+    saint = saint_for_today(saint_data, today)  # date-only match
     saint_used = False
     if saint:
         title = saint["name"]
