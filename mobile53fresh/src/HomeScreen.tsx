@@ -1,33 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, Pressable, Linking, RefreshControl } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { ScrollView, View, Text, Pressable, Linking, RefreshControl, StyleSheet } from "react-native";
+import { colors, spacing, radius } from "./theme";
+import Header from "./components/Header";
 import { fetchToday } from "./api";
 import type { Devotion } from "./types";
 
-const H2: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Text style={{ fontSize: 18, fontWeight: "800", marginTop: 18, marginBottom: 8 }}>
-    {children}
-  </Text>
-);
-
-const Card: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <View style={{ backgroundColor: "#fff", borderRadius: 12, padding: 12, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 6, elevation: 1 }}>
-    {children}
+const Chip = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.chip}>
+    <Text style={styles.chipText}>{children}</Text>
   </View>
 );
 
-const DebugBar = ({ data, onRefresh }: { data: Devotion | null; onRefresh: () => void }) => {
-  const keys = data ? Object.keys(data) : [];
-  return (
-    <View style={{ backgroundColor: "#eef3ff", padding: 10, borderRadius: 8, marginBottom: 12 }}>
-      <Text style={{ fontWeight: "700" }}>Debug</Text>
-      <Text>Picked date: {data?.date ?? "—"}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail">Keys: {keys.join(", ") || "—"}</Text>
-      <Pressable onPress={onRefresh} style={{ marginTop: 6, padding: 8, backgroundColor: "#1F6BB5", borderRadius: 6 }}>
-        <Text style={{ color: "#fff", fontWeight: "700" }}>Refresh (cache-bust)</Text>
-      </Pressable>
+const Card: React.FC<{ children: React.ReactNode; title?: string; pill?: string }> = ({ children, title, pill }) => (
+  <View style={styles.card}>
+    <View style={styles.cardHeader}>
+      <View style={styles.pill} />
+      {title ? <Text style={styles.cardTitle}>{title}</Text> : null}
+      {pill ? <Chip>{pill}</Chip> : null}
     </View>
-  );
-};
+    <View style={{ marginTop: spacing(1) }}>{children}</View>
+  </View>
+);
 
 export default function HomeScreen() {
   const [data, setData] = useState<Devotion | null>(null);
@@ -47,101 +40,171 @@ export default function HomeScreen() {
 
   useEffect(() => { load(); }, []);
 
+  // prefer actual secondReading; fall back to other shapes if present
+  const secondReadingText = useMemo(() => {
+    return (data as any)?.secondReading ?? (data as any)?.secondReadingSummary ?? (data as any)?.secondReadingRef ?? "";
+  }, [data]);
+
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "#f7f7f7" }}
-      contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
-    >
-      <Text style={{ fontSize: 22, fontWeight: "800", marginBottom: 6 }}>
-        {data?.date ?? "—"}
-      </Text>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <Header />
+      <ScrollView
+        contentContainerStyle={{ padding: spacing(2), paddingBottom: spacing(6) }}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+      >
+        <Text style={styles.date}>{data?.date ?? "—"}</Text>
 
-      <DebugBar data={data} onRefresh={load} />
+        {/* Quote */}
+        {data?.quote ? (
+          <Card title="Quote of the Day">
+            <Text style={styles.quoteText}>{`“${data.quote}”`}</Text>
+            {data?.quoteCitation ? <Text style={styles.citation}>— {data.quoteCitation}</Text> : null}
+          </Card>
+        ) : null}
 
-      {data?.quote && (
-        <Card>
-          <H2>Quote of the Day</H2>
-          <Text style={{ fontStyle: "italic" }}>{`“${data.quote}”`}</Text>
-          {!!data.quoteCitation && (
-            <Text style={{ marginTop: 6, color: "#555" }}>— {data.quoteCitation}</Text>
-          )}
-        </Card>
-      )}
+        {/* First Reading */}
+        {data?.firstReading ? (
+          <Card title={`First Reading ${data?.firstReadingRef ? `(${data.firstReadingRef})` : ""}`}>
+            <Text style={styles.body}>{data.firstReading}</Text>
+          </Card>
+        ) : null}
 
-      {data?.firstReading && (
-        <Card>
-          <H2>First Reading {data.firstReadingRef ? `(${data.firstReadingRef})` : ""}</H2>
-          <Text>{data.firstReading}</Text>
-        </Card>
-      )}
+        {/* Psalm */}
+        {data?.psalmSummary ? (
+          <Card title={`Psalm ${data?.psalmRef ? `(${data.psalmRef})` : ""}`}>
+            <Text style={styles.body}>{data.psalmSummary}</Text>
+          </Card>
+        ) : null}
 
-      {data?.psalmSummary && (
-        <Card>
-          <H2>Psalm {data.psalmRef ? `(${data.psalmRef})` : ""}</H2>
-          <Text>{data.psalmSummary}</Text>
-        </Card>
-      )}
+        {/* Second Reading (text only, no citation header as requested) */}
+        {secondReadingText ? (
+          <Card title="Second Reading">
+            <Text style={styles.body}>{secondReadingText}</Text>
+          </Card>
+        ) : null}
 
-{data?.secondReading && (
-  <Card>
-    <H2>Second Reading</H2>
-    <Text>{data.secondReading}</Text>
-  </Card>
-)}
+        {/* Gospel */}
+        {data?.gospelSummary ? (
+          <Card title={`Gospel ${data?.gospelRef ? `(${data.gospelRef})` : ""}`}>
+            <Text style={styles.body}>{data.gospelSummary}</Text>
+          </Card>
+        ) : null}
 
-      {data?.gospelSummary && (
-        <Card>
-          <H2>Gospel {data.gospelRef ? `(${data.gospelRef})` : ""}</H2>
-          <Text>{data.gospelSummary}</Text>
-        </Card>
-      )}
+        {/* Saint */}
+        {data?.saintReflection ? (
+          <Card title="Saint of the Day">
+            <Text style={styles.body}>{data.saintReflection}</Text>
+          </Card>
+        ) : null}
 
-      {data?.saintReflection && (
-        <Card>
-          <H2>Saint of the Day</H2>
-          <Text>{data.saintReflection}</Text>
-        </Card>
-      )}
+        {/* Prayer */}
+        {data?.dailyPrayer ? (
+          <Card title="Let Us Pray">
+            <Text style={styles.body}>{data.dailyPrayer}</Text>
+          </Card>
+        ) : null}
 
-      {data?.dailyPrayer && (
-        <Card>
-          <H2>Let Us Pray</H2>
-          <Text>{data.dailyPrayer}</Text>
-        </Card>
-      )}
+        {/* Synthesis */}
+        {data?.theologicalSynthesis ? (
+          <Card title="Theological Synthesis">
+            <Text style={styles.body}>{data.theologicalSynthesis}</Text>
+          </Card>
+        ) : null}
 
-      {data?.theologicalSynthesis && (
-        <Card>
-          <H2>Theological Synthesis</H2>
-          <Text>{data.theologicalSynthesis}</Text>
-        </Card>
-      )}
+        {/* Exegesis */}
+        {data?.exegesis ? (
+          <Card title="Exegesis">
+            <Text style={styles.body}>{data.exegesis}</Text>
+          </Card>
+        ) : null}
 
-      {data?.exegesis && (
-        <Card>
-          <H2>Exegesis</H2>
-          <Text>{data.exegesis}</Text>
-        </Card>
-      )}
-
-      {(data?.usccbLink || data?.tags?.length) && (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 6 }}>
-          {!!data.usccbLink && (
-            <Pressable
-              onPress={() => Linking.openURL(data.usccbLink!)}
-              style={{ paddingVertical: 10, paddingHorizontal: 14, backgroundColor: "#1F6BB5", borderRadius: 10 }}
-            >
-              <Text style={{ color: "#fff", fontWeight: "700" }}>USCCB Readings</Text>
-            </Pressable>
-          )}
-          {!!data.tags?.length && (
-            <View style={{ paddingVertical: 10, paddingHorizontal: 14, backgroundColor: "#e8ecf7", borderRadius: 10 }}>
-              <Text style={{ color: "#0c2340" }}>Tags: {data.tags.join(", ")}</Text>
-            </View>
-          )}
-        </View>
-      )}
-    </ScrollView>
+        {/* Links / Tags */}
+        {(data?.usccbLink || data?.tags?.length) ? (
+          <View style={{ flexDirection: "row", gap: spacing(1.5), flexWrap: "wrap", marginTop: spacing(1) }}>
+            {!!data?.usccbLink && (
+              <Pressable onPress={() => Linking.openURL(data.usccbLink!)} style={styles.ctaPrimary}>
+                <Text style={styles.ctaPrimaryText}>USCCB Readings</Text>
+              </Pressable>
+            )}
+            {!!data?.tags?.length && <Chip>Tags: {data.tags.join(", ")}</Chip>}
+          </View>
+        ) : null}
+      </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  date: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.text,
+    marginTop: spacing(2),
+    marginBottom: spacing(1)
+  },
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: radius,
+    padding: spacing(2),
+    marginBottom: spacing(2),
+    shadowColor: colors.shadow,
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing(1)
+  },
+  pill: {
+    width: 6,
+    height: 18,
+    borderRadius: 3,
+    backgroundColor: colors.accent
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.text,
+    flexShrink: 1
+  },
+  chip: {
+    backgroundColor: "#EEF3FF",
+    borderRadius: 999,
+    paddingVertical: 4,
+    paddingHorizontal: 10
+  },
+  chipText: {
+    color: colors.primary,
+    fontWeight: "700"
+  },
+  quoteText: {
+    fontStyle: "italic",
+    fontSize: 16,
+    lineHeight: 22,
+    color: colors.text
+  },
+  citation: {
+    marginTop: 6,
+    color: colors.subtext
+  },
+  body: {
+    fontSize: 16,
+    lineHeight: 22,
+    color: colors.text
+  },
+  ctaPrimary: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: colors.primary,
+    borderRadius: 10
+  },
+  ctaPrimaryText: {
+    color: "#fff",
+    fontWeight: "800"
+  }
+});
