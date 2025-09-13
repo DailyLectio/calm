@@ -1,13 +1,12 @@
+// src/theme.ts
 export const colors = {
-  bg: "#F6F8FB",
-  card: "#FFFFFF",
-  text: "#0C2340",
-  subtext: "#55627A",
-  primary: "#1F6BB5",   // Marian blue
-  accent: "#D4AF37",    // gold
-  border: "#E6ECF5",
-  shadow: "rgba(0,0,0,0.06)"
+  brand: "#1F6BB5",       // Marian blue
+  bg: "#f7f7f7",
+  card: "#ffffff",
+  text: "#0c2340",
+  subtext: "#555",
+  chip: "#e8ecf7",
 };
 
-export const radius = 14;
-export const spacing = (n = 1) => n * 8;
+export const radius = { card: 12, chip: 10 };
+export const pad = { page: 16, card: 12 };

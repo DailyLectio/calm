@@ -111,12 +111,19 @@ export default function HomeScreen() {
           </Card>
         ) : null}
 
-        {/* Exegesis */}
-        {data?.exegesis ? (
-          <Card title="Exegesis">
-            <Text style={styles.body}>{data.exegesis}</Text>
-          </Card>
-        ) : null}
+      // Exegesis
+      {data?.exegesis ? (
+        <Card title="Exegesis">
+         <CollapsibleText>{data.exegesis}</CollapsibleText>
+        </Card>
+      ) : null}
+
+      // (Optional) also collapse Theological Synthesis
+      {data?.theologicalSynthesis ? (
+        <Card title="Theological Synthesis">
+          <CollapsibleText numberOfLines={5}>{data.theologicalSynthesis}</CollapsibleText>
+        </Card>
+      ) : null}
 
         {/* Links / Tags */}
         {(data?.usccbLink || data?.tags?.length) ? (

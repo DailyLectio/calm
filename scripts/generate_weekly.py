@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """
-USCCB-only weekly generator (no local fallbacks).
+Weekly generator for FaithLinks.
 
-- Fetches bible.usccb.org daily pages (.../MMDDYY.cfm) with requests.
-- Extracts Reading I / Responsorial Psalm / Gospel robustly.
-- If labels are missing, uses a limited heuristic: detect refs in header and classify
-  (Gospels -> Gospel, Psalm/Ps/Psalms -> Psalm, else First/Second).
-- If (first, psalm, gospel) can't be derived, exits with a clear message.
+What changed (vs your last version):
+- Reads saints from public/saint.json (or falls back to https://dailylectio.org/saint.json).
+- Overlays saint data onto each day BEFORE prompting the model, so the copy never
+  says “no saint today” when there is one.
+- Asks the model to return a `tags` array; if it doesn’t, we synthesize sensible tags.
+- Keeps `feast` optional (empty string is fine).
 
-FAST SCRAPE CHECK (no OpenAI, no writes):
-    USCCB_PRECHECK=1 START_DATE=2025-09-01 DAYS=7 python scripts/generate_weekly.py
+Environment (optional):
+  APP_TZ=America/New_York
+  START_DATE=YYYY-MM-DD  (default: today in APP_TZ)
+  DAYS=7                 (clamped 1..14)
+  GEN_MODEL=gpt-4o-mini
+  GEN_FALLBACK=gpt-4o-mini
 """
 
 import html as ihtml
@@ -19,7 +24,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from openai import OpenAI
 from collections import OrderedDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -28,6 +33,7 @@ from urllib3.util.retry import Retry
 # ---------- repo paths ----------
 ROOT         = Path(__file__).resolve().parents[1]
 WEEKLY_PATH  = ROOT / "public" / "weeklyfeed.json"
+SAINT_LOCAL  = ROOT / "public" / "saint.json"
 SCHEMA_PATH  = ROOT / "schemas" / "devotion.schema.json"
 USCCB_BASE   = "https://bible.usccb.org/bible/readings"
 
@@ -39,18 +45,14 @@ TEMP_REPAIR    = float(os.getenv("GEN_TEMP_REPAIR", "0.45"))
 TEMP_QUOTE     = float(os.getenv("GEN_TEMP_QUOTE", "0.35"))
 
 def safe_chat(client, *, temperature, response_format, messages, model=None):
-    """
-    Create a chat completion while gracefully handling models that don't allow
-    custom temperature (e.g., some GPT-5 variants). If the model rejects the
-    'temperature' param, retry without it. Also supports fallback model.
-    """
+    """Create a chat completion with graceful fallbacks (temp unsupported / model swap)."""
     def _create(use_model, allow_temp=True):
         kwargs = {
             "model": use_model,
             "response_format": response_format,
             "messages": messages,
         }
-        # Heuristic: GPT-5* models currently require default temperature.
+        # Some GPT-5 variants enforce default temp (1.0). Skip temp in that case.
         if allow_temp and (temperature is not None) and not str(use_model).startswith("gpt-5"):
             kwargs["temperature"] = temperature
         return client.chat.completions.create(**kwargs)
@@ -60,29 +62,21 @@ def safe_chat(client, *, temperature, response_format, messages, model=None):
         return _create(use_model, allow_temp=True)
     except Exception as e:
         msg = str(e).lower()
-
-        # If the error is specifically about temperature being unsupported, retry without it
-        if ("temperature" in msg and "only the default (1) value is supported" in msg) or \
+        if ("temperature" in msg and "only the default" in msg) or \
            ("unsupported_value" in msg and "temperature" in msg):
             try:
                 return _create(use_model, allow_temp=False)
             except Exception:
                 pass
-
-        # If it's a model availability issue, fall back (also without temp if needed)
         if any(k in msg for k in ("model", "permission", "not found", "unknown")) and FALLBACK_MODEL != use_model:
-            print(f"[warn] model '{use_model}' not available; falling back to '{FALLBACK_MODEL}'")
             try:
                 return _create(FALLBACK_MODEL, allow_temp=True)
             except Exception as e2:
-                # Try once more without temperature in case fallback has same restriction
                 msg2 = str(e2).lower()
-                if ("temperature" in msg2 and "only the default (1) value is supported" in msg2) or \
+                if ("temperature" in msg2 and "only the default" in msg2) or \
                    ("unsupported_value" in msg2 and "temperature" in msg2):
                     return _create(FALLBACK_MODEL, allow_temp=False)
                 raise
-
-        # Not a temperature issue and no fallback path handled it
         raise
 
 # ---------- output contract ----------
@@ -163,12 +157,13 @@ Strict lengths (words):
 - saintReflection: 50-100
 - dailyPrayer: 150-200
 - theologicalSynthesis: 150-200
-- exegesis: 500-750, formatted as 5-6 short paragraphs with brief headings (e.g., Context:, Psalm:, Gospel:, Saints:, Today:) and a blank line between paragraphs.
+- exegesis: 500-750, formatted as 5-6 short paragraphs with brief headings (Context:, Psalm:, Gospel:, Saints:, Today:), with blank lines between paragraphs.
 
 Rules:
-- Do NOT paste long Scripture passages; paraphrase faithfully. The 'quote' field may include a short Scripture line.
+- If a SAINT is provided, DO NOT say “no saint today.” Write the saintReflection for that saint (use provided profile if present) and weave the feast/memorial naturally into the other sections when appropriate.
+- Do NOT paste long Scripture passages; paraphrase faithfully (you may use a short quote in the `quote` field).
 - Warm, pastoral, Christ-centered, accessible; concrete connections for modern life.
-- Return ONLY a JSON object containing the contract keys (no commentary).
+- Return ONLY a JSON object containing all contract keys. Include `tags` as an array of 6–12 concise, lowercase, hyphenated topics (e.g., ["humility","mercy","saint-francis","luke","prayer","justice"]).
 """
 
 # ---------- tiny utils ----------
@@ -184,10 +179,17 @@ def clean_tags(val) -> List[str]:
     items = [val] if isinstance(val,str) else (val if isinstance(val,list) else [])
     out=[]
     for t in items:
-        s=str(t).strip()
+        s=str(t).strip().lower().replace(" ", "-")
         if s: out.append(s)
         if len(out)>=12: break
     return out
+
+def slug(s: str) -> str:
+    s = re.sub(r"[^a-zA-Z0-9]+", "-", s.strip().lower()).strip("-")
+    return s
+
+def first_word(s: str) -> str:
+    return (s or "").split(" ", 1)[0].strip()
 
 def make_lectionary_key(meta: Dict[str, str]) -> str:
     parts = [meta.get("firstRef","").replace(" ",""),
@@ -323,16 +325,43 @@ def fetch_usccb_meta(d: date) -> Dict[str,str]:
         "secondRef": second or "",
         "psalmRef": psalm,
         "gospelRef": gospel,
-        "feast": feast,
+        "feast": feast,                 # may be ""
         "cycle":  "Year C",
         "weekday":"Cycle I",
-        "saintName": saintName,
+        "saintName": saintName,         # may be ""
         "saintNote": "",
         "url": usccb_link(d),
-        "rawText": txt[:800],  # tiny slice for debugging if needed
+        "rawText": txt[:800],           # tiny slice for debugging
     }
 
-# ---------- fallbacks for missing model text ----------
+# ---------- saints overlay ----------
+def load_saints_map() -> Dict[str, Dict[str,str]]:
+    """Return {YYYY-MM-DD: saint_row} from local or remote file; tolerate errors."""
+    data = None
+    # prefer local public/saint.json
+    try:
+        if SAINT_LOCAL.exists():
+            data = json.loads(SAINT_LOCAL.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"[warn] could not read {SAINT_LOCAL}: {e}")
+
+    # fallback: remote
+    if data is None:
+        try:
+            r = SESSION.get("https://dailylectio.org/saint.json", timeout=15)
+            if r.ok and r.text:
+                data = json.loads(r.text)
+        except Exception as e:
+            print(f"[warn] could not fetch remote saint.json: {e}")
+
+    out: Dict[str, Dict[str,str]] = {}
+    if isinstance(data, list):
+        for row in data:
+            if isinstance(row, dict) and "date" in row:
+                out[str(row.get("date")).strip()] = row
+    return out
+
+# ---------- fallbacks ----------
 FALLBACK_SENTENCES = {
     "quote": "Fix your eyes on Christ.",
     "firstReading": "A brief summary of the first reading encouraging faithfulness.",
@@ -356,6 +385,42 @@ def apply_fallbacks(draft: Dict[str, Any], meta: Dict[str, str]) -> None:
             or meta.get("firstRef")
             or "Scripture"
         )
+
+# ---------- tag helpers ----------
+BOOK_ALIASES = {
+    "psalm":"psalm", "psalms":"psalm", "ps":"psalm",
+    "matthew":"matthew","mark":"mark","luke":"luke","john":"john",
+}
+
+def _book_tag(ref: str) -> str:
+    if not ref: return ""
+    b = first_word(ref).lower()
+    b = BOOK_ALIASES.get(b, b)
+    return slug(b)
+
+def auto_tags(meta: Dict[str,str], draft: Dict[str,Any]) -> List[str]:
+    tags = clean_tags(draft.get("tags"))
+    if tags:
+        return tags
+    out = []
+    for ref in (meta.get("firstRef",""), meta.get("psalmRef",""), meta.get("gospelRef","")):
+        t = _book_tag(ref)
+        if t and t not in out: out.append(t)
+    # saint tag
+    if meta.get("saintName"):
+        st = "saint-" + slug(meta["saintName"])
+        if st not in out: out.append(st)
+    # memorial level if given
+    mem = (meta.get("memorial") or "").strip()
+    if mem:
+        if mem.lower().startswith("solemn"): out.append("solemnity")
+        elif mem.lower().startswith("feast"): out.append("feast")
+        elif "optional" in mem.lower(): out.append("optional-memorial")
+        else: out.append(slug(mem))
+    # a couple of general faith tags
+    for t in ("mercy","prayer","discipleship"):
+        if t not in out: out.append(t)
+    return out[:12]
 
 # ---------- canonicalization ----------
 def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str], lk: str) -> Dict[str, Any]:
@@ -384,7 +449,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
     saint_reflection      = S("saintReflection")
     theological_synthesis = S("theologicalSynthesis")
     exegesis              = S("exegesis")
-    tags                  = clean_tags(draft.get("tags"))
+    tags                  = auto_tags(meta, draft)
 
     # refs/meta (prefer model, then meta)
     first_ref        = S("firstReadingRef") or meta.get("firstRef","")
@@ -414,7 +479,7 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
         "usccbLink": usccb_url,
         "cycle": cycle,
         "weekdayCycle": weekday_cycle,
-        "feast": feast,
+        "feast": feast,                      # may be ""
         "gospelReference": gospel_reference,
         "firstReadingRef": first_ref,
         "secondReadingRef": second_ref,
@@ -434,7 +499,6 @@ def canonicalize(draft: Dict[str,Any], *, ds: str, d: date, meta: Dict[str,str],
 
 # ---------- ordering / normalization ----------
 def _order_keys(entry: Dict[str, Any]) -> OrderedDict:
-    # normalize nullables → ""
     for k in NULLABLE_STR_FIELDS:
         if entry.get(k) is None:
             entry[k] = ""
@@ -471,7 +535,7 @@ def main():
         except Exception:
             print(f"[warn] could not load schema at {SCHEMA_PATH}; continuing")
 
-    # load existing file defensively
+    # load existing weekly (if any)
     try:
         raw_weekly = json.loads(WEEKLY_PATH.read_text(encoding="utf-8"))
     except Exception:
@@ -484,14 +548,21 @@ def main():
         weekly = []
     by_date: Dict[str, Dict[str, Any]] = {str(e.get("date")): e for e in weekly if isinstance(e, dict)}
 
+    # saints map
+    saints_by_date = load_saints_map()
+
     wanted_dates = [(START + timedelta(days=i)).isoformat() for i in range(DAYS)]
 
-    # fast scraper-only pass
+    # quick scraper-only pass
     if os.getenv("USCCB_PRECHECK") == "1":
         for ds in wanted_dates:
             d = date.fromisoformat(ds)
             meta = fetch_usccb_meta(d)
-            saint = f" | Saint={meta['saintName']}" if meta.get("saintName") else ""
+            if ds in saints_by_date:
+                s = saints_by_date[ds]
+                meta["saintName"] = s.get("saintName","") or meta.get("saintName","")
+                meta["memorial"]  = s.get("memorial","")
+            saint = f" | Saint={meta.get('saintName','')}" if meta.get("saintName") else ""
             print(f"[ok] {ds}: First={meta['firstRef']} | Psalm={meta['psalmRef']} | Gospel={meta['gospelRef']}{saint}")
         return
 
@@ -500,21 +571,33 @@ def main():
     for ds in wanted_dates:
         d = date.fromisoformat(ds)
         meta = fetch_usccb_meta(d)
-        if not meta.get("saintName"):
-            print(f"[warn] {ds}: no saint name detected from page title; proceeding without it.")
+
+        # Overlay saint from public/saint.json if present
+        saint_profile = ""
+        if ds in saints_by_date:
+            srow = saints_by_date[ds]
+            meta["saintName"] = srow.get("saintName","") or meta.get("saintName","")
+            meta["memorial"]  = srow.get("memorial","")
+            # If `feast` is still empty, borrow memorial string (it’s optional overall).
+            if not meta.get("feast"): meta["feast"] = srow.get("memorial","")
+            saint_profile = (srow.get("profile","") or "").strip()
+
         lk   = make_lectionary_key(meta)
 
-        user_msg = "\n".join([
+        user_lines = [
             f"Date: {ds}",
             f"USCCB: {meta['url']}",
             f"Cycle: {meta['cycle']}  WeekdayCycle: {meta['weekday']}",
-            f"Feast: {meta['feast']}",
+            f"Feast: {meta.get('feast','')}",
             "Readings:",
             f"  First:  {meta['firstRef']}",
             f"  Psalm:  {meta['psalmRef']}",
             f"  Gospel: {meta['gospelRef']}",
             f"Saint: {meta.get('saintName','')}",
-        ])
+        ]
+        if saint_profile:
+            user_lines.append(f"SaintProfile: {saint_profile[:900]}")  # give the model context, limit length
+        user_msg = "\n".join(user_lines)
 
         # main generation
         resp = safe_chat(
@@ -537,7 +620,8 @@ def main():
         obj = canonicalize(draft, ds=ds, d=d, meta=meta, lk=lk)
         obj = normalize_day(obj)
         by_date[ds] = obj
-        print(f"[ok] {ds} — refs: {obj['firstReadingRef']} | {obj['psalmRef']} | {obj['gospelRef']}")
+        saint = f" | Saint={meta.get('saintName','')}" if meta.get("saintName") else ""
+        print(f"[ok] {ds} — refs: {obj['firstReadingRef']} | {obj['psalmRef']} | {obj['gospelRef']}{saint}")
 
     out = [by_date[ds] for ds in wanted_dates if ds in by_date]
 

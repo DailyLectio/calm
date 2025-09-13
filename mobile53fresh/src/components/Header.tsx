@@ -1,33 +1,63 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import Constants from "expo-constants";
 import { colors, spacing } from "../theme";
 
-// Adjust the path below if your file lives elsewhere.
-// From src/components → ../../assets/icon.png
-const ICON = require("../../assets/icon.png");
-
 export default function Header() {
+  const statusInset = Platform.select({ ios: 16, android: Constants.statusBarHeight || 0, default: 0 });
+
   return (
     <LinearGradient
-      colors={[colors.primary, "#14497E"]}
+      colors={["#1F6BB5", "#0C2340"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={{
-        paddingTop: spacing(6),   // room for status bar
-        paddingBottom: spacing(3),
-        paddingHorizontal: spacing(2),
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24
-      }}
+      style={[styles.wrapper, { paddingTop: (statusInset ?? 0) + spacing(1.5) }]}
     >
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <Image source={ICON} style={{ width: 36, height: 36, borderRadius: 8 }} />
-        <View>
-          <Text style={{ color: "#fff", fontSize: 20, fontWeight: "800" }}>FaithLinks</Text>
-          <Text style={{ color: "rgba(255,255,255,0.9)" }}>Daily Lectio Devotions</Text>
+      <View style={styles.row}>
+        <Image
+          source={require("../../assets/icon.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>FaithLinks</Text>
+          <Text style={styles.subtitle}>
+            v{Constants.expoConfig?.version} · android {Constants.expoConfig?.android?.versionCode}
+          </Text>
         </View>
       </View>
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: spacing(2),
+    paddingBottom: spacing(1.5),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(255,255,255,0.15)",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing(1.25),
+  },
+  logo: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    marginRight: spacing(0.5),
+  },
+  title: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: 0.2,
+  },
+  subtitle: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 12,
+    marginTop: 2,
+  },
+});

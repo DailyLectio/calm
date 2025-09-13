@@ -1,39 +1,27 @@
 name: Generate Weekly Devotions (Fri–Thu)
 
 on:
+  # kick it off every Friday morning (adjust as you like)
   schedule:
-    # 3:00am local NY time (handles DST by providing both)
-    - cron: "0 8 * * 2"   # 03:00 EST (UTC-5)
-    - cron: "0 7 * * 2"   # 03:00 EDT (UTC-4)
-  workflow_dispatch:
-    inputs:
-      start_date:
-        description: "Start date (YYYY-MM-DD). Blank = script default"
-        required: false
-        default: ""
-      days:
-        description: "How many days (default 7)"
-        required: false
-        default: "7"
+    - cron: "15 9 * * FRI"
+  workflow_dispatch: {}
+
+concurrency:
+  group: generate-weekly
+  cancel-in-progress: true
 
 jobs:
-  gen-weekly:
+  weekly:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
-      GH_PAT: ${{ secrets.GH_PAT }}
       APP_TZ: America/New_York
-      GEN_MODEL: gpt-5-mini
-      GEN_FALLBACK: gpt-5-mini
-      GEN_TEMP: "0.60"
-      GEN_TEMP_REPAIR: "0.55"
-      GEN_TEMP_QUOTE: "0.35"
+      # Let the script default START_DATE to “today in APP_TZ”
+      DAYS: "7"
 
     steps:
-      - name: Checkout
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
           ref: main
@@ -47,58 +35,32 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests jsonschema openai
-      - name: Sanity check OpenAI env
+          pip install openai requests jsonschema
+
+      - name: Fetch latest saint.json (non-fatal)
         run: |
-          python - <<'PY'
-          import os
-          print("Has OPENAI_API_KEY?", bool(os.getenv("OPENAI_API_KEY")))
-          print("Has OPENAI_PROJECT?", bool(os.getenv("OPENAI_PROJECT")))
-          PY
-      - name: Show existing weeklyfeed.json (if present)
-        run: |
-          if [ -f public/weeklyfeed.json ]; then
-            echo "SHA: $GITHUB_SHA"
-            head -n 60 public/weeklyfeed.json
-          else
-            echo "No existing public/weeklyfeed.json (first run?)"
-          fi
-      - name: USCCB precheck (no OpenAI calls)
-        run: |
-          echo "[info] tz=$APP_TZ start=${{ github.event.inputs.start_date || '' }} days=${{ github.event.inputs.days || '7' }} model=$GEN_MODEL"
-          USCCB_PRECHECK=1 START_DATE="${{ github.event.inputs.start_date }}" DAYS="${{ github.event.inputs.days }}" \
-          python scripts/generate_weekly.py
+          mkdir -p public
+          curl -fsSL https://dailylectio.org/saint.json -o public/saint.json || echo "[]" > public/saint.json
+          echo "saint.json size: $(wc -c < public/saint.json) bytes"
+
       - name: Generate weeklyfeed.json
         env:
-          TZ: America/New_York
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          APP_TZ: ${{ env.APP_TZ }}
+          START_DATE: ${{ env.START_DATE }}
+          DAYS: ${{ env.DAYS }}
         run: |
-          set -euo pipefail
-          export START_DATE="${{ github.event.inputs.start_date }}"
-          export DAYS="${{ github.event.inputs.days }}"
           python scripts/generate_weekly.py
-      - name: Validate weeklyfeed.json shape & fields
-        run: |
-          set -euo pipefail
-          test -f public/weeklyfeed.json
-          jq 'length==7' public/weeklyfeed.json >/dev/null
-          jq -e 'all(.[]; has("date") and has("quote") and has("quoteCitation") and has("firstReading") and has("psalmSummary") and has("gospelSummary") and has("saintReflection") and has("dailyPrayer") and has("theologicalSynthesis") and has("exegesis") and has("secondReading") and has("tags") and has("usccbLink") and has("cycle") and has("weekdayCycle") and has("feast") and has("gospelReference") and has("firstReadingRef") and has("secondReadingRef") and has("psalmRef") and has("gospelRef") and has("lectionaryKey"))' public/weeklyfeed.json >/dev/null
-          jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
-          jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
-      # ✅ Commit first, then rebase+push (fixes “cannot pull with rebase: unstaged changes”)
-      - name: Commit and push weeklyfeed.json (safe)
-        shell: bash
+
+      - name: Commit weeklyfeed.json
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Stage only the generated file
           git add public/weeklyfeed.json
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "chore: weeklyfeed update (auto)"
-          # Rebase on latest remote and push our commit
-          git fetch origin main
-          git -c rebase.autoStash=true pull --rebase origin main
-          git push origin HEAD:main
+          git commit -m "Weekly devotions: $(date -u +%Y-%m-%d)"
+          git push
