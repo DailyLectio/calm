@@ -1,27 +1,41 @@
 name: Generate Weekly Devotions (Fri–Thu)
 
 on:
-  # kick it off every Friday morning (adjust as you like)
   schedule:
     - cron: "15 9 * * FRI"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Start date (YYYY-MM-DD). Blank = script default"
+        required: false
+        default: ""
+      days:
+        description: "How many days (default 7)"
+        required: false
+        default: "7"
 
 concurrency:
   group: generate-weekly
   cancel-in-progress: true
 
 jobs:
-  weekly:
+  gen-weekly:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+      GH_PAT: ${{ secrets.GH_PAT }}
       APP_TZ: America/New_York
-      # Let the script default START_DATE to “today in APP_TZ”
-      DAYS: "7"
+      GEN_MODEL: gpt-5-mini
+      GEN_FALLBACK: gpt-5-mini
+      GEN_TEMP: "0.60"
+      GEN_TEMP_REPAIR: "0.55"
+      GEN_TEMP_QUOTE: "0.35"
 
     steps:
-      - name: Checkout (main)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: main
@@ -35,24 +49,53 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install openai requests jsonschema
+          pip install requests jsonschema openai jq
 
-      - name: Fetch latest saint.json (non-fatal)
+      - name: Sanity check OpenAI env
         run: |
-          mkdir -p public
-          curl -fsSL https://dailylectio.org/saint.json -o public/saint.json || echo "[]" > public/saint.json
-          echo "saint.json size: $(wc -c < public/saint.json) bytes"
+          python - <<'PY'
+          import os
+          print("Has OPENAI_API_KEY?", bool(os.getenv("OPENAI_API_KEY")))
+          print("Has OPENAI_PROJECT?", bool(os.getenv("OPENAI_PROJECT")))
+          PY
 
-      - name: Generate weeklyfeed.json
+      - name: Show existing weeklyfeed.json (if present)
+        run: |
+          if [ -f public/weeklyfeed.json ]; then
+            echo "SHA: $GITHUB_SHA"
+            head -n 60 public/weeklyfeed.json
+          else
+            echo "No existing public/weeklyfeed.json (first run?)"
+          fi
+
+      - name: USCCB precheck (no OpenAI calls)
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          APP_TZ: ${{ env.APP_TZ }}
-          START_DATE: ${{ env.START_DATE }}
-          DAYS: ${{ env.DAYS }}
+          USCCB_PRECHECK: "1"
+          START_DATE: ${{ github.event.inputs.start_date }}
+          DAYS: ${{ github.event.inputs.days }}
         run: |
           python scripts/generate_weekly.py
 
-      - name: Commit weeklyfeed.json
+      - name: Generate weeklyfeed.json
+        env:
+          TZ: America/New_York
+          START_DATE: ${{ github.event.inputs.start_date }}
+          DAYS: ${{ github.event.inputs.days }}
+        run: |
+          set -euo pipefail
+          python scripts/generate_weekly.py
+
+      - name: Validate weeklyfeed.json shape & fields
+        run: |
+          set -euo pipefail
+          test -f public/weeklyfeed.json
+          jq 'length==7' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; has("date") and has("quote") and has("quoteCitation") and has("firstReading") and has("psalmSummary") and has("gospelSummary") and has("saintReflection") and has("dailyPrayer") and has("theologicalSynthesis") and has("exegesis") and has("secondReading") and has("tags") and has("usccbLink") and has("cycle") and has("weekdayCycle") and has("feast") and has("gospelReference") and has("firstReadingRef") and has("secondReadingRef") and has("psalmRef") and has("gospelRef") and has("lectionaryKey"))' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
+
+      - name: Commit and push weeklyfeed.json (safe)
+        shell: bash
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
@@ -62,7 +105,7 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "Weekly devotions: $(date -u +%Y-%m-%d)"
-          git push
-  GEN_MODEL: gpt-5.0-mini
-  GEN_FALLBACK: gpt-5.0-mini
+          git commit -m "chore: weeklyfeed update (auto)"
+          git fetch origin main
+          git -c rebase.autoStash=true pull --rebase origin main
+          git push origin HEAD:main
