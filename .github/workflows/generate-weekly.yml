@@ -64,3 +64,5 @@ jobs:
           fi
           git commit -m "Weekly devotions: $(date -u +%Y-%m-%d)"
           git push
+  GEN_MODEL: gpt-5.0-mini
+  GEN_FALLBACK: gpt-5.0-mini

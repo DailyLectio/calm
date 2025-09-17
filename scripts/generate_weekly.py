@@ -13,8 +13,8 @@ Environment (optional):
   APP_TZ=America/New_York
   START_DATE=YYYY-MM-DD  (default: today in APP_TZ)
   DAYS=7                 (clamped 1..14)
-  GEN_MODEL=gpt-4o-mini
-  GEN_FALLBACK=gpt-4o-mini
+  GEN_MODEL=gpt-5.0-mini
+  GEN_FALLBACK=gpt-5.0-mini
 """
 
 import html as ihtml
@@ -38,8 +38,8 @@ SCHEMA_PATH  = ROOT / "schemas" / "devotion.schema.json"
 USCCB_BASE   = "https://bible.usccb.org/bible/readings"
 
 # ---------- model knobs ----------
-MODEL          = os.getenv("GEN_MODEL", "gpt-4o-mini")
-FALLBACK_MODEL = os.getenv("GEN_FALLBACK", "gpt-4o-mini")
+MODEL          = os.getenv("GEN_MODEL", "gpt-5.0-mini")
+FALLBACK_MODEL = os.getenv("GEN_FALLBACK", "gpt-5.0-mini")
 TEMP_MAIN      = float(os.getenv("GEN_TEMP", "0.55"))
 TEMP_REPAIR    = float(os.getenv("GEN_TEMP_REPAIR", "0.45"))
 TEMP_QUOTE     = float(os.getenv("GEN_TEMP_QUOTE", "0.35"))
@@ -163,8 +163,9 @@ Rules:
 - If a SAINT is provided, DO NOT say “no saint today.” Write the saintReflection for that saint (use provided profile if present) and weave the feast/memorial naturally into the other sections when appropriate.
 - Do NOT paste long Scripture passages; paraphrase faithfully (you may use a short quote in the `quote` field).
 - Warm, pastoral, Christ-centered, accessible; concrete connections for modern life.
-- Return ONLY a JSON object containing all contract keys. Include `tags` as an array of 6–12 concise, lowercase, hyphenated topics (e.g., ["humility","mercy","saint-francis","luke","prayer","justice"]).
-"""
+- Integrate 1–3 Catechism of the Catholic Church citations (by paragraph number) where relevant—especially in `theologicalSynthesis`, `dailyPrayer`, and `exegesis`. Format them like (CCC 614). Keep them brief; no long quotations.
+- Only include real CCC paragraph numbers. If uncertain, prefer foundational anchors (e.g., 136–141 on Scripture, 456–460 on the Incarnation, 1420–1498 on the Sacraments of Healing) and avoid inventing specifics.
+- Return ONLY a JSON object containing all contract keys. Include `tags` as an array of 6–12 concise, lowercase, hyphenated topics (e.g., ["humility","mercy","saint-francis","luke","prayer","justice"])."""
 
 # ---------- tiny utils ----------
 def usccb_link(d: date) -> str:
@@ -585,6 +586,7 @@ def main():
         lk   = make_lectionary_key(meta)
 
         user_lines = [
+            "CCC: https://usccb.cld.bz/Catechism-of-the-Catholic-Church",
             f"Date: {ds}",
             f"USCCB: {meta['url']}",
             f"Cycle: {meta['cycle']}  WeekdayCycle: {meta['weekday']}",
