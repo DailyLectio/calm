@@ -1,5 +1,6 @@
 [
     {
+<<<<<<< HEAD
         "date": "2025-09-08",
         "saintName": "Nativity of the Blessed Virgin Mary",
         "memorial": "Feast",
@@ -118,27 +119,68 @@
         "saintAlt2": "",
         "profile": "Saint Januarius (died c. 305), also known as San Gennaro, was Bishop of Benevento and patron saint of Naples, believed to have been martyred during Emperor Diocletian's persecution. Born into a wealthy aristocratic family in Benevento, approximately 150 miles southeast of Rome, tradition states he became a priest at age 15 and bishop at 20, serving either Benevento or Naples. When the systematic empire-wide persecution began in 303-304, Januarius worked tirelessly to hide and protect fellow Christians. While visiting four imprisoned friends—two deacons (Sosius and Proculus) and two laymen (Eutyches and Acutius)—he was arrested by Timothy, Governor of Campania, along with his deacon Festus and lector Desiderius. During interrogation, all seven boldly professed their faith and refused to sacrifice to Roman gods. Sentenced first to burning, Januarius remained unharmed in the flames. Next condemned to be devoured by wild beasts in the arena, the animals reportedly became docile and refused to attack them. Finally ordered to be beheaded, when the executioner approached, he was struck blind, but Januarius cured him before the crowd, leading to many conversions before their martyrdom. His body was buried in Naples' principal church, where many miracles have been reported. He is most famous for the annual liquefaction of his blood, preserved in a glass vial in Naples Cathedral, which miraculously liquefies 18 times yearly, a phenomenon that remains scientifically unexplained despite frequent testing. He is invoked against volcanic eruptions and is patron of blood banks.",
         "link": "https://catholicsaints.info/saint-januarius/"
+=======
+        "date": "2025-09-25",
+        "saintName": "Saint Cleopas",
+        "memorial": "",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Although not numbered among the Twelve Apostles, Cleopas encountered the Risen Christ on the road to Emmaus, exemplifying attentive listening and hospitality in the discovery of Christ’s presence.",
+        "link": "https://catholicsaints.info/saint-cleopas/"
+>>>>>>> 001f884308d01881e61ff96684b6f7ffd37ead77
     },
     {
-        "date": "2025-09-20",
-        "saintName": "Saints Andrew Kim Tae-gŏn; Paul Chong Ha-sang and Companions",
+        "date": "2025-09-26",
+        "saintName": "Blessed Louis Tezza",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Italian priest Louis Tezza founded the Little Sisters of the Immaculate Conception, dedicating his life to educating youth and caring for orphans amidst trials, demonstrating humble charity under Mary’s guidance.",
+        "link": "https://catholicsaints.info/blessed-louis-tezza/"
+    },
+    {
+        "date": "2025-09-27",
+        "saintName": "Saint Vincent de Paul",
         "memorial": "Memorial",
         "source": "General Roman Calendar",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Saint Andrew Kim Tae-gŏn (1821–1846), first Korean-born Catholic priest, and lay catechists including Paul Chong Ha-sang, suffered martyrdom amid persecution in Korea. Their faith and sacrifice fostered the growth of the Church in Korea. Beatified in 1925 and canonized in 1984, they are honored for their unwavering witness to Christ under persecution.",
-        "link": "https://catholicsaints.info/martyrs-of-korea/"
+        "profile": "Vincent de Paul reformed charitable service in 17th-century France, founding the Congregation of the Mission and Daughters of Charity to serve the poor with compassion and strategic care.",
+        "link": "https://catholicsaints.info/saint-vincent-de-paul/"
     },
     {
-        "date": "2025-09-21",
-        "saintName": "Saint Matthew, Apostle and Evangelist",
+        "date": "2025-09-28",
+        "saintName": "Saint Wenceslaus of Bohemia",
+        "memorial": "",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Duke Wenceslaus governed Bohemia with Christian justice and generosity, caring for the marginalized until his martyrdom, inspiring integration of faith and public service.",
+        "link": "https://catholicsaints.info/saint-wenceslaus-of-bohemia/"
+    },
+    {
+        "date": "2025-09-29",
+        "saintName": "Saints Michael, Gabriel and Raphael, Archangels",
         "memorial": "Feast",
         "source": "General Roman Calendar",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Saint Matthew, one of the Twelve Apostles, was a former tax collector called by Jesus. He authored the Gospel of Matthew, presenting Christ as the fulfillment of Old Testament prophecy. His feast celebrates his evangelistic zeal and the enduring impact of his Gospel. Canonized by early Christian tradition for his pivotal role in spreading the Gospel.",
-        "link": "https://catholicsaints.info/saint-matthew-the-apostle/"
+        "profile": "Archangels Michael, Gabriel, and Raphael defend the faithful, announce divine mysteries, and guide pilgrims, inviting us to spiritual vigilance, joyful proclamation, and compassionate accompaniment.",
+        "link": "https://catholicsaints.info/gabriel-the-archangel/"
     },
+    {
+        "date": "2025-09-30",
+        "saintName": "Saint Jerome",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Doctor of the Church Jerome translated Scripture into the Latin Vulgate, combining ascetic rigor with scholarly zeal, teaching that love of God is deepened through prayerful study of the Word.",
+        "link": "https://catholicsaints.info/saint-jerome/"
+    },
+<<<<<<< HEAD
     {
         "date": "2025-09-22",
         "saintName": "Saint Ignatius of Santhia",
@@ -240,3 +282,316 @@
         "link": "https://catholicsaints.info/saint-therese-of-lisieux/"
     }
 ]
+=======
+  {
+    "date": "2025-10-01",
+    "saintName": "Saint Thérèse of the Child Jesus",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Thérèse of Lisieux",
+    "saintAlt2": "Little Flower",
+    "profile": "French Carmelite nun renowned for her 'little way' of trust and spiritual childhood; Doctor of the Church, patron of missions.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=105"
+  },
+  {
+    "date": "2025-10-02",
+    "saintName": "Holy Guardian Angels",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Angelic Protectors",
+    "saintAlt2": "Guardian Spirits",
+    "profile": "Commemorates God’s gift of a personal angel to each person; highlights spiritual protection and support.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/guardian-angels/"
+  },
+  {
+    "date": "2025-10-03",
+    "saintName": "Saint Theodora Guérin",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "Saint Mother Theodore",
+    "saintAlt2": "",
+    "profile": "French-American nun, founder of the Sisters of Providence in Indiana, dedicated to teaching and charitable works.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-theodora-guerin/"
+  },
+  {
+    "date": "2025-10-04",
+    "saintName": "Saint Francis of Assisi",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Il Poverello",
+    "saintAlt2": "Francis Bernardone",
+    "profile": "Founder of the Franciscans; renowned for radical poverty, love of nature, and receiving the stigmata.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=50"
+  },
+  {
+    "date": "2025-10-05",
+    "saintName": "Blessed Francis Xavier Seelos",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "Redemptorist Missionary",
+    "saintAlt2": "",
+    "profile": "German priest and missionary in the United States, known for his cheerful spirit and pastoral care.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=2812"
+  },
+  {
+    "date": "2025-10-06",
+    "saintName": "Saint Bruno",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "Bruno of Cologne",
+    "saintAlt2": "Founder of Carthusians",
+    "profile": "Scholar and hermit, founder of the Carthusian Order, devoted to contemplation and solitude.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-bruno/"
+  },
+  {
+    "date": "2025-10-07",
+    "saintName": "Our Lady of the Rosary",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Our Lady of Victory",
+    "saintAlt2": "Queen of the Most Holy Rosary",
+    "profile": "Commemorates the power of prayer through the Rosary and the protection of Mary, especially after the Battle of Lepanto.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/our-lady-of-the-rosary/"
+  },
+  {
+    "date": "2025-10-08",
+    "saintName": "Saint Pelagia",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "Pelagia the Penitent",
+    "saintAlt2": "",
+    "profile": "Ancient Christian hermit who lived a life of repentance and contemplation near Jerusalem.",
+    "link": "https://catholicsaints.info/saint-pelagia-the-penitent/"
+  },
+  {
+    "date": "2025-10-09",
+    "saintName": "Saint John Leonardi",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Italian priest, founder of the Clerks Regular of the Mother of God, known for missionary zeal.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=4359"
+  },
+  {
+    "date": "2025-10-10",
+    "saintName": "Saint Francis Borgia",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Spanish nobleman, third Superior General of the Jesuits, known for humility and reform.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=81"
+  },
+  {
+    "date": "2025-10-11",
+    "saintName": "Saint John XXIII",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Angelo Roncalli",
+    "saintAlt2": "Good Pope",
+    "profile": "Pope known for convening Vatican II; promoted peace and modern renewal in the Church.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=4622"
+  },
+  {
+    "date": "2025-10-12",
+    "saintName": "Saint Seraphin of Montegranaro",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Capuchin lay brother noted for humility, piety, and miracles of healing.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=2637"
+  },
+  {
+    "date": "2025-10-13",
+    "saintName": "Saint Edward the Confessor",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Anglo-Saxon king renowned for justice, piety, and charitable works.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=224"
+  },
+  {
+    "date": "2025-10-14",
+    "saintName": "Saint Callistus I, Pope",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Pope and martyr, former slave, known for mercy and promoting reconciliation.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=250"
+  },
+  {
+    "date": "2025-10-15",
+    "saintName": "Saint Teresa of Jesus",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Teresa of Avila",
+    "saintAlt2": "Doctor of Prayer",
+    "profile": "Carmelite reformer, mystic, author; led renewal of spiritual life in Europe.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=208"
+  },
+  {
+    "date": "2025-10-16",
+    "saintName": "Saint Margaret Mary Alacoque",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "French mystic who promoted devotion to the Sacred Heart of Jesus.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=392"
+  },
+  {
+    "date": "2025-10-17",
+    "saintName": "Saint Ignatius of Antioch",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Bishop Martyr",
+    "saintAlt2": "",
+    "profile": "Early Church Father, bishop, martyr, author of influential letters on Church unity.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=152"
+  },
+  {
+    "date": "2025-10-18",
+    "saintName": "Saint Luke the Evangelist",
+    "memorial": "Feast",
+    "source": "web:24, web:21",
+    "saintAlt1": "Evangelist",
+    "saintAlt2": "",
+    "profile": "Physician and companion of Paul, author of a Gospel and the Acts of the Apostles.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=76"
+  },
+  {
+    "date": "2025-10-19",
+    "saintName": "Saints John de Brébeuf, Isaac Jogues, and Companions",
+    "memorial": "Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "North American Martyrs",
+    "saintAlt2": "",
+    "profile": "French missionaries martyred while evangelizing native peoples in America.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=2080"
+  },
+  {
+    "date": "2025-10-20",
+    "saintName": "Saint Paul of the Cross",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Passionist founder known for preaching and deep devotion to Christ's Passion.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=819"
+  },
+  {
+    "date": "2025-10-21",
+    "saintName": "Saint Hilarion",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Hermit from Palestine, founder of monasticism in the region.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=4088"
+  },
+  {
+    "date": "2025-10-22",
+    "saintName": "Saint John Paul II",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "Karol Wojtyla",
+    "saintAlt2": "",
+    "profile": "Pope, philosopher, author, played a key role in fall of communism, traveler.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=6999"
+  },
+  {
+    "date": "2025-10-23",
+    "saintName": "Saint John of Capistrano",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Franciscan missionary and crusader; known for preaching across Europe.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=405"
+  },
+  {
+    "date": "2025-10-24",
+    "saintName": "Saint Anthony Mary Claret",
+    "memorial": "Optional Memorial",
+    "source": "web:24, web:21",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Missionary bishop, founder, writer, worked in Cuba and Spain.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=2654"
+  },
+  {
+    "date": "2025-10-25",
+    "saintName": "Saint Antônio de Sant’Anna Galvão",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Brazilian Franciscan noted for charity and founding religious institutions.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=6946"
+  },
+  {
+    "date": "2025-10-26",
+    "saintName": "Saint Bean",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Early Scottish bishop and missionary.",
+    "link": "https://catholicsaints.info/saint-bean/"
+  },
+  {
+    "date": "2025-10-27",
+    "saintName": "Saint Frumentius",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "First bishop of Ethiopia, brought Christianity to the region.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=3436"
+  },
+  {
+    "date": "2025-10-28",
+    "saintName": "Saint Simon and Saint Jude",
+    "memorial": "Feast",
+    "source": "web:24, web:21",
+    "saintAlt1": "Apostles",
+    "saintAlt2": "",
+    "profile": "Two of the Twelve Apostles, remembered for missionary journeys and martyrdom.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=242"
+  },
+  {
+    "date": "2025-10-29",
+    "saintName": "Saint Narcissus of Jerusalem",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Early bishop of Jerusalem, reputed for miracles and piety.",
+    "link": "https://catholicsaints.info/saint-narcissus-of-jerusalem/"
+  },
+  {
+    "date": "2025-10-30",
+    "saintName": "Saint Alphonsus Rodriguez",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Jesuit lay brother known for humility and spiritual advice.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=1371"
+  },
+  {
+    "date": "2025-10-31",
+    "saintName": "Blessed Thomas of Florence",
+    "memorial": "Optional Memorial",
+    "source": "web:24",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Franciscan missionary and mystic, remembered for sanctity and miracles.",
+    "link": "https://catholicsaints.info/blessed-thomas-of-florence/"
+  }
+]
+>>>>>>> 001f884308d01881e61ff96684b6f7ffd37ead77
