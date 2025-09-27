@@ -1,6 +1,5 @@
 [
     {
-<<<<<<< HEAD
         "date": "2025-09-08",
         "saintName": "Nativity of the Blessed Virgin Mary",
         "memorial": "Feast",
@@ -119,7 +118,8 @@
         "saintAlt2": "",
         "profile": "Saint Januarius (died c. 305), also known as San Gennaro, was Bishop of Benevento and patron saint of Naples, believed to have been martyred during Emperor Diocletian's persecution. Born into a wealthy aristocratic family in Benevento, approximately 150 miles southeast of Rome, tradition states he became a priest at age 15 and bishop at 20, serving either Benevento or Naples. When the systematic empire-wide persecution began in 303-304, Januarius worked tirelessly to hide and protect fellow Christians. While visiting four imprisoned friends—two deacons (Sosius and Proculus) and two laymen (Eutyches and Acutius)—he was arrested by Timothy, Governor of Campania, along with his deacon Festus and lector Desiderius. During interrogation, all seven boldly professed their faith and refused to sacrifice to Roman gods. Sentenced first to burning, Januarius remained unharmed in the flames. Next condemned to be devoured by wild beasts in the arena, the animals reportedly became docile and refused to attack them. Finally ordered to be beheaded, when the executioner approached, he was struck blind, but Januarius cured him before the crowd, leading to many conversions before their martyrdom. His body was buried in Naples' principal church, where many miracles have been reported. He is most famous for the annual liquefaction of his blood, preserved in a glass vial in Naples Cathedral, which miraculously liquefies 18 times yearly, a phenomenon that remains scientifically unexplained despite frequent testing. He is invoked against volcanic eruptions and is patron of blood banks.",
         "link": "https://catholicsaints.info/saint-januarius/"
-=======
+    },
+    {
         "date": "2025-09-25",
         "saintName": "Saint Cleopas",
         "memorial": "",
@@ -128,7 +128,6 @@
         "saintAlt2": "",
         "profile": "Although not numbered among the Twelve Apostles, Cleopas encountered the Risen Christ on the road to Emmaus, exemplifying attentive listening and hospitality in the discovery of Christ’s presence.",
         "link": "https://catholicsaints.info/saint-cleopas/"
->>>>>>> 001f884308d01881e61ff96684b6f7ffd37ead77
     },
     {
         "date": "2025-09-26",
@@ -180,7 +179,6 @@
         "profile": "Doctor of the Church Jerome translated Scripture into the Latin Vulgate, combining ascetic rigor with scholarly zeal, teaching that love of God is deepened through prayerful study of the Word.",
         "link": "https://catholicsaints.info/saint-jerome/"
     },
-<<<<<<< HEAD
     {
         "date": "2025-09-22",
         "saintName": "Saint Ignatius of Santhia",
@@ -280,10 +278,8 @@
         "saintAlt2": "",
         "profile": "Known as the “Little Flower,” Thérèse of Lisieux lived the “little way” of childlike trust and everyday sacrifices, offering hidden love for the salvation of souls.",
         "link": "https://catholicsaints.info/saint-therese-of-lisieux/"
-    }
-]
-=======
-  {
+    },
+    {
     "date": "2025-10-01",
     "saintName": "Saint Thérèse of the Child Jesus",
     "memorial": "Memorial",
@@ -594,4 +590,3 @@
     "link": "https://catholicsaints.info/blessed-thomas-of-florence/"
   }
 ]
->>>>>>> 001f884308d01881e61ff96684b6f7ffd37ead77
