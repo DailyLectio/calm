@@ -91,7 +91,8 @@ def _s(x: object) -> str:
 def log(*a): print("[info]", *a, flush=True)
 def today_local() -> dt.date: return dt.datetime.now(TZ).date()
 def ymd(d: dt.date) -> str: return d.isoformat()
-def daterange(start: dt.date, days: int) -> List[dt.date]: return [start + dt.timedelta(days=i) for i in range(days)]
+def daterange(start: dt.date, days: int) -> List[dt.date]:
+    return [start + dt.timedelta(days=i) for i in range(days)]
 
 def load_json(path, default):
     try:
@@ -113,10 +114,14 @@ def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
             continue
         ref = m.group(0).strip()
         L = label.lower()
-        if "gospel" in L and not gospel: gospel = ref
-        elif "second" in L and not second: second = ref
-        elif "psalm" in L and not psalm: psalm = ref
-        elif not first: first = ref
+        if "gospel" in L and not gospel:
+            gospel = ref
+        elif "second" in L and not second:
+            second = ref
+        elif "psalm" in L and not psalm:
+            psalm = ref
+        elif not first:
+            first = ref
     if not (first and psalm and gospel):
         found = []
         for m in REF_RE.finditer(text):
@@ -286,38 +291,38 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     client = openai_client()
     out = gen_json(client, STYLE_CARD, user_lines, GEN_TEMP)
 
-    # --- guard: ensure dict payload so validators never see a scalar ---
+    # Ensure we have a dict even if the model returned something odd
     if not isinstance(out, dict):
         out = {}
 
-# --- authoritative metadata (always overwrite anything the model returned) ---
-out["date"] = iso
-out["usccbLink"] = usccb_link
+    # --- Authoritative metadata: ALWAYS overwrite model fields ---
+    out["date"] = iso
+    out["usccbLink"] = usccb_link
 
-out["firstReadingRef"]  = first_ref
-out["secondReadingRef"] = second_ref
-out["psalmRef"]         = psalm_ref
-out["gospelRef"]        = gospel_ref
-out["gospelReference"]  = gospel_ref
+    out["firstReadingRef"]  = first_ref
+    out["secondReadingRef"] = second_ref
+    out["psalmRef"]         = psalm_ref
+    out["gospelRef"]        = gospel_ref
+    out["gospelReference"]  = gospel_ref
 
-out["cycle"]        = cycle           # e.g., "Year C"
-out["weekdayCycle"] = weekday_cycle   # e.g., "Cycle I"
-out["feast"]        = feast           # may be ""
+    out["cycle"]        = cycle          # e.g., "Year C"
+    out["weekdayCycle"] = weekday_cycle  # e.g., "Cycle I"
+    out["feast"]        = feast          # may be ""
 
-# pick ONE format for lectionaryKey and always set it
-out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
-# OR, if you prefer the alt format, use this instead and delete the line above:
-# out["lectionaryKey"] = f"{first_ref}|{psalm_ref}|{gospel_ref}|{cycle}|{weekday_cycle}"
+    # Choose ONE format; this one keeps the date:
+    out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
+    # Alternative format (no date, includes cycles):
+    # out["lectionaryKey"] = f"{first_ref}|{psalm_ref}|{gospel_ref}|{cycle}|{weekday_cycle}"
 
-
-    # Enforce presence/emptiness for second reading
+    # --- Second reading handling (keep strings so jq is happy) ---
     if not force_second:
-        out["secondReading"] = out.get("secondReading") or ""
+        out["secondReading"] = _s(out.get("secondReading", ""))
+        out["secondReadingRef"] = _s(out.get("secondReadingRef", ""))
     else:
         if not isinstance(out.get("secondReading"), str) or not out["secondReading"].strip():
             out["secondReading"] = "(Second Reading summary: to be completed.)"
 
-    # Normalize required fields to strings for jq
+    # --- Normalize required fields to strings (no nulls) ---
     string_keys = [
         "date","quote","quoteCitation","firstReading","secondReading",
         "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
@@ -328,8 +333,10 @@ out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}
     for k in string_keys:
         out[k] = _s(out.get(k, ""))
 
+    # --- Tags normalization ---
     tags = out.get("tags", [])
-    if not isinstance(tags, list): tags = []
+    if not isinstance(tags, list):
+        tags = []
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
     return out
@@ -347,7 +354,8 @@ def normalize_rows(rows: List[Dict[str,Any]]):
         for k in REQUIRED_STRING_KEYS:
             row[k] = _s(row.get(k, ""))
         tags = row.get("tags", [])
-        if not isinstance(tags, list): tags = []
+        if not isinstance(tags, list):
+            tags = []
         row["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
 # ---------- Main ----------
@@ -362,7 +370,8 @@ def main():
         t0 = time.time()
         rows.append(build_day_payload(d))
         elapsed = time.time() - t0
-        if elapsed < 0.7: time.sleep(0.7 - elapsed)
+        if elapsed < 0.7:
+            time.sleep(0.7 - elapsed)
 
     normalize_rows(rows)
     os.makedirs("public", exist_ok=True)
