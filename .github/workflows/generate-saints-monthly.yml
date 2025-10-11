@@ -1,0 +1,75 @@
+name: Generate Monthly Saints JSON
+
+on:
+  schedule:
+    - cron: "30 8 23 * *"
+  workflow_dispatch:
+    inputs:
+      start_month:
+        description: "YYYY-MM for the first month (default next month)"
+        required: false
+        default: ""
+      months:
+        description: "How many months to generate (1-2 recommended)"
+        required: false
+        default: "1"
+
+jobs:
+  saints-monthly:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      APP_TZ: America/New_York
+      VERBOSE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Generate public/saint.json
+        env:
+          START_MONTH: ${{ github.event.inputs.start_month }}
+          MONTHS: ${{ github.event.inputs.months }}
+        run: |
+          python scripts/generate_saints.py
+
+      - name: Validate saint.json
+        run: |
+          test -f public/saint.json
+          python - <<'PY'
+          import json,sys,re
+          data=json.load(open('public/saint.json','r',encoding='utf-8'))
+          assert isinstance(data,list) and len(data)>0
+          for row in data:
+            assert 'date' in row and re.match(r'^\d{4}-\d{2}-\d{2}$', row['date'])
+            for k in ['saintName','memorial','source','saintAlt1','saintAlt2','profile','link']:
+              assert k in row
+          print("saint.json validates with", len(data), "rows")
+          PY
+
+      - name: Commit and push saint.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/saint.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: monthly saints.json update (auto)"
+          git fetch origin main
+          git -c rebase.autoStash=true pull --rebase origin main
+          git push origin HEAD:main
