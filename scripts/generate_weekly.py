@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -19,8 +18,8 @@ ENV:
   OPENAI_API_KEY, OPENAI_PROJECT
 
 Reads:
-  public/saint.json                (optional; your curated monthly saints)
-  public/readings-overrides.json   (optional; { "YYYY-MM-DD": {"firstRef": "...","secondRef":"...","psalmRef":"...","gospelRef":"..."} })
+  public/saint.json
+  public/readings-overrides.json   # optional
 
 Writes:
   public/weeklyfeed.json
@@ -47,7 +46,6 @@ HEADERS = {
     "Accept": "text/html,application/xhtml+xml"
 }
 
-# book-aware regex
 REF_RE = re.compile(
     r'\b(?:[1-3]\s*)?'
     r'(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Tobit|Judith|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Qoheleth|Song(?: of Songs)?|Wisdom|Sirach|Isaiah|Jeremiah|Lamentations|Baruch|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation)'
@@ -55,7 +53,6 @@ REF_RE = re.compile(
     re.I
 )
 
-# ---------- Style card (CCC + Sunday rule) ----------
 STYLE_CARD = """ROLE: Catholic editor + theologian for FaithLinks.
 
 Audience: teens + adults (high school through adult).
@@ -84,20 +81,12 @@ Rules:
 
 # ---------- Utils ----------
 def _s(x: object) -> str:
-    # Coerce to string for jq-safe JSON (no nulls)
     return x if isinstance(x, str) else ("" if x is None else str(x))
 
-def log(*a): 
-    print("[info]", *a, flush=True)
-
-def today_local() -> dt.date:
-    return dt.datetime.now(TZ).date()
-
-def ymd(d: dt.date) -> str:
-    return d.isoformat()
-
-def daterange(start: dt.date, days: int) -> List[dt.date]:
-    return [start + dt.timedelta(days=i) for i in range(days)]
+def log(*a): print("[info]", *a, flush=True)
+def today_local() -> dt.date: return dt.datetime.now(TZ).date()
+def ymd(d: dt.date) -> str: return d.isoformat()
+def daterange(start: dt.date, days: int) -> List[dt.date]: return [start + dt.timedelta(days=i) for i in range(days)]
 
 def load_json(path, default):
     try:
@@ -110,31 +99,24 @@ def load_json(path, default):
 _HEADING_SPLIT = re.compile(r'(?i)(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Gospel)')
 
 def _four_refs_from_text(text: str) -> Tuple[str,str,str,str]:
-    """Return (first, second, psalm, gospel) using headings; fall back to first 4 refs."""
     first = second = psalm = gospel = ""
     blocks = _HEADING_SPLIT.split(text)
     for label, body in zip(blocks[1::2], blocks[2::2]):
         m = REF_RE.search(body or "")
-        if not m:
+        if not m: 
             continue
         ref = m.group(0).strip()
         L = label.lower()
-        if "gospel" in L and not gospel: 
-            gospel = ref
-        elif "second" in L and not second: 
-            second = ref
-        elif "psalm" in L and not psalm: 
-            psalm = ref
-        elif not first: 
-            first = ref
+        if "gospel" in L and not gospel: gospel = ref
+        elif "second" in L and not second: second = ref
+        elif "psalm" in L and not psalm: psalm = ref
+        elif not first: first = ref
     if not (first and psalm and gospel):
         found = []
         for m in REF_RE.finditer(text):
             val = m.group(0).strip()
-            if val not in found: 
-                found.append(val)
-            if len(found) >= 4: 
-                break
+            if val not in found: found.append(val)
+            if len(found) >= 4: break
         if not first and len(found)>=1: first = found[0]
         if not second and len(found)>=2: second = found[1]
         if not psalm and len(found)>=3: psalm = found[2]
@@ -147,8 +129,7 @@ def _four_refs_from_text(text: str) -> Tuple[str,str,str,str]:
 def fetch_readings_usccb(date: dt.date) -> Tuple[str,str,str,str]:
     url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
     r = requests.get(url, headers=HEADERS, timeout=25)
-    if r.status_code != 200: 
-        raise RuntimeError("USCCB status != 200")
+    if r.status_code != 200: raise RuntimeError("USCCB status != 200")
     soup = BeautifulSoup(r.text, "html.parser")
     text = soup.get_text(" ", strip=True)
     return _four_refs_from_text(text)
@@ -156,8 +137,7 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str,str,str,str]:
 def fetch_readings_ewtn(date: dt.date) -> Tuple[str,str,str,str]:
     url = "https://www.ewtn.com/catholicism/daily-readings"
     r = requests.get(url, headers=HEADERS, timeout=25)
-    if r.status_code != 200: 
-        raise RuntimeError("EWTN status != 200")
+    if r.status_code != 200: raise RuntimeError("EWTN status != 200")
     soup = BeautifulSoup(r.text, "html.parser")
     label = date.strftime("%B %-d").replace(" 0", " ")
     node_text = ""
@@ -174,7 +154,7 @@ def resolve_readings(date: dt.date) -> Tuple[str,str,str,str]:
     f = s = p = g = ""
     try:
         f, s, p, g = fetch_readings_usccb(date)
-        if f and p and g:  # second may be empty on weekdays
+        if f and p and g:
             return f, s, p, g
     except Exception as e:
         log("USCCB fetch issue", ymd(date), str(e))
@@ -195,13 +175,12 @@ def guess_saint_vaticannews(date: dt.date) -> str:
     try:
         url = "https://www.vaticannews.va/en/saints.html"
         r = requests.get(url, headers=HEADERS, timeout=25)
-        if r.status_code != 200: 
-            return ""
+        if r.status_code != 200: return ""
         soup = BeautifulSoup(r.text, "html.parser")
         label = date.strftime("%B %-d").replace(" 0", " ")
         for el in soup.find_all(text=re.compile(label, re.I)):
             a = el.find_parent().find("a")
-            if a and a.get_text(strip=True): 
+            if a and a.get_text(strip=True):
                 return a.get_text(strip=True)
     except Exception:
         pass
@@ -219,13 +198,10 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
         {"role": "system", "content": sys_msg},
         {"role": "user", "content": "\n".join(user_lines)},
     ]
-
     def _create(model: str, use_temp: bool):
         kwargs = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
-        if use_temp:
-            kwargs["temperature"] = temp
+        if use_temp: kwargs["temperature"] = temp
         return client.chat.completions.create(**kwargs)
-
     try:
         try:
             r = _create(GEN_MODEL, True)
@@ -242,12 +218,10 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
                 r = _create(GEN_FALLBACK, False)
             else:
                 raise
-
     return json.loads(r.choices[0].message.content)
 
 # ---------- Build day ----------
-def is_sunday(d: dt.date) -> bool:
-    return d.weekday() == 6  # Monday=0..Sunday=6
+def is_sunday(d: dt.date) -> bool: return d.weekday() == 6
 
 def build_day_payload(date: dt.date) -> Dict[str, Any]:
     iso = ymd(date)
@@ -263,13 +237,11 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     gospel_ref = gospel_ref or over.get("gospelRef", "")
 
     needed = ["first","psalm","gospel"]
-    if is_sunday(date):
-        needed.append("second")
+    if is_sunday(date): needed.append("second")
     miss = [k for k,v in {"first":first_ref,"second":second_ref,"psalm":psalm_ref,"gospel":gospel_ref}.items() if (k in needed and not v)]
     if miss:
         msg = f"readings incomplete for {iso}: missing {', '.join(miss)} (after USCCB/EWTN)"
-        if USCCB_STRICT:
-            raise SystemExit(msg)
+        if USCCB_STRICT: raise SystemExit(msg)
         log("[warn]", msg)
 
     saint = saint_from_local(date)
@@ -279,7 +251,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
             saint["saintName"] = guess
             saint.setdefault("source","Vatican News")
 
-    cycle = f"Year {'A'}"        # simple placeholder (can compute exactly later)
+    cycle = f"Year {'A'}"       # placeholder; can compute precisely later
     weekday_cycle = f"Cycle {'I'}"
     feast = (saint.get("memorial") or "")
 
@@ -304,7 +276,6 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     client = openai_client()
     out = gen_json(client, STYLE_CARD, user_lines, GEN_TEMP)
 
-    # Required metadata
     out.setdefault("date", iso)
     out.setdefault("usccbLink", usccb_link)
     out.setdefault("firstReadingRef", first_ref)
@@ -317,14 +288,13 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     out.setdefault("feast", feast)
     out.setdefault("lectionaryKey", f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}")
 
-    # Ensure secondReading present/empty by rule
     if not force_second:
         out["secondReading"] = out.get("secondReading") or ""
     else:
         if not isinstance(out.get("secondReading"), str) or not out["secondReading"].strip():
             out["secondReading"] = "(Second Reading summary: to be completed.)"
 
-    # --- normalize required fields to strings for jq ---
+    # per-row normalize for jq
     string_keys = [
         "date","quote","quoteCitation","firstReading","secondReading",
         "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
@@ -335,13 +305,27 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     for k in string_keys:
         out[k] = _s(out.get(k, ""))
 
-    # tags hygiene (slugify and clamp)
     tags = out.get("tags", [])
-    if not isinstance(tags, list):
-        tags = []
+    if not isinstance(tags, list): tags = []
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
     return out
+
+# final belt-and-suspenders normalize
+REQUIRED_STRING_KEYS = [
+    "date","quote","quoteCitation","firstReading","secondReading",
+    "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
+    "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
+    "feast","gospelReference","firstReadingRef","secondReadingRef",
+    "psalmRef","gospelRef","lectionaryKey"
+]
+def normalize_rows(rows: List[Dict[str,Any]]):
+    for row in rows:
+        for k in REQUIRED_STRING_KEYS:
+            row[k] = _s(row.get(k, ""))
+        tags = row.get("tags", [])
+        if not isinstance(tags, list): tags = []
+        row["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
 # ---------- Main ----------
 def main():
@@ -355,9 +339,9 @@ def main():
         t0 = time.time()
         rows.append(build_day_payload(d))
         elapsed = time.time() - t0
-        if elapsed < 0.7:
-            time.sleep(0.7 - elapsed)
+        if elapsed < 0.7: time.sleep(0.7 - elapsed)
 
+    normalize_rows(rows)
     os.makedirs("public", exist_ok=True)
     with open("public/weeklyfeed.json","w",encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
