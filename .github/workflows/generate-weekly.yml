@@ -1,8 +1,6 @@
 name: Generate Weekly Devotions (Fri–Thu)
 
 on:
-  schedule:
-    - cron: "15 9 * * FRI"
   workflow_dispatch:
     inputs:
       start_date:
@@ -30,9 +28,9 @@ jobs:
       APP_TZ: America/New_York
       GEN_MODEL: gpt-5-mini
       GEN_FALLBACK: gpt-5-mini
-      GEN_TEMP: "0.60"
-      GEN_TEMP_REPAIR: "0.55"
-      GEN_TEMP_QUOTE: "0.35"
+      GEN_TEMP: "1"
+      GEN_TEMP_REPAIR: "1"
+      GEN_TEMP_QUOTE: "1"
 
     steps:
       - name: Checkout
@@ -49,18 +47,9 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests jsonschema openai
           pip install requests beautifulsoup4 jsonschema openai
           sudo apt-get update
           sudo apt-get install -y jq
-
-      - name: Sanity check OpenAI env
-        run: |
-          python - <<'PY'
-          import os
-          print("Has OPENAI_API_KEY?", bool(os.getenv("OPENAI_API_KEY")))
-          print("Has OPENAI_PROJECT?", bool(os.getenv("OPENAI_PROJECT")))
-          PY
 
       - name: Show existing weeklyfeed.json (if present)
         run: |
@@ -80,18 +69,15 @@ jobs:
           DAYS: ${{ github.event.inputs.days }}
         run: |
           set +e
-          python scripts/generate_weekly.py
-          code=$?
-          if [ "$code" -ne 0 ]; then
-            echo "::warning::USCCB precheck returned $code; continuing (network/timeouts allowed)."
-          fi
-          exit 0
+          python scripts/generate_weekly.py || true
+          echo "::warning::USCCB precheck may time out (network/markup changes). Continuing."
 
       - name: Generate weeklyfeed.json
         env:
           TZ: America/New_York
           START_DATE: ${{ github.event.inputs.start_date }}
           DAYS: ${{ github.event.inputs.days }}
+          USCCB_STRICT: "0"
         run: |
           set -euo pipefail
           python scripts/generate_weekly.py

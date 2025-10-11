@@ -29,6 +29,10 @@ from typing import Dict, Any, Tuple, List
 import requests
 from bs4 import BeautifulSoup
 
+def _s(x: object) -> str:
+    # Coerce to string for jq-safe JSON (no nulls)
+    return x if isinstance(x, str) else ("" if x is None else str(x))
+
 # ---------- Config ----------
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
 TZ = zoneinfo.ZoneInfo(APP_TZ)
@@ -267,7 +271,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 
     cycle = f"Year {'A'}"
     weekday_cycle = f"Cycle {'I'}"
-    feast = saint.get("memorial","")
+    feast = (saint.get("memorial") or "")
 
     # Build user prompt (force secondReading when ref present or Sunday)
     force_second = bool(second_ref) or is_sunday(date)
@@ -313,10 +317,22 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         if not isinstance(out.get("secondReading"), str) or not out["secondReading"].strip():
             out["secondReading"] = "(Second Reading summary: to be completed.)"  # extremely rare; gives validator something
 
-    # Tags hygiene
-    tags = out.get("tags", [])
-    if not isinstance(tags, list): tags = []
-    out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
+    # --- normalize required fields to strings for jq ---
+string_keys = [
+    "date","quote","quoteCitation","firstReading","secondReading",
+    "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
+    "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
+    "feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef",
+    "gospelRef","lectionaryKey"
+]
+for k in string_keys:
+    out[k] = _s(out.get(k, ""))
+
+# tags hygiene (slugify and clamp)
+tags = out.get("tags", [])
+if not isinstance(tags, list):
+    tags = []
+out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
     return out
 
