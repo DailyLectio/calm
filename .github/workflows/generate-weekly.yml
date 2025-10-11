@@ -120,50 +120,51 @@ jobs:
               print("No key/type problems found.")
           PY
 
-      - name: Validate weeklyfeed.json shape & fields (granular)
+      - name: Validate weeklyfeed.json (python, clear errors)
         shell: bash
         run: |
           set -euo pipefail
-          test -f public/weeklyfeed.json
+          python - <<'PY'
+          import json, sys, pathlib
+          p = pathlib.Path("public/weeklyfeed.json")
+          if not p.exists():
+              print("weeklyfeed.json missing"); sys.exit(1)
+          data = json.loads(p.read_text(encoding="utf-8"))
 
-          echo "• Check length == 7"
-          jq 'length==7' public/weeklyfeed.json | grep -qx true
+          # 1) length check
+          if not isinstance(data, list) or len(data) != 7:
+              print(f"Expected 7 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
+              sys.exit(1)
 
-          echo "• Check each row is an object and has required keys"
-          jq -r '
-            to_entries
-            | [ .[] as $e
-                | ($e.value|type) as $t
-                | ($t=="object") as $isobj
-                | { index: ($e.key|tonumber),
-                    type: $t,
-                    ok: ( $isobj and ( $e.value | [
-                        has("date"), has("quote"), has("quoteCitation"), has("firstReading"),
-                        has("psalmSummary"), has("gospelSummary"), has("saintReflection"),
-                        has("dailyPrayer"), has("theologicalSynthesis"), has("exegesis"),
-                        has("secondReading"), has("tags"), has("usccbLink"),
-                        has("cycle"), has("weekdayCycle"), has("feast"),
-                        has("gospelReference"), has("firstReadingRef"), has("secondReadingRef"),
-                        has("psalmRef"), has("gospelRef"), has("lectionaryKey")
-                      ] | all) ),
-                    missing: ( if $isobj then
-                      [ "date","quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
-                        "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
-                        "secondReading","tags","usccbLink","cycle","weekdayCycle","feast",
-                        "gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"
-                      ] | map(select( ($e.value|has(.))|not))
-                      else [] end )
-                  }
-              ]
-            | map(select((.ok==false) or (.type!="object")))
-          ' public/weeklyfeed.json | tee /tmp/rows_bad.json
-          test "$(jq 'length' /tmp/rows_bad.json)" = "0"
+          required = [
+              "date","quote","quoteCitation","firstReading","secondReading",
+              "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
+              "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
+              "feast","gospelReference","firstReadingRef","secondReadingRef",
+              "psalmRef","gospelRef","lectionaryKey","tags"
+          ]
+          type_string = {"secondReading","secondReadingRef","feast"}
+          errs = []
 
-          echo "• Check cycle fields shape"
-          jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
+          for i,row in enumerate(data, start=1):
+              if not isinstance(row, dict):
+                  errs.append({"index": i, "error": "not_object", "type": type(row).__name__})
+                  continue
+              missing = [k for k in required if k not in row]
+              bad_types = {k:type(row.get(k)).__name__ for k in type_string if not isinstance(row.get(k, ""), str)}
+              shape = []
+              if not str(row.get("cycle","")).startswith("Year "): shape.append("cycle")
+              if not str(row.get("weekdayCycle","")).startswith("Cycle "): shape.append("weekdayCycle")
+              if missing or bad_types or shape:
+                  errs.append({"index": i, "missing": missing, "bad_types": bad_types, "shape": shape})
 
-          echo "• Check string types for sensitive fields"
-          jq -e 'all(.[]; ((.secondReading // "")|type=="string") and ((.feast // "")|type=="string") and ((.secondReadingRef // "")|type=="string"))' public/weeklyfeed.json >/dev/null
+          if errs:
+              print("Validation errors:")
+              for e in errs: print(" -", e)
+              sys.exit(1)
+
+          print("weeklyfeed.json OK: 7 rows, required keys present, types good.")
+          PY
 
       - name: Commit and push weeklyfeed.json (safe)
         shell: bash

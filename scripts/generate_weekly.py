@@ -286,6 +286,10 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     client = openai_client()
     out = gen_json(client, STYLE_CARD, user_lines, GEN_TEMP)
 
+    # --- guard: ensure dict payload so validators never see a scalar ---
+    if not isinstance(out, dict):
+        out = {}
+
     # Required metadata
     out.setdefault("date", iso)
     out.setdefault("usccbLink", usccb_link)
