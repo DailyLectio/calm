@@ -290,20 +290,25 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     if not isinstance(out, dict):
         out = {}
 
-    # Required metadata
-    out.setdefault("date", iso)
-    out.setdefault("usccbLink", usccb_link)
-    out.setdefault("firstReadingRef", first_ref)
-    out.setdefault("secondReadingRef", second_ref)
-    out.setdefault("psalmRef", psalm_ref)
-    out.setdefault("gospelRef", gospel_ref)
-    out.setdefault("gospelReference", gospel_ref)
-    out.setdefault("cycle", cycle)
-    out.setdefault("weekdayCycle", weekday_cycle)
-    out.setdefault("feast", feast)
-    # If you prefer the lectionary key format without date, use the 2nd line:
-    out.setdefault("lectionaryKey", f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}")
-    # out.setdefault("lectionaryKey", f"{first_ref}|{psalm_ref}|{gospel_ref}|{cycle}|{weekday_cycle}")
+# --- authoritative metadata (always overwrite anything the model returned) ---
+out["date"] = iso
+out["usccbLink"] = usccb_link
+
+out["firstReadingRef"]  = first_ref
+out["secondReadingRef"] = second_ref
+out["psalmRef"]         = psalm_ref
+out["gospelRef"]        = gospel_ref
+out["gospelReference"]  = gospel_ref
+
+out["cycle"]        = cycle           # e.g., "Year C"
+out["weekdayCycle"] = weekday_cycle   # e.g., "Cycle I"
+out["feast"]        = feast           # may be ""
+
+# pick ONE format for lectionaryKey and always set it
+out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
+# OR, if you prefer the alt format, use this instead and delete the line above:
+# out["lectionaryKey"] = f"{first_ref}|{psalm_ref}|{gospel_ref}|{cycle}|{weekday_cycle}"
+
 
     # Enforce presence/emptiness for second reading
     if not force_second:
