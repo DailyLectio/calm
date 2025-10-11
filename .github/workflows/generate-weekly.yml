@@ -1,3 +1,4 @@
+
 name: Generate Weekly Devotions (Fri–Thu)
 
 on:
@@ -50,6 +51,15 @@ jobs:
           pip install requests beautifulsoup4 jsonschema openai
           sudo apt-get update
           sudo apt-get install -y jq
+
+      - name: Syntax check generate_weekly.py
+        run: |
+          python - <<'PY'
+          import ast, pathlib
+          p = pathlib.Path('scripts/generate_weekly.py')
+          print('Checking', p)
+          print('Syntax OK:', bool(ast.parse(p.read_text(encoding='utf-8'))))
+          PY
 
       - name: Show existing weeklyfeed.json (if present)
         run: |
