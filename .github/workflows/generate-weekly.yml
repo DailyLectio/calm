@@ -52,12 +52,13 @@ jobs:
           sudo apt-get install -y jq
 
       - name: Syntax check generate_weekly.py
+        shell: bash
         run: |
           python - <<'PY'
           import ast, pathlib
           p = pathlib.Path('scripts/generate_weekly.py')
           ast.parse(p.read_text(encoding='utf-8'))
-          print("Syntax OK")
+          print("Syntax OK:", p)
           PY
 
       - name: Show existing weeklyfeed.json (if present)
@@ -92,64 +93,72 @@ jobs:
           python scripts/generate_weekly.py
 
       - name: Debug invalid rows (types/keys)
+        shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
           import json
-          d=json.load(open('public/weeklyfeed.json','r',encoding='utf-8'))
-          req=["date","quote","quoteCitation","firstReading","secondReading",
-               "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
-               "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
-               "feast","gospelReference","firstReadingRef","secondReadingRef",
-               "psalmRef","gospelRef","lectionaryKey"]
-          bad=[]
-          for i,row in enumerate(d,1):
-            miss=[k for k in req if k not in row]
-            types=[k for k in ["secondReading","secondReadingRef","feast"] if not isinstance(row.get(k,""),str)]
-            if miss or types:
-              bad.append({"index":i,"missing":miss,"bad_types":{k:type(row.get(k)).__name__ for k in types}})
-          print("length:",len(d))
-          if bad: print("Problems:", bad)
-          else: print("No key/type problems found.")
+          d = json.load(open('public/weeklyfeed.json','r',encoding='utf-8'))
+          req = ["date","quote","quoteCitation","firstReading","secondReading",
+                 "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
+                 "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
+                 "feast","gospelReference","firstReadingRef","secondReadingRef",
+                 "psalmRef","gospelRef","lectionaryKey"]
+          bad = []
+          for i, row in enumerate(d, 1):
+              miss = [k for k in req if k not in row]
+              types = [k for k in ("secondReading","secondReadingRef","feast")
+                       if not isinstance(row.get(k, ""), str)]
+              if miss or types:
+                  bad.append({"index": i,
+                              "missing": miss,
+                              "bad_types": {k: type(row.get(k)).__name__ for k in types}})
+          print("length:", len(d))
+          if bad:
+              print("Problems:", bad)
+          else:
+              print("No key/type problems found.")
           PY
 
-- name: Validate weeklyfeed.json shape & fields (granular)
-  run: |
-    set -euo pipefail
-    test -f public/weeklyfeed.json
+      - name: Validate weeklyfeed.json shape & fields (granular)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public/weeklyfeed.json
 
-    echo "• Check length == 7"
-    jq 'length==7' public/weeklyfeed.json | grep -qx true
+          echo "• Check length == 7"
+          jq 'length==7' public/weeklyfeed.json | grep -qx true
 
-    echo "• Check required keys exist on every row"
-    jq -r '
-      to_entries
-      | [ .[].value
-          | {ok: ([
-              has("date"), has("quote"), has("quoteCitation"), has("firstReading"),
-              has("psalmSummary"), has("gospelSummary"), has("saintReflection"),
-              has("dailyPrayer"), has("theologicalSynthesis"), has("exegesis"),
-              has("secondReading"), has("tags"), has("usccbLink"),
-              has("cycle"), has("weekdayCycle"), has("feast"),
-              has("gospelReference"), has("firstReadingRef"), has("secondReadingRef"),
-              has("psalmRef"), has("gospelRef"), has("lectionaryKey")
-            ] | all),
-            missing: ([
-              "date","quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
-              "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
-              "secondReading","tags","usccbLink","cycle","weekdayCycle","feast",
-              "gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"
-            ] | map(select(has(.)|not)))
-          }
-        ]
-      | with_entries(select(.value.ok|not))
-    ' public/weeklyfeed.json | tee /tmp/missing.json
-    test "$(jq 'length' /tmp/missing.json)" = "0"
+          echo "• Check required keys exist on every row"
+          jq -r '
+            to_entries
+            | [ .[].value
+                | { ok: ([
+                    has("date"), has("quote"), has("quoteCitation"), has("firstReading"),
+                    has("psalmSummary"), has("gospelSummary"), has("saintReflection"),
+                    has("dailyPrayer"), has("theologicalSynthesis"), has("exegesis"),
+                    has("secondReading"), has("tags"), has("usccbLink"),
+                    has("cycle"), has("weekdayCycle"), has("feast"),
+                    has("gospelReference"), has("firstReadingRef"), has("secondReadingRef"),
+                    has("psalmRef"), has("gospelRef"), has("lectionaryKey")
+                  ] | all),
+                  missing: ([
+                    "date","quote","quoteCitation","firstReading","psalmSummary","gospelSummary",
+                    "saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
+                    "secondReading","tags","usccbLink","cycle","weekdayCycle","feast",
+                    "gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"
+                  ] | map(select(has(.)|not)))
+                }
+              ]
+            | with_entries(select(.value.ok|not))
+          ' public/weeklyfeed.json | tee /tmp/missing.json
+          test "$(jq 'length' /tmp/missing.json)" = "0"
 
-    echo "• Check cycle fields shape"
-    jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
+          echo "• Check cycle fields shape"
+          jq -e 'all(.[]; (.cycle|tostring|startswith("Year ")) and (.weekdayCycle|tostring|startswith("Cycle ")))' public/weeklyfeed.json >/dev/null
 
-    echo "• Check string types for sensitive fields"
-    jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
+          echo "• Check string types for sensitive fields"
+          jq -e 'all(.[]; (.secondReading|type=="string") and (.feast|type=="string") and (.secondReadingRef|type=="string"))' public/weeklyfeed.json >/dev/null
 
       - name: Commit and push weeklyfeed.json (safe)
         shell: bash
