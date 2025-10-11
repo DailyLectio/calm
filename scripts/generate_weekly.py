@@ -190,21 +190,45 @@ def openai_client():
     project = os.getenv("OPENAI_PROJECT") or None
     return OpenAI(project=project) if project else OpenAI()
 
-def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[str, Any]:
-    r = None
+def gen_json(client, sys_msg: str, user_lines: list[str], temp: float) -> dict:
+    from openai import BadRequestError
+
+    messages = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user", "content": "\n".join(user_lines)},
+    ]
+
+    def _create(model: str, use_temp: bool):
+        kwargs = {
+            "model": model,
+            "messages": messages,
+            "response_format": {"type": "json_object"},
+        }
+        if use_temp:
+            kwargs["temperature"] = temp
+        return client.chat.completions.create(**kwargs)
+
+    # Try primary model with temperature, then without.
     try:
-        r = client.chat.completions.create(
-            model=GEN_MODEL, temperature=temp,
-            messages=[{"role":"system","content":sys_msg},{"role":"user","content":"\n".join(user_lines)}],
-            response_format={"type":"json_object"},
-        )
+        try:
+            r = _create(GEN_MODEL, True)
+        except BadRequestError as e:
+            if "temperature" in str(e).lower():
+                r = _create(GEN_MODEL, False)  # retry without temperature
+            else:
+                raise
     except Exception:
-        r = client.chat.completions.create(
-            model=GEN_FALLBACK, temperature=temp,
-            messages=[{"role":"system","content":sys_msg},{"role":"user","content":"\n".join(user_lines)}],
-            response_format={"type":"json_object"},
-        )
-    return json.loads(r.choices[0].message.content)
+        # Fallback model: with temperature, then without.
+        try:
+            r = _create(GEN_FALLBACK, True)
+        except BadRequestError as e2:
+            if "temperature" in str(e2).lower():
+                r = _create(GEN_FALLBACK, False)
+            else:
+                raise
+
+    content = r.choices[0].message.content
+    return json.loads(content)
 
 # ---------- Build day ----------
 def is_sunday(d: dt.date) -> bool:
