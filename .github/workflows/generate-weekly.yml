@@ -121,21 +121,24 @@ jobs:
           PY
 
       - name: Validate weeklyfeed.json (python, clear errors)
+        env:
+          EXPECT_LEN: ${{ github.event.inputs.days || '8' }}
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json, sys, pathlib
+          import json, sys, pathlib, os
 
+          expect = int(os.environ.get("EXPECT_LEN","8"))
           p = pathlib.Path("public/weeklyfeed.json")
           if not p.exists():
               print("weeklyfeed.json missing"); sys.exit(1)
           data = json.loads(p.read_text(encoding="utf-8"))
 
-          # 1) length check (adjust ==7 to ==8 if you run 8-day windows)
-          if not isinstance(data, list) or len(data) != 7:
+          # 1) length check (matches requested days)
+          if not isinstance(data, list) or len(data) != expect:
               got = len(data) if isinstance(data, list) else 'n/a'
-              print(f"Expected 7 rows, got: {type(data).__name__} len={got}")
+              print(f"Expected {expect} rows, got: {type(data).__name__} len={got}")
               sys.exit(1)
 
           required = [
@@ -166,7 +169,7 @@ jobs:
                   print(" -", e)
               sys.exit(1)
 
-          print("weeklyfeed.json OK: 7 rows, required keys present, types good.")
+          print(f"weeklyfeed.json OK: {expect} rows, required keys present, types good.")
           PY
 
       - name: Commit and push weeklyfeed.json (safe)

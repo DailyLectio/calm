@@ -7,7 +7,6 @@ on:
     types: [completed]
 
   # Safety net: also run every day around 3:35am Eastern
-  # (EST=UTC-5 → 08:35; EDT=UTC-4 → 07:35)
   schedule:
     - cron: "35 8 * * *"   # ~03:35 EST
     - cron: "35 7 * * *"   # ~03:35 EDT
@@ -43,23 +42,74 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Fail fast if today's date isn't in weeklyfeed.json
+      # Soft check: do NOT fail here. Expose an output we can branch on.
       - name: Sanity check weeklyfeed for today
+        id: check
+        shell: bash
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           import json, os, sys
           from datetime import datetime
           from zoneinfo import ZoneInfo
+
           tz = os.environ.get("APP_TZ","America/New_York")
           today = datetime.now(ZoneInfo(tz)).date().isoformat()
+
           try:
-            data = json.load(open("public/weeklyfeed.json", "r", encoding="utf-8"))
-          except Exception as e:
-            print("[error] weeklyfeed.json missing or unreadable:", e)
+            with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+              data = json.load(f)
+          except Exception:
+            with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write("found=false\n")
+            print("found=false")
+            sys.exit(0)
+
+          ok = any(isinstance(e,dict) and str(e.get("date","")).strip()==today for e in data)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+            out.write(f"found={'true' if ok else 'false'}\n")
+          print(f"found={'true' if ok else 'false'}")
+          PY
+
+      # If today is missing, generate just today's entry into weeklyfeed.json
+      - name: Auto-refresh weeklyfeed.json for today (1-day) if missing
+        if: steps.check.outputs.found != 'true'
+        env:
+          APP_TZ: ${{ env.APP_TZ }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+          GEN_MODEL: gpt-5-mini
+          GEN_FALLBACK: gpt-5-mini
+          GEN_TEMP: "1"
+          GEN_TEMP_REPAIR: "1"
+          GEN_TEMP_QUOTE: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_DATE="$(TZ=$APP_TZ date +%Y-%m-%d)" DAYS=1 USCCB_STRICT=0 \
+          python3 scripts/generate_weekly.py
+          echo "Refreshed weeklyfeed.json for $START_DATE"
+
+      # Re-verify after refresh; now fail if still missing
+      - name: Re-verify presence of today after refresh
+        if: steps.check.outputs.found != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          tz = os.environ.get("APP_TZ","America/New_York")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+            data = json.load(f)
+          ok = any(isinstance(e,dict) and str(e.get("date","")).strip()==today for e in data)
+          if not ok:
+            print(f"[fatal] Today {today} still not present after refresh.")
             sys.exit(1)
-          found = any(str(e.get("date","")).strip()==today for e in data if isinstance(e,dict))
-          print("tz=", tz, "today=", today, "found=", found)
-          sys.exit(0 if found else 1)
+          print(f"Found {today} after refresh; continuing.")
           PY
 
       - name: "Optional - log saint.json availability (non-fatal)"
@@ -68,7 +118,7 @@ jobs:
           set -e
           curl -I https://dailylectio.org/saint.json || true
           curl -fsSL https://dailylectio.org/saint.json | head -c 400 || echo "saint.json not available (skipping override)"
-          echo 
+          echo
 
       - name: Run daily devotion update (Python)
         run: |
@@ -81,7 +131,6 @@ jobs:
           set -euo pipefail
           git config --local user.name  "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # If dist/ is ignored in .gitignore, -f forces add safely.
           git add public/devotions.json public/past_reflections/ public/past_reflections/index.json
           git add -f dist/devotions.json || true
           if git diff --staged --quiet; then
