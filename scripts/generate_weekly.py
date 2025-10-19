@@ -6,11 +6,11 @@ Generate weeklyfeed.json for FaithLinks with:
 - USCCB → EWTN fallback for readings
 - CCC-aware prompts
 - Sunday second-reading enforcement
-- Full key + type normalization to satisfy jq validation
+- Full key + type normalization to satisfy validators
 
 ENV:
   START_DATE=YYYY-MM-DD   (default: today in APP_TZ)
-  DAYS=7                  (default: 7)
+  DAYS=7                  (workflow can override, e.g., 8)
   APP_TZ=America/New_York
   USCCB_STRICT=0          (set 1 to fail if readings incomplete after fallbacks)
   GEN_MODEL=gpt-5-mini
@@ -77,6 +77,7 @@ Rules:
 - Do not paste long Scripture passages; paraphrase faithfully (a short quote in `quote` is fine).
 - Warm, pastoral, Christ-centered, accessible; concrete connections for modern life.
 - Integrate 1–3 Catechism of the Catholic Church citations (by paragraph number) where relevant—especially in `theologicalSynthesis`, `dailyPrayer`, and `exegesis`. Format them like (CCC 614).
+- Never treat the Psalm as the 'second reading'. If there is no Second Reading that day, leave `secondReading` empty ("").
 - If SECOND_READING_REF is provided (typical Sundays/solemnities), you MUST:
   1) Fill the `secondReading` field (50–100 words).
   2) Explicitly connect it with the other readings in `theologicalSynthesis` and `exegesis`.
@@ -131,10 +132,10 @@ def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
     # 2) Fallback: classify all refs by book name
     if not (first and psalm and gospel):
         def book_of(ref: str) -> str:
-            # keep optional leading number with the book (e.g., "1 Peter")
             parts = ref.split()
             if not parts:
                 return ""
+            # Keep optional leading number with the book (e.g., "1 Peter")
             return parts[0] if len(parts) == 1 or not parts[0].isdigit() else f"{parts[0]} {parts[1]}"
 
         def classify(ref: str) -> str:
@@ -168,7 +169,8 @@ def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
 def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
     r = requests.get(url, headers=HEADERS, timeout=25)
-    if r.status_code != 200: raise RuntimeError("USCCB status != 200")
+    if r.status_code != 200:
+        raise RuntimeError("USCCB status != 200")
     soup = BeautifulSoup(r.text, "html.parser")
     text = soup.get_text(" ", strip=True)
     return _four_refs_from_text(text)
@@ -176,7 +178,8 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
 def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     url = "https://www.ewtn.com/catholicism/daily-readings"
     r = requests.get(url, headers=HEADERS, timeout=25)
-    if r.status_code != 200: raise RuntimeError("EWTN status != 200")
+    if r.status_code != 200:
+        raise RuntimeError("EWTN status != 200")
     soup = BeautifulSoup(r.text, "html.parser")
     label = date.strftime("%B %-d").replace(" 0", " ")
     node_text = ""
@@ -188,6 +191,22 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
             pass
     text = node_text or soup.get_text(" ", strip=True)
     return _four_refs_from_text(text)
+
+def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
+    f = s = p = g = ""
+    try:
+        f, s, p, g = fetch_readings_usccb(date)
+        # if USCCB gave us first/psalm/gospel, we can keep going; s may be empty on weekdays
+    except Exception as e:
+        log("USCCB fetch issue", ymd(date), str(e))
+    try:
+        f2, s2, p2, g2 = fetch_readings_ewtn(date)
+        f = f or f2
+        s = s or s2
+        p = p or p2
+        g = g or g2
+    except Exception as e:
+        log("EWTN fetch issue", ymd(date), str(e))
 
     # Final sanity: never treat Psalm/Gospel/duplicate as 'second'
     def is_psalm(r: str) -> bool:
@@ -210,7 +229,8 @@ def guess_saint_vaticannews(date: dt.date) -> str:
     try:
         url = "https://www.vaticannews.va/en/saints.html"
         r = requests.get(url, headers=HEADERS, timeout=25)
-        if r.status_code != 200: return ""
+        if r.status_code != 200:
+            return ""
         soup = BeautifulSoup(r.text, "html.parser")
         label = date.strftime("%B %-d").replace(" 0", " ")
         for el in soup.find_all(text=re.compile(label, re.I)):
