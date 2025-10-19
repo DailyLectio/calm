@@ -8,9 +8,9 @@ on:
         required: false
         default: ""
       days:
-        description: "How many days (default 7)"
+        description: "How many days (default 8)"
         required: false
-        default: "7"
+        default: "8"
 
 concurrency:
   group: generate-weekly
@@ -131,10 +131,16 @@ jobs:
               print("weeklyfeed.json missing"); sys.exit(1)
           data = json.loads(p.read_text(encoding="utf-8"))
 
-          # 1) length check
-          if not isinstance(data, list) or len(data) != 7:
-              print(f"Expected 7 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
-              sys.exit(1)
+          - # 1) length check
+          - if not isinstance(data, list) or len(data) != 7:
+          -     print(f"Expected 7 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
+          + # 1) length check
+          + if not isinstance(data, list) or len(data) != 8:
+          +     print(f"Expected 8 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
+                sys.exit(1)
+
+          - print("weeklyfeed.json OK: 7 rows, required keys present, types good.")
+          + print("weeklyfeed.json OK: 8 rows, required keys present, types good.")
 
           required = [
               "date","quote","quoteCitation","firstReading","secondReading",
