@@ -105,8 +105,13 @@ def load_json(path, default):
 _HEADING_SPLIT = re.compile(r'(?i)(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Gospel)')
 
 def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
-    """Best-effort reading refs using headings; fallback to first four matches."""
+    """
+    Prefer headings (First/Second/Psalm/Gospel). If headings aren’t usable,
+    classify by book so we don’t mis-slot (e.g., Psalm as 'second', John as 'second').
+    """
     first = second = psalm = gospel = ""
+
+    # 1) Try via headings
     blocks = _HEADING_SPLIT.split(text)
     for label, body in zip(blocks[1::2], blocks[2::2]):
         m = REF_RE.search(body or "")
@@ -122,21 +127,42 @@ def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
             psalm = ref
         elif not first:
             first = ref
+
+    # 2) Fallback: classify all refs by book name
     if not (first and psalm and gospel):
-        found = []
+        def book_of(ref: str) -> str:
+            # keep optional leading number with the book (e.g., "1 Peter")
+            parts = ref.split()
+            if not parts:
+                return ""
+            return parts[0] if len(parts) == 1 or not parts[0].isdigit() else f"{parts[0]} {parts[1]}"
+
+        def classify(ref: str) -> str:
+            b = book_of(ref).split()[0]  # "Psalm", "Matthew", "Romans", etc.
+            if b in {"Psalm", "Psalms"}:
+                return "psalm"
+            if b in {"Matthew", "Mark", "Luke", "John"}:
+                return "gospel"
+            if b in {
+                "Acts","Romans","Corinthians","Galatians","Ephesians","Philippians","Colossians",
+                "Thessalonians","Timothy","Titus","Philemon","Hebrews","James","Peter","Jude","Revelation"
+            }:
+                return "second"
+            return "first"
+
+        slots = {"first": first, "second": second, "psalm": psalm, "gospel": gospel}
         for m in REF_RE.finditer(text):
-            val = m.group(0).strip()
-            if val not in found:
-                found.append(val)
-            if len(found) >= 4:
-                break
-        if not first and len(found) >= 1: first = found[0]
-        if not second and len(found) >= 2: second = found[1]
-        if not psalm and len(found) >= 3: psalm = found[2]
-        if not gospel and len(found) >= 4: gospel = found[3]
+            ref = m.group(0).strip()
+            kind = classify(ref)
+            if not slots.get(kind):
+                slots[kind] = ref
+        first, second, psalm, gospel = (slots["first"], slots["second"], slots["psalm"], slots["gospel"])
+
+    # 3) Psalm cleanup (dedupe segments like ";", ",")
     if psalm:
         parts = [p.strip() for p in re.split(r'[;,]\s*', psalm) if p.strip()]
         psalm = ', '.join(dict.fromkeys(parts))
+
     return first or "", second or "", psalm or "", gospel or ""
 
 def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
@@ -163,19 +189,15 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     text = node_text or soup.get_text(" ", strip=True)
     return _four_refs_from_text(text)
 
-def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
-    f = s = p = g = ""
-    try:
-        f, s, p, g = fetch_readings_usccb(date)
-        if f and p and g:
-            return f, s, p, g
-    except Exception as e:
-        log("USCCB fetch issue", ymd(date), str(e))
-    try:
-        f2, s2, p2, g2 = fetch_readings_ewtn(date)
-        f = f or f2; s = s or s2; p = p or p2; g = g or g2
-    except Exception as e:
-        log("EWTN fetch issue", ymd(date), str(e))
+    # Final sanity: never treat Psalm/Gospel/duplicate as 'second'
+    def is_psalm(r: str) -> bool:
+        return r.startswith(("Psalm", "Psalms"))
+    def is_gospel(r: str) -> bool:
+        return r.startswith(("Matthew", "Mark", "Luke", "John"))
+
+    if s and (is_psalm(s) or is_gospel(s) or s == f or s == g):
+        s = ""
+
     return f or "", s or "", p or "", g or ""
 
 # ---------- Saints ----------
