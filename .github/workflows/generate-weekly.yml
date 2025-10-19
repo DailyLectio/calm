@@ -126,21 +126,17 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           import json, sys, pathlib
+
           p = pathlib.Path("public/weeklyfeed.json")
           if not p.exists():
               print("weeklyfeed.json missing"); sys.exit(1)
           data = json.loads(p.read_text(encoding="utf-8"))
 
-          - # 1) length check
-          - if not isinstance(data, list) or len(data) != 7:
-          -     print(f"Expected 7 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
-          + # 1) length check
-          + if not isinstance(data, list) or len(data) != 8:
-          +     print(f"Expected 8 rows, got: {type(data).__name__} len={len(data) if isinstance(data,list) else 'n/a'}")
-                sys.exit(1)
-
-          - print("weeklyfeed.json OK: 7 rows, required keys present, types good.")
-          + print("weeklyfeed.json OK: 8 rows, required keys present, types good.")
+          # 1) length check (adjust ==7 to ==8 if you run 8-day windows)
+          if not isinstance(data, list) or len(data) != 7:
+              got = len(data) if isinstance(data, list) else 'n/a'
+              print(f"Expected 7 rows, got: {type(data).__name__} len={got}")
+              sys.exit(1)
 
           required = [
               "date","quote","quoteCitation","firstReading","secondReading",
@@ -152,7 +148,7 @@ jobs:
           type_string = {"secondReading","secondReadingRef","feast"}
           errs = []
 
-          for i,row in enumerate(data, start=1):
+          for i, row in enumerate(data, start=1):
               if not isinstance(row, dict):
                   errs.append({"index": i, "error": "not_object", "type": type(row).__name__})
                   continue
@@ -166,7 +162,8 @@ jobs:
 
           if errs:
               print("Validation errors:")
-              for e in errs: print(" -", e)
+              for e in errs:
+                  print(" -", e)
               sys.exit(1)
 
           print("weeklyfeed.json OK: 7 rows, required keys present, types good.")
