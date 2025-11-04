@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Generates public/saint.json for a given month by scraping saint/feast data
-from USCCB and Vatican sources, with graceful fallbacks.
+Generates public/saint.json…
 """
 import os, sys, json, re, time, datetime as dt
 from typing import List, Dict, Any
+from pathlib import Path              # ← add this line
 import requests
 from bs4 import BeautifulSoup
 
