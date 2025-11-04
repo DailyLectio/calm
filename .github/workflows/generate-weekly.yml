@@ -11,6 +11,8 @@ on:
         description: "How many days (default 8)"
         required: false
         default: "8"
+  schedule:
+    - cron: "0 8 * * *"  # daily at 08:00 UTC (~3am EST / 4am EDT)
 
 concurrency:
   group: generate-weekly
