@@ -74,14 +74,15 @@ Strict lengths (words):
 
 Rules:
 - If SAINT is provided, do not say “no saint today.” Use the profile if present; weave feast/memorial naturally.
-- Do not paste long Scripture passages; paraphrase faithfully (a short quote in `quote` is fine).
+- In saintReflection, include (1) one concrete bio detail (dates/place/charism) and (2) one explicit tie to TODAY'S READINGS by citation names (e.g., Psalm 131; Romans 11; Luke 14). No long quotations.
+- Do not paste long Scripture passages; paraphrase faithfully (≤10 quoted words is fine).
 - Warm, pastoral, Christ-centered, accessible; concrete connections for modern life.
-- Integrate 1–3 Catechism of the Catholic Church citations (by paragraph number) where relevant—especially in `theologicalSynthesis`, `dailyPrayer`, and `exegesis`. Format them like (CCC 614).
-- Never treat the Psalm as the 'second reading'. If there is no Second Reading that day, leave `secondReading` empty ("").
+- Integrate 1–3 Catechism of the Catholic Church citations by paragraph number where relevant—especially in theologicalSynthesis, dailyPrayer, and exegesis. Format like (CCC 614).
+- Never treat the Psalm as the 'second reading'. If there is no Second Reading that day, leave secondReading empty ("").
 - If SECOND_READING_REF is provided (typical Sundays/solemnities), you MUST:
-  1) Fill the `secondReading` field (50–100 words).
-  2) Explicitly connect it with the other readings in `theologicalSynthesis` and `exegesis`.
-- Return ONLY a JSON object with the contract keys. Include `tags` as 6–12 concise, lowercase, hyphenated topics.
+  1) Fill the secondReading field (50–100 words).
+  2) Explicitly connect it with the other readings in theologicalSynthesis and exegesis.
+- Return ONLY a JSON object with the contract keys. Include tags as 6–12 concise, lowercase, hyphenated topics.
 """
 
 # ---------- Utils ----------
@@ -103,66 +104,71 @@ def load_json(path, default):
         return default
 
 # ---------- Reading scrapers ----------
-_HEADING_SPLIT = re.compile(r'(?i)(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Gospel)')
+# Include 'Alleluia' as a separate heading so it never becomes the Psalm.
+_HEADING_SPLIT = re.compile(
+    r'(?i)(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)'
+)
 
-def _four_refs_from_text(text: str) -> Tuple[str, str, str, str]:
+def _four_refs_from_text(text: str, *, is_sunday_or_solemnity: bool) -> Tuple[str, str, str, str]:
     """
-    Prefer headings (First/Second/Psalm/Gospel). If headings aren’t usable,
-    classify by book so we don’t mis-slot (e.g., Psalm as 'second', John as 'second').
+    Prefer explicit headings (incl. Alleluia). Only allow a SECOND READING if
+    (a) the page had a second-reading heading OR (b) it's Sunday/solemnity.
     """
     first = second = psalm = gospel = ""
+    saw_second_heading = False
 
-    # 1) Try via headings
-    blocks = _HEADING_SPLIT.split(text)
+    # 1) Headings pass
+    blocks = _HEADING_SPLIT.split(text or "")
     for label, body in zip(blocks[1::2], blocks[2::2]):
+        L = (label or "").strip().lower()
         m = REF_RE.search(body or "")
         if not m:
             continue
         ref = m.group(0).strip()
-        L = label.lower()
+
         if "gospel" in L and not gospel:
             gospel = ref
-        elif "second" in L and not second:
-            second = ref
-        elif "psalm" in L and not psalm:
+        elif ("responsorial psalm" in L or (L.startswith("psalm") and "responsorial" not in L)) and not psalm:
             psalm = ref
-        elif not first:
+        elif "alleluia" in L:
+            # we ignore Alleluia for mapping purposes
+            pass
+        elif ("second reading" in L or "reading ii" in L or "reading 2" in L) and not second:
+            second = ref
+            saw_second_heading = True
+        elif ("first reading" in L or "reading i" in L or "reading 1" in L) and not first:
             first = ref
 
-    # 2) Fallback: classify all refs by book name
+    # 2) Fallback classification only to fill *missing* first/psalm/gospel
     if not (first and psalm and gospel):
-        def book_of(ref: str) -> str:
-            parts = ref.split()
-            if not parts:
-                return ""
-            # Keep optional leading number with the book (e.g., "1 Peter")
-            return parts[0] if len(parts) == 1 or not parts[0].isdigit() else f"{parts[0]} {parts[1]}"
+        def book(ref: str) -> str:
+            return ref.split()[0] if ref else ""
 
         def classify(ref: str) -> str:
-            b = book_of(ref).split()[0]  # "Psalm", "Matthew", "Romans", etc.
+            b = book(ref)
             if b in {"Psalm", "Psalms"}:
                 return "psalm"
             if b in {"Matthew", "Mark", "Luke", "John"}:
                 return "gospel"
-            if b in {
-                "Acts","Romans","Corinthians","Galatians","Ephesians","Philippians","Colossians",
-                "Thessalonians","Timothy","Titus","Philemon","Hebrews","James","Peter","Jude","Revelation"
-            }:
-                return "second"
+            # Do NOT infer 'second' here; default to first when in doubt.
             return "first"
 
-        slots = {"first": first, "second": second, "psalm": psalm, "gospel": gospel}
-        for m in REF_RE.finditer(text):
+        slots = {"first": first, "psalm": psalm, "gospel": gospel}
+        for m in REF_RE.finditer(text or ""):
             ref = m.group(0).strip()
             kind = classify(ref)
             if not slots.get(kind):
                 slots[kind] = ref
-        first, second, psalm, gospel = (slots["first"], slots["second"], slots["psalm"], slots["gospel"])
+        first, psalm, gospel = (slots["first"], slots["psalm"], slots["gospel"])
 
     # 3) Psalm cleanup (dedupe segments like ";", ",")
     if psalm:
         parts = [p.strip() for p in re.split(r'[;,]\s*', psalm) if p.strip()]
-        psalm = ', '.join(dict.fromkeys(parts))
+        psalm = ", ".join(dict.fromkeys(parts))
+
+    # 4) Only keep a second reading if the page had it OR the calendar allows it
+    if not saw_second_heading and not is_sunday_or_solemnity:
+        second = ""
 
     return first or "", second or "", psalm or "", gospel or ""
 
@@ -173,7 +179,7 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
         raise RuntimeError("USCCB status != 200")
     soup = BeautifulSoup(r.text, "html.parser")
     text = soup.get_text(" ", strip=True)
-    return _four_refs_from_text(text)
+    return _four_refs_from_text(text, is_sunday_or_solemnity=is_sunday(date))
 
 def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     url = "https://www.ewtn.com/catholicism/daily-readings"
@@ -190,13 +196,12 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
         except Exception:
             pass
     text = node_text or soup.get_text(" ", strip=True)
-    return _four_refs_from_text(text)
+    return _four_refs_from_text(text, is_sunday_or_solemnity=is_sunday(date))
 
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     f = s = p = g = ""
     try:
         f, s, p, g = fetch_readings_usccb(date)
-        # if USCCB gave us first/psalm/gospel, we can keep going; s may be empty on weekdays
     except Exception as e:
         log("USCCB fetch issue", ymd(date), str(e))
     try:
@@ -208,7 +213,7 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     except Exception as e:
         log("EWTN fetch issue", ymd(date), str(e))
 
-    # Final sanity: never treat Psalm/Gospel/duplicate as 'second'
+    # Final belt & suspenders: never let Psalm or Gospel drift into 'second'.
     def is_psalm(r: str) -> bool:
         return r.startswith(("Psalm", "Psalms"))
     def is_gospel(r: str) -> bool:
@@ -353,8 +358,6 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 
     # Choose ONE format; this one keeps the date:
     out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
-    # Alternative format (no date, includes cycles):
-    # out["lectionaryKey"] = f"{first_ref}|{psalm_ref}|{gospel_ref}|{cycle}|{weekday_cycle}"
 
     # --- Second reading handling (keep strings so jq is happy) ---
     if not force_second:
