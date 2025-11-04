@@ -405,6 +405,19 @@ def normalize_rows(rows: List[Dict[str,Any]]):
 
 # ---------- Main ----------
 def main():
+    # --- Fast scrape-only health check ---
+    if os.getenv("USCCB_PRECHECK") == "1":
+        start_env = os.getenv("START_DATE","").strip()
+        days = int(os.getenv("DAYS","7"))
+        start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
+        for d in daterange(start, days):
+            try:
+                f, s, p, g = resolve_readings(d)
+                print("[precheck]", d.isoformat(), "|", f, "|", s or "—", "|", p, "|", g, flush=True)
+            except Exception as e:
+                print("[precheck-ERR]", d.isoformat(), e, flush=True)
+        return  # exit before any OpenAI calls
+    # --- Normal generation below ---
     start_env = os.getenv("START_DATE","").strip()
     days = int(os.getenv("DAYS","7"))
     start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
@@ -423,6 +436,3 @@ def main():
     with open("public/weeklyfeed.json","w",encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
     log(f"Wrote public/weeklyfeed.json ({len(rows)} days)")
-
-if __name__ == "__main__":
-    main()
