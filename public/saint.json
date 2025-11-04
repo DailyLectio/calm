@@ -1,332 +1,312 @@
 [
     {
-        "date": "2025-10-10",
-        "saintName": "Saint Francis Borgia",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
+        "date": "2025-12-01",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Spanish nobleman, third Superior General of the Jesuits, known for humility and reform.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=81"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-11",
-        "saintName": "Saint John XXIII",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "Angelo Roncalli",
-        "saintAlt2": "Good Pope",
-        "profile": "Pope known for convening Vatican II; promoted peace and modern renewal in the Church.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=4622"
-    },
-    {
-        "date": "2025-10-12",
-        "saintName": "Saint Seraphin of Montegranaro",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
+        "date": "2025-12-02",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Capuchin lay brother noted for humility, piety, and miracles of healing.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=2637"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-13",
-        "saintName": "Saint Edward the Confessor",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Anglo-Saxon king renowned for justice, piety, and charitable works.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=224"
-    },
-    {
-        "date": "2025-10-14",
-        "saintName": "Saint Callistus I, Pope",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Pope and martyr, former slave, known for mercy and promoting reconciliation.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=250"
-    },
-    {
-        "date": "2025-10-15",
-        "saintName": "Saint Teresa of Jesus",
+        "date": "2025-12-03",
+        "saintName": "Memorial of Saint Francis Xavier, Priest Lectionary: 177",
         "memorial": "Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "Teresa of Avila",
-        "saintAlt2": "Doctor of Prayer",
-        "profile": "Carmelite reformer, mystic, author; led renewal of spiritual life in Europe.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=208"
-    },
-    {
-        "date": "2025-10-16",
-        "saintName": "Saint Margaret Mary Alacoque",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "French mystic who promoted devotion to the Sacred Heart of Jesus.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=392"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-17",
-        "saintName": "Saint Ignatius of Antioch",
-        "memorial": "Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "Bishop Martyr",
-        "saintAlt2": "",
-        "profile": "Early Church Father, bishop, martyr, author of influential letters on Church unity.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=152"
-    },
-    {
-        "date": "2025-10-18",
-        "saintName": "Saint Luke the Evangelist",
-        "memorial": "Feast",
-        "source": "web:24, web:21",
-        "saintAlt1": "Evangelist",
-        "saintAlt2": "",
-        "profile": "Physician and companion of Paul, author of a Gospel and the Acts of the Apostles.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=76"
-    },
-    {
-        "date": "2025-10-19",
-        "saintName": "Saints John de Brébeuf, Isaac Jogues, and Companions",
-        "memorial": "Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "North American Martyrs",
-        "saintAlt2": "",
-        "profile": "French missionaries martyred while evangelizing native peoples in America.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=2080"
-    },
-    {
-        "date": "2025-10-20",
-        "saintName": "Saint Paul of the Cross",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
+        "date": "2025-12-04",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Passionist founder known for preaching and deep devotion to Christ's Passion.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=819"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-21",
-        "saintName": "Saint Hilarion",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
+        "date": "2025-12-05",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Hermit from Palestine, founder of monasticism in the region.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=4088"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-22",
-        "saintName": "Saint John Paul II",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
-        "saintAlt1": "Karol Wojtyla",
-        "saintAlt2": "",
-        "profile": "Pope, philosopher, author, played a key role in fall of communism, traveler.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=6999"
-    },
-    {
-        "date": "2025-10-23",
-        "saintName": "Saint John of Capistrano",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
+        "date": "2025-12-06",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Franciscan missionary and crusader; known for preaching across Europe.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=405"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-24",
-        "saintName": "Saint Anthony Mary Claret",
-        "memorial": "Optional Memorial",
-        "source": "web:24, web:21",
+        "date": "2025-12-07",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Missionary bishop, founder, writer, worked in Cuba and Spain.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=2654"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-10-25",
-        "saintName": "Saint Antônio de Sant’Anna Galvão",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Brazilian Franciscan noted for charity and founding religious institutions.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=6946"
-    },
-    {
-        "date": "2025-10-26",
-        "saintName": "Saint Bean",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Early Scottish bishop and missionary.",
-        "link": "https://catholicsaints.info/saint-bean/"
-    },
-    {
-        "date": "2025-10-27",
-        "saintName": "Saint Frumentius",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "First bishop of Ethiopia, brought Christianity to the region.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=3436"
-    },
-    {
-        "date": "2025-10-28",
-        "saintName": "Saint Simon and Saint Jude",
-        "memorial": "Feast",
-        "source": "web:24, web:21",
-        "saintAlt1": "Apostles",
-        "saintAlt2": "",
-        "profile": "Two of the Twelve Apostles, remembered for missionary journeys and martyrdom.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=242"
-    },
-    {
-        "date": "2025-10-29",
-        "saintName": "Saint Narcissus of Jerusalem",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Early bishop of Jerusalem, reputed for miracles and piety.",
-        "link": "https://catholicsaints.info/saint-narcissus-of-jerusalem/"
-    },
-    {
-        "date": "2025-10-30",
-        "saintName": "Saint Alphonsus Rodriguez",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Jesuit lay brother known for humility and spiritual advice.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=1371"
-    },
-    {
-        "date": "2025-10-31",
-        "saintName": "Blessed Thomas of Florence",
-        "memorial": "Optional Memorial",
-        "source": "web:24",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Franciscan missionary and mystic, remembered for sanctity and miracles.",
-        "link": "https://catholicsaints.info/blessed-thomas-of-florence/"
-    },
-    {
-        "date": "2025-11-01",
-        "saintName": "All Saints",
+        "date": "2025-12-08",
+        "saintName": "Solemnity of the Immaculate Conception of the Blessed Virgin Mary Lectionary: 689",
         "memorial": "Solemnity",
-        "source": "General Roman Calendar",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "The Solemnity of All Saints honors all the saints known and unknown who have attained heaven. It celebrates the diverse communion of saints as models of holiness and intercessors for the faithful on earth. This feast encourages the Church to strive for holiness and faithfulness to Christ.",
-        "link": "https://www.usccb.org/prayer-and-worship/liturgical-year-and-calendar/feast-days-and-other-celebrations"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-11-02",
-        "saintName": "All Souls Day",
-        "memorial": "Commemoration",
-        "source": "General Roman Calendar",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "All Souls Day is dedicated to prayers for the souls of the faithful departed. The Church encourages the faithful to assist the souls in purgatory through prayers, Masses, and acts of charity, fostering hope in the resurrection and eternal life promised by Christ.",
-        "link": "https://www.usccb.org/prayer-and-worship/liturgical-year-and-calendar/feast-days-and-other-celebrations"
-    },
-    {
-        "date": "2025-11-03",
-        "saintName": "Saint Martin de Porres",
+        "date": "2025-12-09",
+        "saintName": "",
         "memorial": "",
-        "source": "General Roman Calendar",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Martin de Porres, born in Lima, Peru, in 1579, was of mixed race and dedicated himself to a life of charity as a Dominican lay brother. Known for his care of the sick and poor, he performed miracles and is the patron of racial harmony and social justice. Canonized in 1962, he inspires compassion and humility.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=506"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-11-04",
-        "saintName": "Saint Charles Borromeo",
+        "date": "2025-12-10",
+        "saintName": "",
         "memorial": "",
-        "source": "General Roman Calendar",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Charles Borromeo (1538-1584), Archbishop of Milan, was a leading figure in the Counter-Reformation. He implemented the decrees of the Council of Trent, reformed clergy education, and cared for plague victims. He is a model of pastoral zeal, devotion to the sacraments, and Church renewal.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=168"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-11-05",
-        "saintName": "Saint Bertilla",
+        "date": "2025-12-11",
+        "saintName": "",
         "memorial": "",
-        "source": "",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Saint Bertilla of Italy, a 7th-century Benedictine nun, was known for her piety and leadership in monastic life. She helped found and oversee convents, promoting prayer, work, and charity among her sisters. Her devotion to the Rule of St. Benedict left a lasting mark on religious life.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=1706"
+        "profile": "",
+        "link": ""
     },
     {
-        "date": "2025-11-06",
-        "saintName": "Saint Leonard of Noblac",
-        "memorial": "",
-        "source": "",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Leonard was a 6th-century Frankish nobleman who became a hermit and spiritual guide. He is known as the patron saint of prisoners, women in labor, and horses, celebrated for his intercessory prayers and miracles of liberation and healing.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=353"
-    },
-    {
-        "date": "2025-11-07",
-        "saintName": "Saint Willibrord",
-        "memorial": "",
-        "source": "",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Willibrord, born in England in 658, was a missionary and bishop who evangelized the Frisians in the Netherlands and northern Germany. He founded churches and monasteries, becoming the first Archbishop of Utrecht. His missionary zeal helped spread Christianity northward in Europe.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=1969"
-    },
-    {
-        "date": "2025-11-08",
-        "saintName": "Saint Dieudonné and Companions",
-        "memorial": "",
-        "source": "",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Saint Dieudonné was a French martyr who, along with companions, witnessed to the Christian faith at the cost of his life during the early centuries of the Church. Their steadfastness under persecution inspires faithfulness to Christ.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=1686"
-    },
-    {
-        "date": "2025-11-09",
-        "saintName": "Saint Theodore of Tarsus",
-        "memorial": "",
-        "source": "General Roman Calendar",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "Theodore of Tarsus was an Archbishop of Canterbury born in 602 in Cilicia. He played a major role in harmonizing the English church, founding schools, and promoting learning. His wisdom and leadership helped unify diverse English Christian communities.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=1788"
-    },
-    {
-        "date": "2025-11-10",
-        "saintName": "Saint Leo the Great",
+        "date": "2025-12-12",
+        "saintName": "",
         "memorial": "Feast",
-        "source": "General Roman Calendar",
-        "saintAlt1": "Pope Leo I",
-        "saintAlt2": "",
-        "profile": "Pope Leo the Great (400–461) was a powerful and influential leader of the Church, noted for his theological defense of Christ's two natures and his efforts to negotiate peace with barbarian tribes. His teachings shaped Church doctrine and papal authority. Canonized a Doctor of the Church.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=747"
-    },
-    {
-        "date": "2025-11-11",
-        "saintName": "Saint Martin of Tours",
-        "memorial": "Optional Memorial",
-        "source": "General Roman Calendar",
+        "source": "USCCB",
         "saintAlt1": "",
         "saintAlt2": "",
-        "profile": "Martin of Tours (316–397) was a Roman soldier who embraced Christianity and became a monk and later bishop known for his humility and charitable works. He famously cut his cloak in half to share with a beggar and is one of the most popular saints in Western Christianity. Canonized for his missionary zeal and care for the poor.",
-        "link": "https://www.catholic.org/saints/saint.php?saint_id=430"
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-13",
+        "saintName": "Memorial of Saint Lucy, Virgin and Martyr Lectionary: 186",
+        "memorial": "Memorial",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-14",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-15",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-16",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-17",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-18",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-19",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-20",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-21",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-22",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-23",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-24",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-25",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-26",
+        "saintName": "Feast of Saint Stephen, First Martyr Lectionary: 696",
+        "memorial": "Feast",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-27",
+        "saintName": "Feast of Saint John, Apostle and Evangelist Lectionary: 697",
+        "memorial": "Feast",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-28",
+        "saintName": "",
+        "memorial": "Feast",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-29",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-30",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
+    },
+    {
+        "date": "2025-12-31",
+        "saintName": "",
+        "memorial": "",
+        "source": "USCCB",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "",
+        "link": ""
     }
 ]
