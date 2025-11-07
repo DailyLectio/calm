@@ -1,312 +1,242 @@
 [
-    {
-        "date": "2025-12-01",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-02",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-03",
-        "saintName": "Memorial of Saint Francis Xavier, Priest Lectionary: 177",
-        "memorial": "Memorial",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-04",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-05",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-06",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-07",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-08",
-        "saintName": "Solemnity of the Immaculate Conception of the Blessed Virgin Mary Lectionary: 689",
-        "memorial": "Solemnity",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-09",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-10",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-11",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-12",
-        "saintName": "",
-        "memorial": "Feast",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-13",
-        "saintName": "Memorial of Saint Lucy, Virgin and Martyr Lectionary: 186",
-        "memorial": "Memorial",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-14",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-15",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-16",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-17",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-18",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-19",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-20",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-21",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-22",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-23",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-24",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-25",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-26",
-        "saintName": "Feast of Saint Stephen, First Martyr Lectionary: 696",
-        "memorial": "Feast",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-27",
-        "saintName": "Feast of Saint John, Apostle and Evangelist Lectionary: 697",
-        "memorial": "Feast",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-28",
-        "saintName": "",
-        "memorial": "Feast",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-29",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-30",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    },
-    {
-        "date": "2025-12-31",
-        "saintName": "",
-        "memorial": "",
-        "source": "USCCB",
-        "saintAlt1": "",
-        "saintAlt2": "",
-        "profile": "",
-        "link": ""
-    }
+  {
+    "date": "2025-11-01",
+    "saintName": "All Saints",
+    "memorial": "Solemnity",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Feast of All Saints",
+    "saintAlt2": "All Hallows' Day",
+    "profile": "This solemnity celebrates all saints, known and unknown, who have attained heaven. It was formally established in the 9th century to honor martyrs and later all saints, reminding the faithful of the Church’s communion.",
+    "link": "https://catholicsaints.info/all-saints/"
+  },
+  {
+    "date": "2025-11-02",
+    "saintName": "All Souls",
+    "memorial": "Commemoration",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Commemoration of All the Faithful Departed",
+    "saintAlt2": "Day of the Dead",
+    "profile": "Observed since the 11th century, this day commemorates all the departed faithful, praying for those in purgatory. Originating from St. Odilo of Cluny's initiative, it underscores charity beyond death.",
+    "link": "https://catholicsaints.info/all-souls/"
+  },
+  {
+    "date": "2025-11-03",
+    "saintName": "St. Martin de Porres",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Martin Porres",
+    "saintAlt2": "Dominican Brother Martin",
+    "profile": "Born in Lima in 1579 to a Spanish father and African mother, Martin de Porres joined the Dominicans. Known for his charity to the poor and healing miracles, he was canonized by Pius XI in 1962.",
+    "link": "https://catholicsaints.info/st-martin-de-porres/"
+  },
+  {
+    "date": "2025-11-04",
+    "saintName": "St. Charles Borromeo",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Charles Borromeo",
+    "saintAlt2": "Archbishop of Milan",
+    "profile": "Nephew of Pope Pius IV, Charles Borromeo became Archbishop of Milan in 1564. A leader of the Counter-Reformation, he implemented the Council of Trent's reforms and founded seminaries. Canonized in 1610.",
+    "link": "https://catholicsaints.info/st-charles-borromeo/"
+  },
+  {
+    "date": "2025-11-05",
+    "saintName": "St. Elizabeth",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Elizabeth of Hungary",
+    "saintAlt2": "",
+    "profile": "A princess renowned for her lifelong care of the poor and sick, Elizabeth of Hungary (1207-1231) embraced poverty and charity as a widow and Franciscan tertiary. Canonized for her extraordinary generosity and piety.",
+    "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
+  },
+  {
+    "date": "2025-11-06",
+    "saintName": "St. Leonard",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Leonard of Noblac",
+    "saintAlt2": "",
+    "profile": "Leonard of Noblac, born in 5th-century France, became a monk and was celebrated for his work freeing prisoners. His patronage of prisoners and miraculous release of captives made him widely venerated.",
+    "link": "https://catholicsaints.info/saint-leonard-of-noblac/"
+  },
+  {
+    "date": "2025-11-07",
+    "saintName": "St. Willibrord",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Apostle to the Frisians",
+    "saintAlt2": "",
+    "profile": "Willibrord (658-739), English Benedictine missionary and first Bishop of Utrecht, played a crucial role in evangelizing Frisia and surrounding regions. Famous for his zeal, kindness, and establishment of churches.",
+    "link": "https://catholicsaints.info/saint-willibrord/"
+  },
+  {
+    "date": "2025-11-08",
+    "saintName": "St. Elizabeth of the Trinity",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Elizabeth Catez (1880-1906), a Carmelite nun in Dijon, France, wrote profound spiritual reflections on the Holy Trinity, influencing Catholic spirituality. Canonized for her deep mysticism and love for God.",
+    "link": "https://catholicsaints.info/saint-elizabeth-of-the-trinity/"
+  },
+  {
+    "date": "2025-11-09",
+    "saintName": "Dedication of the Lateran Basilica",
+    "memorial": "Feast",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Mother Church of Rome",
+    "saintAlt2": "Basilica Sancti Joannis in Laterano",
+    "profile": "The cathedral church of Rome is honored on this day. The basilica, the oldest and highest ranking of the four papal churches, symbolizes the unity of the Church.",
+    "link": "https://catholicsaints.info/saint-john-lateran/"
+  },
+  {
+    "date": "2025-11-10",
+    "saintName": "St. Leo the Great",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Leo I, Pope and Doctor",
+    "saintAlt2": "",
+    "profile": "Pope Leo I (d. 461) was a masterful leader and theologian, best known for defending the faith against heresies, defining the doctrine of the Incarnation, and persuading Attila the Hun to turn back from Rome.",
+    "link": "https://catholicsaints.info/pope-saint-leo-the-great/"
+  },
+  {
+    "date": "2025-11-11",
+    "saintName": "St. Martin of Tours",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Martin the Merciful",
+    "saintAlt2": "",
+    "profile": "Martin (316-397), former Roman soldier turned bishop, is famous for sharing his cloak with a beggar and his commitment to poverty and peace. His charity and faith made him one of Europe's most beloved saints.",
+    "link": "https://catholicsaints.info/saint-martin-of-tours/"
+  },
+  {
+    "date": "2025-11-12",
+    "saintName": "St. Josaphat",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Josaphat Kuncewicz",
+    "saintAlt2": "",
+    "profile": "Josaphat (1580-1623), Archbishop of Polotsk, was a Ukrainian Greek Catholic monk who sought unity between Orthodox and Catholic Christians and died a martyr for his efforts.",
+    "link": "https://catholicsaints.info/saint-josaphat/"
+  },
+  {
+    "date": "2025-11-13",
+    "saintName": "St. Frances Xavier Cabrini",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Mother Cabrini",
+    "saintAlt2": "",
+    "profile": "Frances Cabrini (1850-1917) founded the Missionary Sisters of the Sacred Heart of Jesus, served Italian immigrants in the U.S., and became the first American citizen to be canonized.",
+    "link": "https://catholicsaints.info/saint-frances-xavier-cabrini/"
+  },
+  {
+    "date": "2025-11-15",
+    "saintName": "St. Albert the Great",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Albertus Magnus",
+    "saintAlt2": "",
+    "profile": "Albertus Magnus (1206-1280), Dominican bishop and teacher, contributed major advances in theology and science. He is known as the patron of scientists and natural philosophers.",
+    "link": "https://catholicsaints.info/saint-albert-the-great/"
+  },
+  {
+    "date": "2025-11-16",
+    "saintName": "St. Gertrude the Great",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Gertrude of Helfta",
+    "saintAlt2": "",
+    "profile": "Gertrude (1256-1302), Benedictine mystic and writer, contributed spiritual texts emphasizing the Sacred Heart of Jesus. Her profound visions made her influential in Christian spirituality.",
+    "link": "https://catholicsaints.info/saint-gertrude-the-great/"
+  },
+  {
+    "date": "2025-11-17",
+    "saintName": "St. Elizabeth of Hungary",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Elizabeth the Widowed",
+    "saintAlt2": "",
+    "profile": "Princess Elizabeth (1207-1231) was renowned for her deep compassion for the poor, giving away her possessions and founding hospitals. Canonized for her mercy and devotion as a widow.",
+    "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
+  },
+  {
+    "date": "2025-11-18",
+    "saintName": "Dedication of the Basilicas of Saints Peter and Paul",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "St. Peter's and St. Paul's Basilicas",
+    "saintAlt2": "",
+    "profile": "On this day, the Church celebrates the dedication of two major basilicas in Rome, commemorating the holy apostles Peter and Paul and their essential roles in Christianity.",
+    "link": "https://catholicsaints.info/basilicas-of-st-peter-and-st-paul/"
+  },
+  {
+    "date": "2025-11-21",
+    "saintName": "Presentation of the Blessed Virgin Mary",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "The Church honors the childhood dedication of Mary to God, celebrated for centuries as a symbol of devotion and purity.",
+    "link": "https://catholicsaints.info/presentation-of-mary/"
+  },
+  {
+    "date": "2025-11-22",
+    "saintName": "St. Cecilia",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Patroness of Musicians",
+    "saintAlt2": "",
+    "profile": "Cecilia (d. 2nd century) is honored as the patroness of musicians for her love of music and steadfast faith through martyrdom.",
+    "link": "https://catholicsaints.info/saint-cecilia/"
+  },
+  {
+    "date": "2025-11-23",
+    "saintName": "Our Lord Jesus Christ, King of the Universe",
+    "memorial": "Solemnity",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Christ the King",
+    "saintAlt2": "",
+    "profile": "This solemn feast, instituted by Pope Pius XI in 1925, proclaims Christ's sovereignty over all creation, inspiring faithful allegiance to Him.",
+    "link": "https://catholicsaints.info/christ-the-king/"
+  },
+  {
+    "date": "2025-11-24",
+    "saintName": "St. Andrew Dung-Lac and Companions",
+    "memorial": "Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Vietnamese Martyrs",
+    "saintAlt2": "",
+    "profile": "This day honors Andrew Dung-Lac and 117 Vietnamese martyrs canonized in 1988 for their zeal and faith amid persecution.",
+    "link": "https://catholicsaints.info/saint-andrew-dung-lac/"
+  },
+  {
+    "date": "2025-11-25",
+    "saintName": "St. Catherine of Alexandria",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Catherine the Martyr",
+    "saintAlt2": "",
+    "profile": "Catherine (d. 305) was a learned woman and martyr from Alexandria who bravely defended the faith, inspiring many conversions by her witness and wisdom.",
+    "link": "https://catholicsaints.info/saint-catherine-of-alexandria/"
+  },
+  {
+    "date": "2025-11-28",
+    "saintName": "St. Catherine Labouré",
+    "memorial": "Optional Memorial",
+    "source": "General Roman Calendar",
+    "saintAlt1": "",
+    "saintAlt2": "",
+    "profile": "Catherine Labouré (1806-1876), Daughter of Charity of St. Vincent de Paul in Paris, received visions from the Blessed Virgin Mary that led to the Miraculous Medal’s devotion.",
+    "link": "https://catholicsaints.info/saint-catherine-laboure/"
+  },
+  {
+    "date": "2025-11-30",
+    "saintName": "St. Andrew",
+    "memorial": "Feast",
+    "source": "General Roman Calendar",
+    "saintAlt1": "Andrew the Apostle",
+    "saintAlt2": "",
+    "profile": "The Apostle Andrew, brother of St. Peter, left his life as a fisherman to follow Christ, ultimately dying a martyr’s death in Greece. He is venerated as the patron saint of Scotland and Russia.",
+    "link": "https://catholicsaints.info/saint-andrew/"
+  }
 ]
