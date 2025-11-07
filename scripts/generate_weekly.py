@@ -3,17 +3,17 @@
 
 """
 Generate weeklyfeed.json for FaithLinks with:
-- USCCB readings (primary) and optional EWTN fallback (off by default)
-- Strict slotting: Psalm must be Ps/Psalm/Psalms; Alleluia never becomes Psalm
-- Second reading only on Sundays/solemnities and only if found
-- Same output keys you already consume
+- USCCB readings (primary) and optional EWTN fallback
+- STRICT slotting: Psalm must be Ps/Psalm/Psalms; Alleluia never becomes Psalm
+- Second reading only when actually present (or valid Sunday/solemnity with a found ref)
+- Proper liturgical cycle strings to satisfy your validator
 
 ENV:
-  START_DATE=YYYY-MM-DD   (default: today in APP_TZ)
-  DAYS=7                  (workflow can override, e.g., 8)
+  START_DATE=YYYY-MM-DD
+  DAYS=7
   APP_TZ=America/New_York
   USCCB_STRICT=0          (1 = fail job if any required reading missing)
-  USE_EWTN_FALLBACK=0     (0 = simpler/safer; set 1 to try EWTN if USCCB thin)
+  USE_EWTN_FALLBACK=0
   GEN_MODEL=gpt-5-mini
   GEN_FALLBACK=gpt-5-mini
   GEN_TEMP=1
@@ -36,19 +36,11 @@ GEN_FALLBACK = os.getenv("GEN_FALLBACK", "gpt-5-mini")
 GEN_TEMP = float(os.getenv("GEN_TEMP", "1"))
 
 HEADERS = {
-    "User-Agent": "FaithLinksBot/1.4 (+github actions)",
+    "User-Agent": "FaithLinksBot/1.5 (+github actions)",
     "Accept": "text/html,application/xhtml+xml",
 }
 
-# Bible reference regex
-REF_RE = re.compile(
-    r'\b(?:[1-3]\s*)?'
-    r'(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Tobit|Judith|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Qoheleth|Song(?: of Songs)?|Wisdom|Sirach|Isaiah|Jeremiah|Lamentations|Baruch|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation)'
-    r'\s+\d+(?::\d+(?:-\d+)?(?:,\s*\d+(?::\d+)?)*)?',
-    re.I,
-)
-PSALM_CITE_RE = re.compile(r'^(?:Ps|Psalm|Psalms)\b', re.I)
-
+# ---------- Helpers ----------
 def _s(x: object) -> str:
     return x if isinstance(x, str) else ("" if x is None else str(x))
 
@@ -57,18 +49,52 @@ def today_local() -> dt.date: return dt.datetime.now(TZ).date()
 def ymd(d: dt.date) -> str: return d.isoformat()
 def daterange(start: dt.date, days: int) -> List[dt.date]:
     return [start + dt.timedelta(days=i) for i in range(days)]
-
 def load_json(path, default):
     try:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return default
-
 def is_sunday(d: dt.date) -> bool: return d.weekday() == 6
 
-# ---------- USCCB fetch (simple + strict) ----------
-# We split by explicit headings and only accept a Psalm that *looks* like a Psalm.
+# ---------- Liturgical cycles ----------
+def _first_sunday_of_advent(year: int) -> dt.date:
+    # Advent starts on the 4th Sunday before Christmas
+    christmas = dt.date(year, 12, 25)
+    # find the Sunday before (or on) Nov 30 (St. Andrew) — common practical approach
+    d = dt.date(year, 11, 30)
+    while d.weekday() != 6:
+        d -= dt.timedelta(days=1)
+    # that's the Sunday nearest Nov 30; Advent starts the following Sunday
+    return d + dt.timedelta(days=7)
+
+def compute_year_cycle(d: dt.date) -> str:
+    # Roman lectionary Year A (Mt), B (Mk), C (Lk), cycling at Advent
+    # Year A starts Advent 2019, 2022, 2025... i.e., (year+1) % 3 mapping
+    y = d.year
+    advent = _first_sunday_of_advent(y)
+    lit_year = y + 1 if d >= advent else y
+    idx = (lit_year - 2019) % 3  # 0=A,1=B,2=C with 2019 Advent = A
+    return ["Year A", "Year B", "Year C"][idx]
+
+def compute_weekday_cycle(d: dt.date) -> str:
+    # Weekday cycle I on odd-numbered years, II on even (changes on Jan 1)
+    return "Cycle I" if d.year % 2 == 1 else "Cycle II"
+
+# ---------- Parsing ----------
+# General Scripture ref (full names)
+REF_RE = re.compile(
+    r'\b(?:[1-3]\s*)?'
+    r'(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Tobit|Judith|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Qoheleth|Song(?: of Songs)?|Wisdom|Sirach|Isaiah|Jeremiah|Lamentations|Baruch|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation)'
+    r'\s+\d+(?::\d+(?:-\d+)?(?:,\s*\d+(?::\d+)?)*)?',
+    re.I,
+)
+
+# Psalm-specific ref (accepts Ps / Psalm / Psalms)
+PSALM_REF_RE = re.compile(
+    r'^(?:Ps|Psalm|Psalms)\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
+    re.I
+)
 
 _HEADING_SPLIT = re.compile(
     r'(?i)(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)'
@@ -78,6 +104,17 @@ def _extract_first_ref(text: str) -> str:
     m = REF_RE.search(text or "")
     return m.group(0).strip() if m else ""
 
+def _extract_psalm_ref(text: str) -> str:
+    # Prefer an explicit Psalm-looking citation; if none, allow general ref that looks like Psalm
+    text = text or ""
+    # quick pass: direct "Ps 131:..." etc.
+    m = re.search(r'(?:^|\s)(Ps(?:alm|alms)?\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?)', text, re.I)
+    if m:
+        return m.group(1).strip()
+    # fallback: find any ref in text and keep it only if it starts like Psalm
+    r = _extract_first_ref(text)
+    return r if PSALM_REF_RE.match(r) else ""
+
 def _parse_usccb_text(page_text: str, *, sunday_or_solemnity: bool) -> Tuple[str, str, str, str]:
     first = second = psalm = gospel = ""
     saw_second_heading = False
@@ -85,35 +122,33 @@ def _parse_usccb_text(page_text: str, *, sunday_or_solemnity: bool) -> Tuple[str
     blocks = _HEADING_SPLIT.split(page_text or "")
     for label, body in zip(blocks[1::2], blocks[2::2]):
         L = (label or "").strip().lower()
-        ref = _extract_first_ref(body)
-        if not ref:
-            continue
+        b = body or ""
         if "gospel" in L and not gospel:
-            gospel = ref
+            ref = _extract_first_ref(b)
+            if ref: gospel = ref
         elif ("responsorial psalm" in L or L.startswith("psalm")) and not psalm:
-            psalm = ref
+            ref = _extract_psalm_ref(b)
+            if ref: psalm = ref
         elif "alleluia" in L:
-            # ignore for slotting; never becomes psalm
+            # never slots anywhere
             pass
         elif ("second reading" in L or "reading ii" in L or "reading 2" in L) and not second:
-            second = ref
-            saw_second_heading = True
+            ref = _extract_first_ref(b)
+            if ref:
+                second = ref
+                saw_second_heading = True
         elif ("first reading" in L or "reading i" in L or "reading 1" in L) and not first:
-            first = ref
+            ref = _extract_first_ref(b)
+            if ref: first = ref
 
-    # Strict acceptance: Psalm must look like a Psalm citation.
-    if psalm and not PSALM_CITE_RE.match(psalm):
-        log("psalm rejected (not a Psalm):", psalm)
-        psalm = ""
-
-    # Only keep a second reading if heading present OR (Sunday/solemnity and we actually found a ref)
-    if not saw_second_heading and not sunday_or_solemnity:
-        second = ""
-
-    # Normalize Psalm punctuation (e.g., 131:1bcde, 2, 3)
+    # Psalm normalization (dedupe punctuation)
     if psalm:
         parts = [p.strip() for p in re.split(r'[;,]\s*', psalm) if p.strip()]
         psalm = ", ".join(dict.fromkeys(parts))
+
+    # Only keep a second reading if heading present OR sunday/solemnity (with an actual ref)
+    if not saw_second_heading and not sunday_or_solemnity:
+        second = ""
 
     return first or "", second or "", psalm or "", gospel or ""
 
@@ -127,7 +162,6 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     return _parse_usccb_text(text, sunday_or_solemnity=is_sunday(date))
 
 def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
-    # Optional fallback: same strict acceptance rules
     url = "https://www.ewtn.com/catholicism/daily-readings"
     r = requests.get(url, headers=HEADERS, timeout=25)
     if r.status_code != 200:
@@ -154,26 +188,21 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
         try:
             f2, s2, p2, g2 = fetch_readings_ewtn(date)
             f = f or f2
-            # only take second if we truly found one and it's a Sunday/solemnity
-            s = s or s2
-            # Psalm only if it *looks* like a Psalm
-            if not p and PSALM_CITE_RE.match(p2 or ""):
-                p = p2
+            if not p and p2: p = p2
             g = g or g2
+            if not s and s2: s = s2
         except Exception as e:
             log("EWTN fetch issue", ymd(date), str(e))
 
-    # Belt & suspenders: reject any Psalm that isn't a Psalm
-    if p and not PSALM_CITE_RE.match(p):
-        log("psalm rejected (post-merge):", p); p = ""
-
-    # Never let second equal first/gospel, or be a psalm/gospel
-    if s and (s == f or s == g or PSALM_CITE_RE.match(s) or s.startswith(("Matthew","Mark","Luke","John"))):
+    # Hard guards
+    if p and not PSALM_REF_RE.match(p):
+        log("psalm rejected:", p); p = ""
+    if s and (s == f or s == g or PSALM_REF_RE.match(s) or s.startswith(("Matthew","Mark","Luke","John"))):
         s = ""
 
     return f or "", s or "", p or "", g or ""
 
-# ---------- Saints (unchanged, minimal) ----------
+# ---------- Saints (minimal) ----------
 def saint_from_local(date: dt.date) -> Dict[str, Any]:
     saints = load_json("public/saint.json", [])
     bydate = {row.get("date"): row for row in saints if isinstance(row, dict)}
@@ -213,12 +242,12 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
                 raise
     return json.loads(r.choices[0].message.content)
 
-# ---------- Prompt (short + explicit) ----------
+# ---------- Prompt (tight) ----------
 STYLE_CARD = """ROLE: Catholic editor & theologian for FaithLinks.
 
-STRICT RULES:
-- Use the exact references I provide (FIRST/SECOND/PSALM/GOSPEL). Do not invent or swap them.
-- If SECOND_READING_REF is empty, return an empty string in `secondReading`.
+RULES:
+- Use the exact references I provide. Do not invent or swap them.
+- If SECOND_READING_REF is empty, `secondReading` MUST be "".
 - Never treat the Alleluia as the Psalm.
 - Summarize Scripture; ≤10 quoted words total.
 - Output only JSON with the contract keys.
@@ -236,7 +265,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 
     first_ref, second_ref, psalm_ref, gospel_ref = resolve_readings(date)
 
-    # Overrides (if you keep them)
+    # Overrides (optional)
     overrides = load_json("public/readings-overrides.json", {})
     over = overrides.get(iso, {})
     first_ref  = over.get("firstRef",  first_ref)
@@ -254,16 +283,14 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         if USCCB_STRICT: raise SystemExit(msg)
         log("warn:", msg)
 
-    # Saint (kept simple)
     saint = saint_from_local(date)
     feast = (saint.get("memorial") or "")
 
-    # OpenAI prompt lines
     lines = [
         f"DATE: {iso}",
         f"USCCB_LINK: {usccb_link}",
         f"FIRST_READING_REF: {first_ref}",
-        f"SECOND_READING_REF: {second_ref}",  # may be empty ""
+        f"SECOND_READING_REF: {second_ref}",  # may be ""
         f"PSALM_REF: {psalm_ref}",
         f"GOSPEL_REF: {gospel_ref}",
         f"SAINT_NAME: {saint.get('saintName','')}",
@@ -284,9 +311,9 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     out["gospelRef"]        = gospel_ref
     out["gospelReference"]  = gospel_ref
 
-    # Cycles (placeholders)
-    out["cycle"]        = _s(out.get("cycle","Year C"))
-    out["weekdayCycle"] = _s(out.get("weekdayCycle","Cycle I"))
+    # Proper cycles
+    out["cycle"]        = compute_year_cycle(date)
+    out["weekdayCycle"] = compute_weekday_cycle(date)
     out["feast"]        = feast
 
     out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
@@ -301,7 +328,6 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
               "feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"]:
         out[k] = _s(out.get(k,""))
 
-    # Tags
     tags = out.get("tags", [])
     if not isinstance(tags, list): tags = []
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]

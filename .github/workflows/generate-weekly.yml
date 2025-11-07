@@ -90,6 +90,7 @@ jobs:
           START_DATE: ${{ github.event.inputs.start_date }}
           DAYS: ${{ github.event.inputs.days }}
           USCCB_STRICT: "0"
+          USE_EWTN_FALLBACK: "1"     # ← add this
         run: |
           set -euo pipefail
           python scripts/generate_weekly.py
