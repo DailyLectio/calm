@@ -28,13 +28,12 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
       GH_PAT: ${{ secrets.GH_PAT }}
-      APP_TZ: America/New_York
-      GEN_MODEL: gpt-5-mini
-      GEN_FALLBACK: gpt-5-mini
+      APP_TZ: "America/New_York"
+      GEN_MODEL: "gpt-5-mini"
+      GEN_FALLBACK: "gpt-5-mini"
       GEN_TEMP: "1"
       GEN_TEMP_REPAIR: "1"
       GEN_TEMP_QUOTE: "1"
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
