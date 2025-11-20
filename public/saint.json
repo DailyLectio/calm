@@ -1,242 +1,442 @@
 [
-  {
-    "date": "2025-11-01",
-    "saintName": "All Saints",
-    "memorial": "Solemnity",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Feast of All Saints",
-    "saintAlt2": "All Hallows' Day",
-    "profile": "This solemnity celebrates all saints, known and unknown, who have attained heaven. It was formally established in the 9th century to honor martyrs and later all saints, reminding the faithful of the Church’s communion.",
-    "link": "https://catholicsaints.info/all-saints/"
-  },
-  {
-    "date": "2025-11-02",
-    "saintName": "All Souls",
-    "memorial": "Commemoration",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Commemoration of All the Faithful Departed",
-    "saintAlt2": "Day of the Dead",
-    "profile": "Observed since the 11th century, this day commemorates all the departed faithful, praying for those in purgatory. Originating from St. Odilo of Cluny's initiative, it underscores charity beyond death.",
-    "link": "https://catholicsaints.info/all-souls/"
-  },
-  {
-    "date": "2025-11-03",
-    "saintName": "St. Martin de Porres",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Martin Porres",
-    "saintAlt2": "Dominican Brother Martin",
-    "profile": "Born in Lima in 1579 to a Spanish father and African mother, Martin de Porres joined the Dominicans. Known for his charity to the poor and healing miracles, he was canonized by Pius XI in 1962.",
-    "link": "https://catholicsaints.info/st-martin-de-porres/"
-  },
-  {
-    "date": "2025-11-04",
-    "saintName": "St. Charles Borromeo",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Charles Borromeo",
-    "saintAlt2": "Archbishop of Milan",
-    "profile": "Nephew of Pope Pius IV, Charles Borromeo became Archbishop of Milan in 1564. A leader of the Counter-Reformation, he implemented the Council of Trent's reforms and founded seminaries. Canonized in 1610.",
-    "link": "https://catholicsaints.info/st-charles-borromeo/"
-  },
-  {
-    "date": "2025-11-05",
-    "saintName": "St. Elizabeth",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Elizabeth of Hungary",
-    "saintAlt2": "",
-    "profile": "A princess renowned for her lifelong care of the poor and sick, Elizabeth of Hungary (1207-1231) embraced poverty and charity as a widow and Franciscan tertiary. Canonized for her extraordinary generosity and piety.",
-    "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
-  },
-  {
-    "date": "2025-11-06",
-    "saintName": "St. Leonard",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Leonard of Noblac",
-    "saintAlt2": "",
-    "profile": "Leonard of Noblac, born in 5th-century France, became a monk and was celebrated for his work freeing prisoners. His patronage of prisoners and miraculous release of captives made him widely venerated.",
-    "link": "https://catholicsaints.info/saint-leonard-of-noblac/"
-  },
-  {
-    "date": "2025-11-07",
-    "saintName": "St. Willibrord",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Apostle to the Frisians",
-    "saintAlt2": "",
-    "profile": "Willibrord (658-739), English Benedictine missionary and first Bishop of Utrecht, played a crucial role in evangelizing Frisia and surrounding regions. Famous for his zeal, kindness, and establishment of churches.",
-    "link": "https://catholicsaints.info/saint-willibrord/"
-  },
-  {
-    "date": "2025-11-08",
-    "saintName": "St. Elizabeth of the Trinity",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Elizabeth Catez (1880-1906), a Carmelite nun in Dijon, France, wrote profound spiritual reflections on the Holy Trinity, influencing Catholic spirituality. Canonized for her deep mysticism and love for God.",
-    "link": "https://catholicsaints.info/saint-elizabeth-of-the-trinity/"
-  },
-  {
-    "date": "2025-11-09",
-    "saintName": "Dedication of the Lateran Basilica",
-    "memorial": "Feast",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Mother Church of Rome",
-    "saintAlt2": "Basilica Sancti Joannis in Laterano",
-    "profile": "The cathedral church of Rome is honored on this day. The basilica, the oldest and highest ranking of the four papal churches, symbolizes the unity of the Church.",
-    "link": "https://catholicsaints.info/saint-john-lateran/"
-  },
-  {
-    "date": "2025-11-10",
-    "saintName": "St. Leo the Great",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Leo I, Pope and Doctor",
-    "saintAlt2": "",
-    "profile": "Pope Leo I (d. 461) was a masterful leader and theologian, best known for defending the faith against heresies, defining the doctrine of the Incarnation, and persuading Attila the Hun to turn back from Rome.",
-    "link": "https://catholicsaints.info/pope-saint-leo-the-great/"
-  },
-  {
-    "date": "2025-11-11",
-    "saintName": "St. Martin of Tours",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Martin the Merciful",
-    "saintAlt2": "",
-    "profile": "Martin (316-397), former Roman soldier turned bishop, is famous for sharing his cloak with a beggar and his commitment to poverty and peace. His charity and faith made him one of Europe's most beloved saints.",
-    "link": "https://catholicsaints.info/saint-martin-of-tours/"
-  },
-  {
-    "date": "2025-11-12",
-    "saintName": "St. Josaphat",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Josaphat Kuncewicz",
-    "saintAlt2": "",
-    "profile": "Josaphat (1580-1623), Archbishop of Polotsk, was a Ukrainian Greek Catholic monk who sought unity between Orthodox and Catholic Christians and died a martyr for his efforts.",
-    "link": "https://catholicsaints.info/saint-josaphat/"
-  },
-  {
-    "date": "2025-11-13",
-    "saintName": "St. Frances Xavier Cabrini",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Mother Cabrini",
-    "saintAlt2": "",
-    "profile": "Frances Cabrini (1850-1917) founded the Missionary Sisters of the Sacred Heart of Jesus, served Italian immigrants in the U.S., and became the first American citizen to be canonized.",
-    "link": "https://catholicsaints.info/saint-frances-xavier-cabrini/"
-  },
-  {
-    "date": "2025-11-15",
-    "saintName": "St. Albert the Great",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Albertus Magnus",
-    "saintAlt2": "",
-    "profile": "Albertus Magnus (1206-1280), Dominican bishop and teacher, contributed major advances in theology and science. He is known as the patron of scientists and natural philosophers.",
-    "link": "https://catholicsaints.info/saint-albert-the-great/"
-  },
-  {
-    "date": "2025-11-16",
-    "saintName": "St. Gertrude the Great",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Gertrude of Helfta",
-    "saintAlt2": "",
-    "profile": "Gertrude (1256-1302), Benedictine mystic and writer, contributed spiritual texts emphasizing the Sacred Heart of Jesus. Her profound visions made her influential in Christian spirituality.",
-    "link": "https://catholicsaints.info/saint-gertrude-the-great/"
-  },
-  {
-    "date": "2025-11-17",
-    "saintName": "St. Elizabeth of Hungary",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Elizabeth the Widowed",
-    "saintAlt2": "",
-    "profile": "Princess Elizabeth (1207-1231) was renowned for her deep compassion for the poor, giving away her possessions and founding hospitals. Canonized for her mercy and devotion as a widow.",
-    "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
-  },
-  {
-    "date": "2025-11-18",
-    "saintName": "Dedication of the Basilicas of Saints Peter and Paul",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "St. Peter's and St. Paul's Basilicas",
-    "saintAlt2": "",
-    "profile": "On this day, the Church celebrates the dedication of two major basilicas in Rome, commemorating the holy apostles Peter and Paul and their essential roles in Christianity.",
-    "link": "https://catholicsaints.info/basilicas-of-st-peter-and-st-paul/"
-  },
-  {
-    "date": "2025-11-21",
-    "saintName": "Presentation of the Blessed Virgin Mary",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "The Church honors the childhood dedication of Mary to God, celebrated for centuries as a symbol of devotion and purity.",
-    "link": "https://catholicsaints.info/presentation-of-mary/"
-  },
-  {
-    "date": "2025-11-22",
-    "saintName": "St. Cecilia",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Patroness of Musicians",
-    "saintAlt2": "",
-    "profile": "Cecilia (d. 2nd century) is honored as the patroness of musicians for her love of music and steadfast faith through martyrdom.",
-    "link": "https://catholicsaints.info/saint-cecilia/"
-  },
-  {
-    "date": "2025-11-23",
-    "saintName": "Our Lord Jesus Christ, King of the Universe",
-    "memorial": "Solemnity",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Christ the King",
-    "saintAlt2": "",
-    "profile": "This solemn feast, instituted by Pope Pius XI in 1925, proclaims Christ's sovereignty over all creation, inspiring faithful allegiance to Him.",
-    "link": "https://catholicsaints.info/christ-the-king/"
-  },
-  {
-    "date": "2025-11-24",
-    "saintName": "St. Andrew Dung-Lac and Companions",
-    "memorial": "Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Vietnamese Martyrs",
-    "saintAlt2": "",
-    "profile": "This day honors Andrew Dung-Lac and 117 Vietnamese martyrs canonized in 1988 for their zeal and faith amid persecution.",
-    "link": "https://catholicsaints.info/saint-andrew-dung-lac/"
-  },
-  {
-    "date": "2025-11-25",
-    "saintName": "St. Catherine of Alexandria",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Catherine the Martyr",
-    "saintAlt2": "",
-    "profile": "Catherine (d. 305) was a learned woman and martyr from Alexandria who bravely defended the faith, inspiring many conversions by her witness and wisdom.",
-    "link": "https://catholicsaints.info/saint-catherine-of-alexandria/"
-  },
-  {
-    "date": "2025-11-28",
-    "saintName": "St. Catherine Labouré",
-    "memorial": "Optional Memorial",
-    "source": "General Roman Calendar",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Catherine Labouré (1806-1876), Daughter of Charity of St. Vincent de Paul in Paris, received visions from the Blessed Virgin Mary that led to the Miraculous Medal’s devotion.",
-    "link": "https://catholicsaints.info/saint-catherine-laboure/"
-  },
-  {
-    "date": "2025-11-30",
-    "saintName": "St. Andrew",
-    "memorial": "Feast",
-    "source": "General Roman Calendar",
-    "saintAlt1": "Andrew the Apostle",
-    "saintAlt2": "",
-    "profile": "The Apostle Andrew, brother of St. Peter, left his life as a fisherman to follow Christ, ultimately dying a martyr’s death in Greece. He is venerated as the patron saint of Scotland and Russia.",
-    "link": "https://catholicsaints.info/saint-andrew/"
-  }
+    {
+        "date": "2025-11-01",
+        "saintName": "All Saints",
+        "memorial": "Solemnity",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Feast of All Saints",
+        "saintAlt2": "All Hallows' Day",
+        "profile": "This solemnity celebrates all saints, known and unknown, who have attained heaven. It was formally established in the 9th century to honor martyrs and later all saints, reminding the faithful of the Church’s communion.",
+        "link": "https://catholicsaints.info/all-saints/"
+    },
+    {
+        "date": "2025-11-02",
+        "saintName": "All Souls",
+        "memorial": "Commemoration",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Commemoration of All the Faithful Departed",
+        "saintAlt2": "Day of the Dead",
+        "profile": "Observed since the 11th century, this day commemorates all the departed faithful, praying for those in purgatory. Originating from St. Odilo of Cluny's initiative, it underscores charity beyond death.",
+        "link": "https://catholicsaints.info/all-souls/"
+    },
+    {
+        "date": "2025-11-03",
+        "saintName": "St. Martin de Porres",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Martin Porres",
+        "saintAlt2": "Dominican Brother Martin",
+        "profile": "Born in Lima in 1579 to a Spanish father and African mother, Martin de Porres joined the Dominicans. Known for his charity to the poor and healing miracles, he was canonized by Pius XI in 1962.",
+        "link": "https://catholicsaints.info/st-martin-de-porres/"
+    },
+    {
+        "date": "2025-11-04",
+        "saintName": "St. Charles Borromeo",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Charles Borromeo",
+        "saintAlt2": "Archbishop of Milan",
+        "profile": "Nephew of Pope Pius IV, Charles Borromeo became Archbishop of Milan in 1564. A leader of the Counter-Reformation, he implemented the Council of Trent's reforms and founded seminaries. Canonized in 1610.",
+        "link": "https://catholicsaints.info/st-charles-borromeo/"
+    },
+    {
+        "date": "2025-11-05",
+        "saintName": "St. Elizabeth",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Elizabeth of Hungary",
+        "saintAlt2": "",
+        "profile": "A princess renowned for her lifelong care of the poor and sick, Elizabeth of Hungary (1207-1231) embraced poverty and charity as a widow and Franciscan tertiary. Canonized for her extraordinary generosity and piety.",
+        "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
+    },
+    {
+        "date": "2025-11-06",
+        "saintName": "St. Leonard",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Leonard of Noblac",
+        "saintAlt2": "",
+        "profile": "Leonard of Noblac, born in 5th-century France, became a monk and was celebrated for his work freeing prisoners. His patronage of prisoners and miraculous release of captives made him widely venerated.",
+        "link": "https://catholicsaints.info/saint-leonard-of-noblac/"
+    },
+    {
+        "date": "2025-11-07",
+        "saintName": "St. Willibrord",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Apostle to the Frisians",
+        "saintAlt2": "",
+        "profile": "Willibrord (658-739), English Benedictine missionary and first Bishop of Utrecht, played a crucial role in evangelizing Frisia and surrounding regions. Famous for his zeal, kindness, and establishment of churches.",
+        "link": "https://catholicsaints.info/saint-willibrord/"
+    },
+    {
+        "date": "2025-11-08",
+        "saintName": "St. Elizabeth of the Trinity",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Elizabeth Catez (1880-1906), a Carmelite nun in Dijon, France, wrote profound spiritual reflections on the Holy Trinity, influencing Catholic spirituality. Canonized for her deep mysticism and love for God.",
+        "link": "https://catholicsaints.info/saint-elizabeth-of-the-trinity/"
+    },
+    {
+        "date": "2025-11-09",
+        "saintName": "Dedication of the Lateran Basilica",
+        "memorial": "Feast",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Mother Church of Rome",
+        "saintAlt2": "Basilica Sancti Joannis in Laterano",
+        "profile": "The cathedral church of Rome is honored on this day. The basilica, the oldest and highest ranking of the four papal churches, symbolizes the unity of the Church.",
+        "link": "https://catholicsaints.info/saint-john-lateran/"
+    },
+    {
+        "date": "2025-11-10",
+        "saintName": "St. Leo the Great",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Leo I, Pope and Doctor",
+        "saintAlt2": "",
+        "profile": "Pope Leo I (d. 461) was a masterful leader and theologian, best known for defending the faith against heresies, defining the doctrine of the Incarnation, and persuading Attila the Hun to turn back from Rome.",
+        "link": "https://catholicsaints.info/pope-saint-leo-the-great/"
+    },
+    {
+        "date": "2025-11-11",
+        "saintName": "St. Martin of Tours",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Martin the Merciful",
+        "saintAlt2": "",
+        "profile": "Martin (316-397), former Roman soldier turned bishop, is famous for sharing his cloak with a beggar and his commitment to poverty and peace. His charity and faith made him one of Europe's most beloved saints.",
+        "link": "https://catholicsaints.info/saint-martin-of-tours/"
+    },
+    {
+        "date": "2025-11-12",
+        "saintName": "St. Josaphat",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Josaphat Kuncewicz",
+        "saintAlt2": "",
+        "profile": "Josaphat (1580-1623), Archbishop of Polotsk, was a Ukrainian Greek Catholic monk who sought unity between Orthodox and Catholic Christians and died a martyr for his efforts.",
+        "link": "https://catholicsaints.info/saint-josaphat/"
+    },
+    {
+        "date": "2025-11-13",
+        "saintName": "St. Frances Xavier Cabrini",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Mother Cabrini",
+        "saintAlt2": "",
+        "profile": "Frances Cabrini (1850-1917) founded the Missionary Sisters of the Sacred Heart of Jesus, served Italian immigrants in the U.S., and became the first American citizen to be canonized.",
+        "link": "https://catholicsaints.info/saint-frances-xavier-cabrini/"
+    },
+    {
+        "date": "2025-11-15",
+        "saintName": "St. Albert the Great",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Albertus Magnus",
+        "saintAlt2": "",
+        "profile": "Albertus Magnus (1206-1280), Dominican bishop and teacher, contributed major advances in theology and science. He is known as the patron of scientists and natural philosophers.",
+        "link": "https://catholicsaints.info/saint-albert-the-great/"
+    },
+    {
+        "date": "2025-11-16",
+        "saintName": "St. Gertrude the Great",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Gertrude of Helfta",
+        "saintAlt2": "",
+        "profile": "Gertrude (1256-1302), Benedictine mystic and writer, contributed spiritual texts emphasizing the Sacred Heart of Jesus. Her profound visions made her influential in Christian spirituality.",
+        "link": "https://catholicsaints.info/saint-gertrude-the-great/"
+    },
+    {
+        "date": "2025-11-17",
+        "saintName": "St. Elizabeth of Hungary",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Elizabeth the Widowed",
+        "saintAlt2": "",
+        "profile": "Princess Elizabeth (1207-1231) was renowned for her deep compassion for the poor, giving away her possessions and founding hospitals. Canonized for her mercy and devotion as a widow.",
+        "link": "https://catholicsaints.info/saint-elizabeth-of-hungary/"
+    },
+    {
+        "date": "2025-11-18",
+        "saintName": "Dedication of the Basilicas of Saints Peter and Paul",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "St. Peter's and St. Paul's Basilicas",
+        "saintAlt2": "",
+        "profile": "On this day, the Church celebrates the dedication of two major basilicas in Rome, commemorating the holy apostles Peter and Paul and their essential roles in Christianity.",
+        "link": "https://catholicsaints.info/basilicas-of-st-peter-and-st-paul/"
+    },
+    {
+        "date": "2025-11-21",
+        "saintName": "Presentation of the Blessed Virgin Mary",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "The Church honors the childhood dedication of Mary to God, celebrated for centuries as a symbol of devotion and purity.",
+        "link": "https://catholicsaints.info/presentation-of-mary/"
+    },
+    {
+        "date": "2025-11-22",
+        "saintName": "St. Cecilia",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Patroness of Musicians",
+        "saintAlt2": "",
+        "profile": "Cecilia (d. 2nd century) is honored as the patroness of musicians for her love of music and steadfast faith through martyrdom.",
+        "link": "https://catholicsaints.info/saint-cecilia/"
+    },
+    {
+        "date": "2025-11-23",
+        "saintName": "Our Lord Jesus Christ, King of the Universe",
+        "memorial": "Solemnity",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Christ the King",
+        "saintAlt2": "",
+        "profile": "This solemn feast, instituted by Pope Pius XI in 1925, proclaims Christ's sovereignty over all creation, inspiring faithful allegiance to Him.",
+        "link": "https://catholicsaints.info/christ-the-king/"
+    },
+    {
+        "date": "2025-11-24",
+        "saintName": "St. Andrew Dung-Lac and Companions",
+        "memorial": "Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Vietnamese Martyrs",
+        "saintAlt2": "",
+        "profile": "This day honors Andrew Dung-Lac and 117 Vietnamese martyrs canonized in 1988 for their zeal and faith amid persecution.",
+        "link": "https://catholicsaints.info/saint-andrew-dung-lac/"
+    },
+    {
+        "date": "2025-11-25",
+        "saintName": "St. Catherine of Alexandria",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Catherine the Martyr",
+        "saintAlt2": "",
+        "profile": "Catherine (d. 305) was a learned woman and martyr from Alexandria who bravely defended the faith, inspiring many conversions by her witness and wisdom.",
+        "link": "https://catholicsaints.info/saint-catherine-of-alexandria/"
+    },
+    {
+        "date": "2025-11-28",
+        "saintName": "St. Catherine Labouré",
+        "memorial": "Optional Memorial",
+        "source": "General Roman Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Catherine Labouré (1806-1876), Daughter of Charity of St. Vincent de Paul in Paris, received visions from the Blessed Virgin Mary that led to the Miraculous Medal’s devotion.",
+        "link": "https://catholicsaints.info/saint-catherine-laboure/"
+    },
+    {
+        "date": "2025-11-30",
+        "saintName": "St. Andrew",
+        "memorial": "Feast",
+        "source": "General Roman Calendar",
+        "saintAlt1": "Andrew the Apostle",
+        "saintAlt2": "",
+        "profile": "The Apostle Andrew, brother of St. Peter, left his life as a fisherman to follow Christ, ultimately dying a martyr’s death in Greece. He is venerated as the patron saint of Scotland and Russia.",
+        "link": "https://catholicsaints.info/saint-andrew/"
+    },
+    {
+        "date": "2025-12-01",
+        "saintName": "All Saints for Today",
+        "memorial": "Weekday",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "December 1st marks the beginning of the liturgical observance of the season of Advent, a period of preparation for the Christmas celebration. The Church encourages the faithful to prepare their hearts spiritually for the coming of Christ through prayer, penance, and charitable works.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-02",
+        "saintName": "Saint Bibiana",
+        "memorial": "Virgin and Martyr",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "",
+        "saintAlt2": "",
+        "profile": "Saint Bibiana was a virgin and martyr of Rome, born in the fourth century during the reign of Emperor Diocletian. Daughter and sister of martyrs, she was imprisoned and tortured for her Christian faith but refused to deny Christ. She was venerated extensively throughout the early Christian centuries and is invoked by those suffering from epilepsy and other nervous afflictions.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-03",
+        "saintName": "Saint Francis Xavier",
+        "memorial": "Priest - Memorial",
+        "source": "Roman Liturgical Calendar - Canonized 1622",
+        "saintAlt1": "The Apostle of the Indies",
+        "saintAlt2": "The Apostle of the Far East",
+        "profile": "Francis Xavier (1506-1552) was a Basque nobleman who became one of the greatest missionaries in the history of the Church. Co-founder of the Society of Jesus with Saint Ignatius of Loyola, Francis devoted his life to spreading Christ's Gospel across India, the Far East, and Japan. Despite facing opposition from European officials and difficult circumstances, he baptized tens of thousands of pagan converts and established Christian communities across Asia. His missionary work, marked by numerous miracles and intense apostolic zeal, lasted only about ten years before his death in 1552, yet he is recognized as the patron of all Catholic missions and foreign missionaries worldwide.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-04",
+        "saintName": "Saint John Damascene",
+        "memorial": "Priest, Religious and Doctor - Optional Memorial",
+        "source": "Roman Liturgical Calendar - Doctor of Church 1890",
+        "saintAlt1": "John of Damascus",
+        "saintAlt2": "John Chrysorrhoas",
+        "profile": "Saint John Damascene (c. 676-749) was born in Damascus, Syria to a wealthy Christian family. As the chief financial administrator to the Muslim ruler of Damascus, he received an exceptional education and became renowned for his encyclopedic intellect. Following a divine calling, he resigned his position, distributed his wealth to the poor and monasteries, and entered the desert monastery of Mar Saba near Jerusalem. There he became a monk and was later ordained a priest. John is most famous for his theological defense of sacred images during the iconoclastic controversy and for his masterwork, the 'Exact Exposition of the Orthodox Faith,' which systematized Greek patristic theology and profoundly influenced Saint Thomas Aquinas and subsequent scholastic theologians. Declared a Doctor of the Church in 1890 by Pope Leo XIII.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-05",
+        "saintName": "Saint Sabas",
+        "memorial": "Abbot",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "Sabas of Palestine",
+        "saintAlt2": "",
+        "profile": "Saint Sabas (439-532) was a monastic reformer and founder of numerous monasteries in Palestine. Known for his wisdom, holiness, and dedication to the contemplative life, he established the monastic settlement of Mar Saba in the Judean wilderness, which became a major center of Christian monasticism. Through his spiritual leadership and reforms, he significantly influenced monastic practices in the Eastern Church and is venerated as a patriarch of monastic life.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-06",
+        "saintName": "Saint Nicholas",
+        "memorial": "Bishop - Optional Memorial",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "Nicholas of Myra",
+        "saintAlt2": "Nicholas of Bari",
+        "profile": "Saint Nicholas of Myra (c. 280-343) was an early Christian bishop of Greek descent from Lycia in modern-day Turkey. Born to wealthy parents who died during an epidemic, Nicholas inherited their fortune and dedicated himself to secretly distributing his wealth to the poor and distressed. Ordained as a priest by his uncle, he was eventually chosen bishop of Myra through divine revelation. During the persecution under Emperor Diocletian, he was imprisoned and tortured but survived. Under Constantine's reign, he was released and returned to minister to his flock with extraordinary gentleness and love. Nicholas is venerated for his miracles, including saving those condemned to death and rescuing sailors from shipwrecks. He participated in the First Council of Nicaea in 325, defending the Orthodox faith against heresy. Known worldwide as the patron saint of children, sailors, travelers, and Russia, his feast is celebrated December 6.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-07",
+        "saintName": "Saint Ambrose",
+        "memorial": "Bishop and Doctor of the Church - Memorial",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "Ambrose of Milan",
+        "saintAlt2": "",
+        "profile": "Saint Ambrose (c. 340-397) was born into an ancient Roman family and received exceptional education in Greek philosophy and law. Appointed governor of Liguria and Emilia with residence in Milan, he was still only a catechumen when the death of Bishop Auxentius created chaos. A crowd of Milanese Catholics demanded Ambrose as their bishop, and he was baptized, ordained a priest, and consecrated bishop all on December 7, 374. One of the four Great Latin Doctors of the Church, Ambrose was renowned for his powerful preaching, theological writings on Scripture and the Fathers, composition of hymns, and promotion of sacred music. Most famously, he brought about the conversion of the young Saint Augustine through his sermons. Ambrose fearlessly opposed heresy and defended Church independence from secular power, publicly excommunicating Emperor Theodosius I after the massacre of Thessalonica's inhabitants.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-08",
+        "saintName": "Immaculate Conception of the Blessed Virgin Mary",
+        "memorial": "Solemnity - Holy Day of Obligation",
+        "source": "Roman Liturgical Calendar - Dogma defined 1854",
+        "saintAlt1": "Mary Immaculate",
+        "saintAlt2": "",
+        "profile": "The Immaculate Conception celebrates the unique privilege of the Blessed Virgin Mary, defined dogmatically by Pope Pius IX in the Apostolic Constitution 'Ineffabilis Deus' on December 8, 1854. This doctrine proclaims that Mary was, from the first moment of her conception in her mother Saint Anne's womb, by a singular grace and privilege of almighty God and through the merits of Jesus Christ, preserved free from all stain of original sin. This doctrine reflects the Church's understanding of Mary as the New Eve and the new Ark of the Covenant. The Immaculate Conception is the patronal feast of the United States, Brazil, Korea, Philippines, and Spain. From at least the seventh century, the Eastern Church celebrated Mary's conception, with the Western Church following. In the fifteenth century, Pope Sixtus IV approved a liturgical celebration for the feast throughout the Western Church.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-09",
+        "saintName": "Saint Juan Diego",
+        "memorial": "Hermit - Optional Memorial",
+        "source": "Roman Liturgical Calendar - Canonized 2002",
+        "saintAlt1": "Juan Diego Cuauhtlatoatzin",
+        "saintAlt2": "",
+        "profile": "Saint Juan Diego (1474-1548) was the first Catholic saint indigenous to the Americas. A Nahua Indian from Mexico, he became the chosen instrument of the Virgin Mary's appearance at Tepeyac on December 9, 1531. The Blessed Mother appeared to him four times, requesting the construction of a chapel in her honor. Juan Diego faithfully carried this message to the skeptical Bishop Juan de Zumárraga, who demanded a sign. Miraculously, in December (when roses could not grow), Juan Diego gathered Castilian roses in his tilma (cloak), and when he opened it before the bishop, the roses fell and an image of the Virgin was miraculously imprinted on the cloth. This image has become the most revered Marian image in the Americas. Juan Diego's humble faith, profound devotion, and perseverance in delivering the Mother of God's message led to the conversion of approximately ten million indigenous peoples within the following decade. He was beatified in 1990 and canonized in 2002 by Pope John Paul II.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-10",
+        "saintName": "Our Lady of Loreto",
+        "memorial": "Optional Memorial",
+        "source": "Roman Liturgical Calendar - Translation of Holy House",
+        "saintAlt1": "Mary, Mother of God",
+        "saintAlt2": "",
+        "profile": "The Feast of Our Lady of Loreto honors the devotion to the Holy House of Nazareth, which according to tradition was miraculously transported by angels from Nazareth to Tersatto in Dalmatia (modern Croatia) in 1291, and then to Loreto, Italy in 1294, where it remains enshrined. This small house, believed to be where Mary was born and the Incarnation occurred at the Annunciation, became one of the most important Marian shrines in Christendom. Throughout the centuries, countless miracles and spiritual graces have been attributed to intercession at this shrine. Over ten million pilgrims annually visit the Basilica of Loreto, making it one of the most visited Catholic churches in the world after Saint Peter's Basilica. Our Lady of Loreto is the patroness of aviators, pilots, builders, and construction workers.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-11",
+        "saintName": "Saint Damasus I",
+        "memorial": "Pope - Optional Memorial",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "Damasus of Rome",
+        "saintAlt2": "",
+        "profile": "Saint Damasus I (c. 305-384) was born in Rome to Spanish descent and served as Pope from October 366 until his death on December 11, 384, a tenure of eighteen years and two months. A strenuous defender of Orthodox Christian faith, Damasus condemned the heresies of Macedonius and Apollinaris through councils held in Rome and his support for the First Council of Constantinople. He is perhaps most renowned for commissioning Saint Jerome to revise the Latin translation of the Gospels based on the original Greek, a project that produced the foundational Vulgate. A gifted poet and scholar, Damasus composed verses in honor of the early Christian martyrs and worked tirelessly to preserve their memories by restoring and reopening the Roman catacombs that had been closed under Diocletian's persecution. He discovered the bodies of numerous martyrs and placed commemorative inscriptions at their graves. His patronage of Christian archaeology and his efforts to promote devotion to the martyrs earned him recognition as the patron saint of archaeologists.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-12",
+        "saintName": "Our Lady of Guadalupe",
+        "memorial": "Feast (USA)",
+        "source": "Roman Liturgical Calendar - USA Feast",
+        "saintAlt1": "Virgin Mary of Guadalupe",
+        "saintAlt2": "Patroness of the Americas",
+        "profile": "Our Lady of Guadalupe is venerated as the Virgin Mary's appearance to Saint Juan Diego on the hill of Tepeyac near Mexico City in December 1531. The miraculous image impressed upon Juan Diego's tilma (cloak) has become the most beloved Marian image in the Americas. The Feast of Our Lady of Guadalupe commemorates the apparitions and the profound spiritual impact of the Virgin Mary's message of love and consolation to Mexico's indigenous peoples. In 1999, Pope John Paul II declared December 12 as a Liturgical Holy Day for the entire American continent and proclaimed Our Lady of Guadalupe the Patroness of the Americas. She is venerated as a symbol of unity in diversity and maternal love for all humanity. The Basilica of Our Lady of Guadalupe receives approximately 10 million visitors annually, making it one of the most important pilgrimage destinations in the Catholic world. The feast celebrates the Virgin Mary's commitment to the poorest and most vulnerable, as she appeared to Juan Diego, a simple indigenous peasant.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-13",
+        "saintName": "Saint Lucy",
+        "memorial": "Virgin and Martyr - Memorial",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "Lucy of Syracuse",
+        "saintAlt2": "",
+        "profile": "Saint Lucy of Syracuse (c. 283-304) was born into a wealthy, high-ranking family in Syracuse, Sicily during the reign of Emperor Diocletian. After her father died when she was young, her mother Eutychia raised her with great love and dedication. Lucy became profoundly devoted to Christ and made a private vow of virginity dedicated to serving God. When her mother suffered from severe hemorrhages, Lucy convinced her to visit the tomb of Saint Agatha, where Lucy had a vision in which Saint Agatha appeared and prophesied that Lucy would become the glory of Syracuse just as Agatha was the glory of Catania. Her mother was miraculously healed. Inspired by this grace, Lucy persuaded her mother to distribute their considerable wealth to the poor, which she did immediately. A rejected suitor, angered by her refusal to marry and her acts of charity, denounced Lucy as a Christian to the Governor Paschasius. Arrested and interrogated, Lucy refused to worship the Roman gods. When the governor ordered her to be defiled in a brothel, she remained immovable through God's grace. Guards could not move her even with oxen and ropes. Though subjected to boiling oil and flames, she miraculously endured these torments until finally a soldier pierced her throat with a sword, completing her martyrdom. She is invoked against diseases of the eyes and is the patroness of the blind.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-14",
+        "saintName": "Saint John of the Cross",
+        "memorial": "Priest and Doctor of the Church - Memorial",
+        "source": "Roman Liturgical Calendar - Canonized 1726",
+        "saintAlt1": "John of St. Matthias",
+        "saintAlt2": "Juan de la Cruz",
+        "profile": "Saint John of the Cross (1542-1591) was a Spanish Carmelite friar, mystic, and poet, born Juan de Yepes y Álvarez. After discerning a religious vocation, he entered the Carmelite Order in 1563 at age twenty-one. Ordained a priest in 1567, he met Saint Teresa of Ávila, who persuaded him to help reform the Carmelite Order. Together they founded the Discalced Carmelites (O.C.D.), dedicated to returning to the primitive rule emphasizing solitude, silence, poverty, work, and contemplative prayer. Taking the name John of the Cross, he endured bitter persecution from his own brethren, who imprisoned and tortured him, nearly starving him to death. After escaping and enduring further humiliations and exile, John's only response was deepened interior peace and union with Christ's suffering. A master of mystical theology, John is known for his profound spiritual writings exploring the soul's union with God, including 'The Ascent of Mount Carmel' and 'The Dark Night of the Soul.' He was beatified in 1675, canonized in 1726, and declared a Doctor of the Church in 1926 by Pope Pius XI. He is the patron of contemplative life, mystical theology, and Spanish poets.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-25",
+        "saintName": "Nativity of the Lord",
+        "memorial": "Solemnity - Holy Day of Obligation",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "Christmas",
+        "saintAlt2": "Birth of Jesus Christ",
+        "profile": "Christmas celebrates the birth of Jesus Christ, the Son of God, who became incarnate in the womb of the Virgin Mary approximately 2,025 years ago in Bethlehem. The Church commemorates this supreme mystery of faith with the Solemnity of the Nativity of the Lord, the highest rank of liturgical celebration. Though the exact historical date of Christ's birth is uncertain, December 25 has been celebrated since at least the fourth century as the feast of Christmas in the Western Church. The celebration of Christmas is distinguished by a threefold celebration of the Mass: the Vigil Mass on Christmas Eve, the Mass during the Night, the Mass at Dawn, and the Mass during the Day. Throughout Advent, the Church longed for Christ's coming; on Christmas, she celebrates His birth with unrestrained joy. The Incarnation reveals God's infinite love and humility, as the eternal Word assumed human nature to reconcile humanity with the divine and to offer the gift of eternal life through participation in Christ's redemptive sacrifice.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-26",
+        "saintName": "Saint Stephen",
+        "memorial": "First Martyr - Feast (Second Day in Octave of Christmas)",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "Stephen the Protomartyr",
+        "saintAlt2": "",
+        "profile": "Saint Stephen (c. 5-34 AD) was the first Christian martyr, bearing the unique title of 'Protomartyr.' One of seven deacons chosen by the Apostles to assist in the distribution of charitable aid to widows and the poor, Stephen was described in Acts as 'filled with faith and with the Holy Spirit' and 'full of grace and strength,' radiating divine grace and apostolic zeal. He performed great wonders and signs among the people, proclaiming Christ with power and wisdom. When accused before the Sanhedrin, his accusers 'were not able to resist the wisdom and the spirit that spoke.' Infuriated by his bold witness to Christ, the council dragged Stephen outside Jerusalem and stoned him to death. Before his execution, Stephen had a vision of heaven: 'Behold, I see the heavens opened and the Son of Man standing at the right hand of God.' As stones struck him down, he prayed forgiveness for his murderers: 'Lord, do not hold this sin against them,' echoing his Master's words from the Cross. A young man named Saul witnessed Stephen's execution and approved of it; this same Saul would later convert and become Saint Paul the Apostle.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-27",
+        "saintName": "Saint John",
+        "memorial": "Apostle and Evangelist - Feast (Third Day in Octave of Christmas)",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "John the Evangelist",
+        "saintAlt2": "John of Patmos",
+        "profile": "Saint John the Apostle and Evangelist (c. 5-101 AD) was the youngest of the Twelve Apostles, son of Zebedee and brother of James. Called by Jesus while mending his nets with his brother, John became known as 'the Beloved Disciple,' famous for leaning upon Jesus' breast at the Last Supper. At the foot of the Cross, the dying Jesus entrusted His mother Mary to John's care. John was present at the Resurrection's discovery and the miraculous catch of fish afterward. In his extreme old age, John continued visiting the churches of Asia Minor, repeating only: 'My dear children, love one another.' John is the author of the Fourth Gospel, three Epistles of John, and the Book of Revelation. His Gospel emphasizes the divinity of Christ and the fraternal love to which God calls His children. According to tradition, under Emperor Domitian, John was plunged into a caldron of boiling oil but miraculously emerged unharmed, after which he was exiled to the island of Patmos, where he received the mystical visions recorded in the Apocalypse. He is the only Apostle who died of natural causes rather than martyrdom, living to approximately 101 years of age. John is the patron saint of authors, loyalty, and friendship.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-28",
+        "saintName": "Holy Innocents",
+        "memorial": "Martyrs - Feast (Fourth Day in Octave of Christmas)",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "Innocents of Bethlehem",
+        "saintAlt2": "",
+        "profile": "The Feast of the Holy Innocents commemorates the massacre of male children in Bethlehem ordered by King Herod the Great in his paranoid attempt to kill the newborn Jesus. Herod, consumed with fear and jealousy over the birth of a promised king, commanded the slaughter of all male children in Bethlehem and its vicinity under the age of two. Though the exact number of children killed is uncertain (possibly between twenty and a few thousand), the Church honors them as the first martyrs for Christ. These innocent children, guilty of no crime except being potential threats to Herod's throne, died in circumstances intimately connected with Christ's birth. Though they could not consciously confess the faith, they are recognized as holy because they shed their blood in connection with Christ. Saint Augustine reflected: 'Herod accordingly kills many little children, in his determination to bring about the death of just one.' Their cruel and tragic deaths have been transformed by God into eternal glory. The Church celebrates them with the liturgical color red, the color of martyrdom, and invokes their intercession on behalf of innocents in danger and children at risk. Their feast is a powerful reminder of God's providence, which transforms suffering into redemptive grace.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-29",
+        "saintName": "Holy Family of Jesus, Mary, and Joseph",
+        "memorial": "Feast - (Sunday within Octave of Christmas)",
+        "source": "Roman Liturgical Calendar",
+        "saintAlt1": "Jesus, Mary, and Joseph",
+        "saintAlt2": "",
+        "profile": "The Feast of the Holy Family celebrates Jesus, Mary, and Joseph as the model and patron of all Christian families. This feast is moveable, celebrated on the Sunday within the Octave of Christmas, or December 30 if no Sunday falls within the octave. The Holy Family represents the sanctity of domestic life and demonstrates how families should be organized around Christ and service to God's will. Jesus, though God Himself, humbled Himself to obey His earthly parents and subject Himself to their care, establishing the profound principle that filial obedience is consistent with divine majesty. Mary, the Mother of Jesus, exemplifies maternal love, faith, and devotion. Joseph, the earthly father and protector of Jesus, demonstrates the virtues of stewardship, sacrifice, fidelity, and paternal care. Though bound by a true but virginal marriage, Mary and Joseph's union was wholly ordered to the care and education of Jesus Christ. The Church holds up the Holy Family as the model for all families to emulate, encouraging Christian families to pattern their lives after this holiest of all families, striving to replicate their virtues of obedience, mutual love, faith, and dedication to Christ.",
+        "link": ""
+    },
+    {
+        "date": "2025-12-31",
+        "saintName": "Saint Sylvester I",
+        "memorial": "Pope - Optional Memorial (Seventh Day in Octave of Christmas)",
+        "source": "Roman Liturgical Calendar - Pre-Congregation Canonization",
+        "saintAlt1": "Silvester",
+        "saintAlt2": "",
+        "profile": "Pope Saint Sylvester I (c. 250-335) served as Bishop of Rome from January 31, 314 until his death on December 31, 335, guiding the Church through a transformative period of peace and expansion after three centuries of persecution. Though many facts of his life are shrouded in legend and tradition, Sylvester is remembered as a confessor of faith who lived virtuously and provided shelter and care to persecuted Christians. Elevated to the diaconate and eventually to the priesthood, he was chosen as Pope at an advanced age. During his pontificate, Emperor Constantine gave the Church unprecedented freedom and support. Under Sylvester's leadership and with Constantine's patronage, magnificent churches were built, including the Basilica of Saint John Lateran, the Basilica of the Holy Cross in Jerusalem, and Old Saint Peter's Basilica. Though Sylvester did not personally attend the First Council of Nicaea in 325, he sent legates and approved the Council's decisions defending Orthodox faith against Arianism. Sylvester represented Christians in theological disputations and demonstrated the faith with courage and learning. He organized Church discipline for this new era of peace, transformed the Church from a persecuted community into an organized society with ecclesiastical property and institutional structures. Saint Sylvester died peacefully in old age and was buried in the Catacomb of Priscilla. His feast celebrates the victory of Christ and the triumph of His Church.",
+        "link": ""
+    }
 ]
