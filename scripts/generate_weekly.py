@@ -9,6 +9,7 @@ Fixes:
 - Second reading only when truly present (or Sunday + real ref).
 - Saints merged from local + remote URL.
 - Proper liturgical cycles (Year A/B/C, Cycle I/II).
+- CatholicGallery used as primary reading source, with USCCB/EWTN as fallbacks.
 """
 
 import os, re, json, time, zoneinfo, datetime as dt
@@ -163,6 +164,23 @@ def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
 
     return first or "", second or "", psalm or "", gospel or ""
 
+# --- NEW: CatholicGallery primary source ---
+def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
+    """
+    Fetch readings from CatholicGallery for the given date.
+
+    CatholicGallery per-day URLs follow the pattern:
+        https://www.catholicgallery.org/mass-reading/DDMMYY/
+
+    The page uses standard headings (First Reading, Responsorial Psalm, Gospel, etc.),
+    so we reuse the same DOM parser we use for USCCB/EWTN.
+    """
+    slug = date.strftime("%d%m%y")
+    url = f"https://www.catholicgallery.org/mass-reading/{slug}/"
+    r = requests.get(url, headers=HEADERS, timeout=25)
+    r.raise_for_status()
+    return parse_usccb_dom(r.text, sunday=is_sunday(date))
+
 def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
     r = requests.get(url, headers=HEADERS, timeout=25)
@@ -185,23 +203,53 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     return parse_usccb_dom(html, sunday=is_sunday(date))
 
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
-    f = s = p = g = ""
-    try:
-        f, s, p, g = fetch_readings_usccb(date)
-    except Exception as e:
-        log("USCCB fetch issue", ymd(date), e)
+    """
+    Resolve readings for a date with this precedence:
+    1) CatholicGallery (primary)
+    2) USCCB (secondary)
+    3) EWTN (fallback, if enabled)
 
+    Then apply Psalm / second-reading sanity checks.
+    """
+    f = s = p = g = ""
+
+    # 1) CatholicGallery first
+    try:
+        f, s, p, g = fetch_readings_catholicgallery(date)
+    except Exception as e:
+        log("CatholicGallery fetch issue", ymd(date), e)
+
+    # 2) If critical pieces missing, fall back to USCCB
+    if not f or not p or not g:
+        try:
+            f2, s2, p2, g2 = fetch_readings_usccb(date)
+            f = f or f2
+            p = p or p2
+            g = g or g2
+            s = s or s2
+        except Exception as e:
+            log("USCCB fetch issue", ymd(date), e)
+
+    # 3) If still incomplete, optional EWTN fallback
     if USE_EWTN_FALLBACK and (not f or not p or not g):
         try:
             f2, s2, p2, g2 = fetch_readings_ewtn(date)
-            f = f or f2; p = p or p2; g = g or g2; s = s or s2
+            f = f or f2
+            p = p or p2
+            g = g or g2
+            s = s or s2
         except Exception as e:
             log("EWTN fetch issue", ymd(date), e)
 
+    # Psalm sanity: must look like a Psalm ref
     if p and not PSALM_REF_RE.match(p):
-        log("psalm rejected:", p); p = ""
-    if s and (s == f or s == g or PSALM_REF_RE.match(s) or s.startswith(("Matthew","Mark","Luke","John"))):
+        log("psalm rejected:", p)
+        p = ""
+
+    # Second reading sanity: don't let it be dupes or Psalms or Gospels
+    if s and (s == f or s == g or PSALM_REF_RE.match(s) or s.startswith(("Matthew", "Mark", "Luke", "John"))):
         s = ""
+
     return f or "", s or "", p or "", g or ""
 
 # ===== Saints (merge local + remote) =====
