@@ -203,34 +203,26 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     return parse_usccb_dom(html, sunday=is_sunday(date))
 
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
-    """
-    Resolve readings for a date with this precedence:
-    1) CatholicGallery (primary)
-    2) USCCB (secondary)
-    3) EWTN (fallback, if enabled)
-
-    Then apply Psalm / second-reading sanity checks.
-    """
     f = s = p = g = ""
 
-    # 1) CatholicGallery first
+    # 1) USCCB primary
     try:
-        f, s, p, g = fetch_readings_catholicgallery(date)
+        f, s, p, g = fetch_readings_usccb(date)
     except Exception as e:
-        log("CatholicGallery fetch issue", ymd(date), e)
+        log("USCCB fetch issue", ymd(date), e)
 
-    # 2) If critical pieces missing, fall back to USCCB
+    # 2) CatholicGallery per-date fallback if anything critical is missing
     if not f or not p or not g:
         try:
-            f2, s2, p2, g2 = fetch_readings_usccb(date)
+            f2, s2, p2, g2 = fetch_readings_catholicgallery(date)
             f = f or f2
             p = p or p2
             g = g or g2
             s = s or s2
         except Exception as e:
-            log("USCCB fetch issue", ymd(date), e)
+            log("CatholicGallery fetch issue", ymd(date), e)
 
-    # 3) If still incomplete, optional EWTN fallback
+    # 3) EWTN last resort
     if USE_EWTN_FALLBACK and (not f or not p or not g):
         try:
             f2, s2, p2, g2 = fetch_readings_ewtn(date)
@@ -241,12 +233,12 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
         except Exception as e:
             log("EWTN fetch issue", ymd(date), e)
 
-    # Psalm sanity: must look like a Psalm ref
+    # Psalm sanity
     if p and not PSALM_REF_RE.match(p):
         log("psalm rejected:", p)
         p = ""
 
-    # Second reading sanity: don't let it be dupes or Psalms or Gospels
+    # Second reading sanity
     if s and (s == f or s == g or PSALM_REF_RE.match(s) or s.startswith(("Matthew", "Mark", "Luke", "John"))):
         s = ""
 
