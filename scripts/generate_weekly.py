@@ -127,14 +127,23 @@ def extract_ref_after_heading(soup: BeautifulSoup, pat: re.Pattern) -> str:
 
 # ===== tiny voter helper =====
 def _canon(ref: str) -> str:
-    """Canonicalize a scripture ref for comparison."""
+    """Canonicalize a scripture ref for comparison & storage.
+
+    - Extract ONLY the first scripture reference (Book + chapter:verses)
+      from the string.
+    - Normalize whitespace and 'First/Second/Third' forms.
+    """
     if not ref:
         return ""
-    ref = re.sub(r'\s+', ' ', ref)
-    ref = ref.replace("First ", "1 ")
-    ref = ref.replace("Second ", "2 ")
-    ref = ref.replace("Third ", "3 ")
-    return ref.strip(" .,")
+    m = REF_RE.search(ref)
+    if not m:
+        return ""
+    s = m.group(0)
+    s = re.sub(r'\s+', ' ', s)
+    s = s.replace("First ", "1 ")
+    s = s.replace("Second ", "2 ")
+    s = s.replace("Third ", "3 ")
+    return s.strip(" .,:;")
 
 def _vote_slot(*candidates: str) -> str:
     """
@@ -307,12 +316,17 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     second = _vote_slot(s_u, s_g, s_c, s_e)
     gospel = _vote_slot(g_u, g_g, g_c, g_e)
 
+    # Canonicalize once more so final strings are clean
+    first  = _canon(first)
+    psalm  = _canon(psalm)
+    second = _canon(second)
+    gospel = _canon(gospel)
+
     # Safety: first must not be a Psalm (book of Psalms).
     if first and PSALM_BOOK_RE.match(first):
         log("first reading looks like psalm; clearing first", first)
         first = ""
 
-    # Psalm must at least look like *some* scripture reference (Chronicles, Daniel, etc.)
     if psalm and not REF_RE.search(psalm):
         log("psalm ref looks wrong; clearing psalm", psalm)
         psalm = ""
