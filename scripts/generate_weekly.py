@@ -164,22 +164,32 @@ def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
 
     return first or "", second or "", psalm or "", gospel or ""
 
-# --- NEW: CatholicGallery primary source ---
+# --- NEW: CatholicGallery secondary source ---
 def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
-    """
-    Fetch readings from CatholicGallery for the given date.
-
-    CatholicGallery per-day URLs follow the pattern:
-        https://www.catholicgallery.org/mass-reading/DDMMYY/
-
-    The page uses standard headings (First Reading, Responsorial Psalm, Gospel, etc.),
-    so we reuse the same DOM parser we use for USCCB/EWTN.
-    """
-    slug = date.strftime("%d%m%y")
+    """Per-date readings from CatholicGallery /mass-reading/DDMMYY/"""
+    slug = date.strftime("%d%m%y")  # 201125 for 20 Nov 2025
     url = f"https://www.catholicgallery.org/mass-reading/{slug}/"
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
-    return parse_usccb_dom(r.text, sunday=is_sunday(date))
+    soup = BeautifulSoup(r.text, "html.parser")
+    text = soup.get_text(" ", strip=True)
+
+    def grab(label: str, next_labels: List[str]) -> str:
+        # label="First Reading:", next_labels=["Responsorial Psalm:", "Gospel:"]
+        pattern = rf"{re.escape(label)}\s*(.+?)(?=" + "|".join(map(re.escape, next_labels)) + r"|$)"
+        m = re.search(pattern, text)
+        return m.group(1).strip() if m else ""
+
+    first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:"])
+    psalm  = grab("Responsorial Psalm:", ["Alleluia:", "Gospel:"])
+    second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
+    gosp   = grab("Gospel:", [])
+
+    def norm(s: str) -> str:
+        s = re.sub(r'\s+', ' ', s)
+        s = re.sub(r'^\bFirst\b|\bSecond\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
+        return s.strip(" :.,")
+    return norm(first), norm(second), norm(psalm), norm(gosp)
 
 def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
@@ -203,7 +213,100 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     return parse_usccb_dom(html, sunday=is_sunday(date))
 
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
+    """
+    Resolve readings for a date with this precedence:
+    1) USCCB (primary)
+    2) CatholicGallery per-date (fallback)
+    3) EWTN (last resort, if enabled)
+
+    Invariants:
+    - First reading MUST NOT be a Psalm.
+    - Psalm MUST look like a Psalm.
+    - Second reading is optional but must not be Psalm or Gospel.
+    """
     f = s = p = g = ""
+
+    # 1) USCCB primary
+    try:
+        f, s, p, g = fetch_readings_usccb(date)
+    except Exception as e:
+        log("USCCB fetch issue", ymd(date), e)
+
+    # 2) CatholicGallery fallback if anything core is missing OR first looks like a psalm
+    need_cg = (not f or not p or not g or (f and PSALM_REF_RE.match(f)))
+    if need_cg:
+        try:
+            f2, s2, p2, g2 = fetch_readings_catholicgallery(date)
+            # Only overwrite if still missing / invalid
+            if not f or PSALM_REF_RE.match(f):
+                f = f2
+            if not p:
+                p = p2
+            if not g:
+                g = g2
+            if not s:
+                s = s2
+        except Exception as e:
+            log("CatholicGallery fetch issue", ymd(date), e)
+
+    def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
+    """Daily reading from catholic.org with ?select_date=YYYY-MM-DD"""
+    url = f"https://www.catholic.org/bible/daily_reading/?select_date={date.isoformat()}"
+    r = requests.get(url, headers=HEADERS, timeout=25)
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html.parser")
+    text = soup.get_text(" ", strip=True)
+
+    def grab(label: str) -> str:
+        # e.g. label="Reading 1," or "Responsorial Psalm,"
+        m = re.search(rf"{re.escape(label)}\s*([^R]+?)(?=\s+Responsorial Psalm,|\s+Gospel,|$)", text)
+        return m.group(1).strip() if m else ""
+
+    first  = grab("Reading 1,")
+    psalm  = grab("Responsorial Psalm,")
+    second = ""   # catholic.org weekday pages usually have only 1st + Psalm + Gospel
+    gosp   = grab("Gospel,")
+
+    # Normalize: "First Maccabees 2:15-29" etc
+    def norm(s: str) -> str:
+        s = re.sub(r'\s+', ' ', s)
+        return s.strip(" .,")
+
+    return norm(first), norm(second), norm(psalm), norm(gosp)
+
+    # 3) EWTN last resort
+    if USE_EWTN_FALLBACK and (not f or not p or not g or (f and PSALM_REF_RE.match(f))):
+        try:
+            f2, s2, p2, g2 = fetch_readings_ewtn(date)
+            if not f or PSALM_REF_RE.match(f):
+                f = f2
+            if not p:
+                p = p2
+            if not g:
+                g = g2
+            if not s:
+                s = s2
+        except Exception as e:
+            log("EWTN fetch issue", ymd(date), e)
+
+    # ---- Final sanity guards ----
+
+    # First reading MUST NOT be a psalm
+    if f and PSALM_REF_RE.match(f):
+        log("first reading looks like a psalm – invalid:", f)
+        f = ""
+
+    # Psalm MUST look like a psalm
+    if p and not PSALM_REF_RE.match(p):
+        log("psalm rejected (does not parse as Psalm):", p)
+        p = ""
+
+    # Second reading must not be dup/psalm/gospel
+    if s and (s == f or s == g or PSALM_REF_RE.match(s) or s.startswith(("Matthew","Mark","Luke","John"))):
+        log("second reading rejected (dup/psalm/gospel):", s)
+        s = ""
+
+    return f or "", s or "", p or "", g or ""
 
     # 1) USCCB primary
     try:
@@ -319,13 +422,23 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     psalm_ref  = over.get("psalmRef",  psalm_ref)
     gospel_ref = over.get("gospelRef", gospel_ref)
 
-    required = ["first","psalm","gospel"]
-    if is_sunday(date): required.append("second")
-    missing = [k for k,v in {"first":first_ref,"psalm":psalm_ref,"gospel":gospel_ref,"second":second_ref}.items() if (k in required and not v)]
-    if missing:
-        msg = f"{iso} missing: {', '.join(missing)}"
-        if USCCB_STRICT: raise SystemExit(msg)
-        log("warn:", msg)
+    # === HARD INVARIANTS ===
+    # For your use case, these three must exist and be sane.
+    core_missing = []
+    if not first_ref:
+        core_missing.append("first")
+    if not psalm_ref:
+        core_missing.append("psalm")
+    if not gospel_ref:
+        core_missing.append("gospel")
+
+    if core_missing:
+        # Always fail if a core reading is missing.
+        raise SystemExit(f"{iso}: missing core reading(s): {', '.join(core_missing)}")
+
+    # Second reading is optional, but on Sundays we expect one.
+    if is_sunday(date) and not second_ref:
+        log(f"warn: {iso} is Sunday and has no second reading ref")
 
     saint = saint_for_date(date)
     feast = saint.get("memorial","")
