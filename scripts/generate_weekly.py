@@ -78,8 +78,17 @@ REF_RE = re.compile(
     r'\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
     re.I,
 )
-PSALM_REF_RE = re.compile(r'^(?:Ps|Psalm|Psalms)\s+\d+', re.I)
-HEADING_RE = re.compile(r'^(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)\b', re.I)
+
+# Accept either "Psalm 50..." or Daniel 3 canticles (used as responsorial psalms)
+PSALM_REF_RE = re.compile(
+    r'^((?:Ps|Psalm|Psalms)\s+\d+|Daniel\s+3\b)',
+    re.I,
+)
+
+HEADING_RE = re.compile(
+    r'^(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)\b',
+    re.I,
+)
 
 # ===== DOM helpers =====
 def text_of(node: Tag) -> str:
@@ -214,7 +223,7 @@ def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
 # --- CatholicGallery per-date source ---
 def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     """Per-date readings from CatholicGallery /mass-reading/DDMMYY/"""
-    slug = date.strftime("%d%m%y")  # 201125 for 20 Nov 2025
+    slug = date.strftime("%d%m%y")  # e.g. 201125 for 20 Nov 2025
     url = f"https://www.catholicgallery.org/mass-reading/{slug}/"
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
@@ -236,11 +245,21 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
     gosp   = grab("Gospel:", [])
 
+    # Normalize first / second / psalm
     def norm(s: str) -> str:
         s = re.sub(r'\s+', ' ', s)
         s = re.sub(r'^\b(First|Second)\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
         return s.strip(" :.,")
-    return norm(first), norm(second), norm(psalm), norm(gosp)
+    first  = norm(first)
+    second = norm(second)
+    psalm  = norm(psalm)
+
+    # For Gospel, force it to a clean scripture ref using REF_RE
+    m = REF_RE.search(gosp)
+    gosp_ref = m.group(0).strip() if m else ""
+    gosp = gosp_ref
+
+    return first, second, psalm, gosp
 
 def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
@@ -253,6 +272,7 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
+    # NOTE: `text=` is deprecated; keeping for now, only triggers a warning.
     label = date.strftime("%B %-d").replace(" 0", " ")
     txt = ""
     for el in soup.find_all(text=re.compile(label, re.I)):
@@ -347,10 +367,9 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
         first = ""  # rare red-flag case
 
     if psalm and not PSALM_REF_RE.match(psalm):
-        log("psalm ref looks wrong; clearing psalm", psalm)
-        psalm = ""
+        log("psalm ref looks unusual (keeping anyway):", psalm)
+        # we now KEEP it, just log – no clearing
 
-    # Optional: log resolved refs
     log("resolved", ymd(date), "|",
         "F:", first or "—", "|",
         "S:", second or "—", "|",
