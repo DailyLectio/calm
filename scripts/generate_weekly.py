@@ -4,28 +4,25 @@
 """
 Generate public/weeklyfeed.json
 
-Key fixes in this version:
-- USCCB parser now takes the first scripture ref after each heading
-  (First Reading / Responsorial Psalm / Second Reading / Gospel),
-  so psalms like 1 Chronicles 29 or Daniel 3 are picked up.
-- Psalm sanity check now accepts ANY valid scripture reference,
-  not just "Psalm N".
-- First reading is still prevented from being a Psalm (Ps/Psalm/Psalms N).
-- Ensemble voting across USCCB, CatholicGallery, Catholic.org, and optional EWTN.
+Strategy (cleaned up):
+- USCCB as the single authoritative source for references.
+- DOM-based parsing using div.name + div.address (no brittle regex over the page).
+- Second reading is present only when USCCB has a "Reading 2 / Reading II" block.
+- Saints merged from local + remote URL.
+- Proper liturgical cycles (Year A/B/C, Cycle I/II).
+- Optional per-date overrides in public/readings-overrides.json.
 """
 
 import os, re, json, time, zoneinfo, datetime as dt
 from typing import Dict, Any, Tuple, List
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
-from collections import Counter
 
 # ===== Config =====
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
 TZ = zoneinfo.ZoneInfo(APP_TZ)
 
-USCCB_STRICT       = os.getenv("USCCB_STRICT", "0") == "1"
-USE_EWTN_FALLBACK  = os.getenv("USE_EWTN_FALLBACK", "1") == "1"   # default ON
+USCCB_STRICT       = os.getenv("USCCB_STRICT", "0") == "1"  # if True, missing core readings will hard-fail
 SAINT_JSON_URL     = os.getenv("SAINT_JSON_URL", "https://dailylectio.org/saint.json")
 
 GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5-mini")
@@ -33,7 +30,7 @@ GEN_FALLBACK       = os.getenv("GEN_FALLBACK", "gpt-5-mini")
 GEN_TEMP           = float(os.getenv("GEN_TEMP", "1"))
 
 HEADERS = {
-    "User-Agent": "FaithLinksBot/1.7 (+github actions)",
+    "User-Agent": "FaithLinksBot/1.8 (+github actions)",
     "Accept": "text/html,application/xhtml+xml",
 }
 
@@ -41,9 +38,15 @@ HEADERS = {
 def _s(x: object) -> str:
     return x if isinstance(x, str) else ("" if x is None else str(x))
 
-def log(*a): print("[info]", *a, flush=True)
-def today_local() -> dt.date: return dt.datetime.now(TZ).date()
-def ymd(d: dt.date) -> str: return d.isoformat()
+def log(*a): 
+    print("[info]", *a, flush=True)
+
+def today_local() -> dt.date: 
+    return dt.datetime.now(TZ).date()
+
+def ymd(d: dt.date) -> str: 
+    return d.isoformat()
+
 def daterange(start: dt.date, days: int) -> List[dt.date]:
     return [start + dt.timedelta(days=i) for i in range(days)]
 
@@ -54,7 +57,8 @@ def load_json(path, default):
     except Exception:
         return default
 
-def is_sunday(d: dt.date) -> bool: return d.weekday() == 6
+def is_sunday(d: dt.date) -> bool: 
+    return d.weekday() == 6
 
 # ===== Liturgical cycles =====
 def _first_sunday_of_advent(year: int) -> dt.date:
@@ -73,103 +77,55 @@ def compute_year_cycle(d: dt.date) -> str:
 def compute_weekday_cycle(d: dt.date) -> str:
     return "Cycle I" if d.year % 2 == 1 else "Cycle II"
 
-# ===== Regex =====
-REF_RE = re.compile(
-    r'\b(?:[1-3]\s*)?'
-    r'(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Tobit|Judith|Esther|Job|Psalms?|Proverbs|Ecclesiastes|Qoheleth|Song(?: of Songs)?|Wisdom|Sirach|Isaiah|Jeremiah|Lamentations|Baruch|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation)'
-    r'\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
-    re.I,
-)
+# ===== USCCB DOM parsing (no page-wide regex) =====
 
-# Only used to catch the *bad* case where FIRST is actually a Psalm.
-PSALM_BOOK_RE = re.compile(r'^(?:Ps|Psalm|Psalms)\s+\d+', re.I)
-
-HEADING_RE = re.compile(
-    r'^(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)\b',
-    re.I,
-)
-
-# ===== DOM helpers =====
-def text_of(node: Tag) -> str:
-    return node.get_text(" ", strip=True) if isinstance(node, Tag) else str(node).strip()
-
-def find_heading(soup: BeautifulSoup, pat: re.Pattern) -> Tag | None:
-    for tag in soup.find_all(True):
-        try:
-            t = tag.get_text(" ", strip=True)
-        except Exception:
-            t = ""
-        if t and pat.search(t):
-            return tag
-    return None
-
-def extract_ref_after_heading(soup: BeautifulSoup, pat: re.Pattern) -> str:
-    """
-    For USCCB-style pages: find the heading, then grab the first scripture ref
-    that appears in the following siblings before the next heading.
-    """
-    h = find_heading(soup, pat)
-    if not h:
-        return ""
-    for sib in h.next_siblings:
-        if isinstance(sib, NavigableString):
-            continue
-        if isinstance(sib, Tag):
-            txt = text_of(sib)
-            if not txt:
-                continue
-            if HEADING_RE.search(txt):
-                break
-            m = REF_RE.search(txt)
-            if m:
-                return m.group(0).strip()
-    return ""
-
-# ===== tiny voter helper =====
-def _canon(ref: str) -> str:
-    """Canonicalize a scripture ref for comparison & storage.
-
-    - Extract ONLY the first scripture reference (Book + chapter:verses)
-      from the string.
-    - Normalize whitespace and 'First/Second/Third' forms.
-    """
-    if not ref:
-        return ""
-    m = REF_RE.search(ref)
-    if not m:
-        return ""
-    s = m.group(0)
-    s = re.sub(r'\s+', ' ', s)
-    s = s.replace("First ", "1 ")
-    s = s.replace("Second ", "2 ")
-    s = s.replace("Third ", "3 ")
-    return s.strip(" .,:;")
-
-def _vote_slot(*candidates: str) -> str:
-    """
-    Pick a reference by majority vote.
-    If ≥2 sources agree (after canonicalization), use that.
-    Otherwise fall back to first non-empty candidate in priority order.
-    """
-    clean = [c for c in map(_canon, candidates) if c]
-    if not clean:
-        return ""
-    counts = Counter(clean)
-    best, freq = counts.most_common(1)[0]
-    if freq >= 2:
-        return best
-    return clean[0]
-
-# ===== Parsers =====
 def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
-    soup = BeautifulSoup(html, "html.parser")
-    first  = extract_ref_after_heading(soup, re.compile(r'^(First Reading|Reading I|Reading 1)\b', re.I))
-    psalm  = extract_ref_after_heading(soup, re.compile(r'^(Responsorial Psalm|Psalm)\b', re.I))
-    second = extract_ref_after_heading(soup, re.compile(r'^(Second Reading|Reading II|Reading 2)\b', re.I))
-    gospel = extract_ref_after_heading(soup, re.compile(r'^Gospel\b', re.I))
+    """
+    Parse a USCCB daily readings page using the structural pattern:
 
-    # Weekdays often genuinely have no second reading; don't invent one.
-    if not second and not sunday:
+      <div class="name">Reading 1</div>
+      <div class="address"><a>1 Mc 6:1-13</a></div>
+
+      <div class="name">Responsorial Psalm</div>
+      <div class="address"><a>Ps 9:2-3, 4 and 6, 16 and 19</a></div>
+
+      <div class="name">Gospel</div>
+      <div class="address"><a>Lk 20:27-40</a></div>
+
+    This does NOT care what the book name is (Psalms, Daniel, 1 Chronicles, etc.).
+    It just maps labels -> their next .address sibling.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    first = ""
+    second = ""
+    psalm = ""
+    gospel = ""
+
+    for name_div in soup.find_all("div", class_="name"):
+        label = name_div.get_text(" ", strip=True).lower()
+        if not label:
+            continue
+
+        addr_div = name_div.find_next_sibling("div", class_="address")
+        if not addr_div:
+            continue
+
+        ref_text = addr_div.get_text(" ", strip=True)
+        if not ref_text:
+            continue
+
+        if "reading 1" in label or "reading i" in label:
+            first = ref_text
+        elif "reading 2" in label or "reading ii" in label:
+            second = ref_text
+        elif "responsorial psalm" in label or label.startswith("psalm"):
+            psalm = ref_text
+        elif "gospel" in label:
+            gospel = ref_text
+
+    # Weekdays normally do not have a second reading
+    if not sunday and not second:
         second = ""
 
     return first or "", second or "", psalm or "", gospel or ""
@@ -180,158 +136,20 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     r.raise_for_status()
     return parse_usccb_dom(r.text, sunday=is_sunday(date))
 
-# --- CatholicGallery ---
-def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
-    """Per-date readings from CatholicGallery /mass-reading/DDMMYY/"""
-    slug = date.strftime("%d%m%y")  # e.g. 201125 for 20 Nov 2025
-    url = f"https://www.catholicgallery.org/mass-reading/{slug}/"
-    r = requests.get(url, headers=HEADERS, timeout=25)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
-    text = soup.get_text(" ", strip=True)
-
-    def grab(label: str, next_labels: List[str]) -> str:
-        idx = text.find(label)
-        if idx == -1:
-            return ""
-        start = idx + len(label)
-        if next_labels:
-            ends = [text.find(nl, start) for nl in next_labels if text.find(nl, start) != -1]
-            end = min(ends) if ends else len(text)
-        else:
-            end = len(text)
-        return text[start:end].strip()
-
-    first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:"])
-    psalm  = grab("Responsorial Psalm:", ["Alleluia:", "Gospel:"])
-    second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
-    gosp   = grab("Gospel:", [])
-
-    def norm(s: str) -> str:
-        s = re.sub(r'\s+', ' ', s)
-        # Strip labels like "First", "Second", "Reading", "Responsorial Psalm"
-        s = re.sub(r'^\bFirst\b|\bSecond\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
-        return s.strip(" :.,")
-    return norm(first), norm(second), norm(psalm), norm(gosp)
-
-# --- Catholic.org ---
-def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
-    """Daily reading from catholic.org with ?select_date=YYYY-MM-DD"""
-    url = f"https://www.catholic.org/bible/daily_reading/?select_date={date.isoformat()}"
-    r = requests.get(url, headers=HEADERS, timeout=25)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
-    text = soup.get_text(" ", strip=True)
-
-    def grab(label: str, next_labels: List[str]) -> str:
-        idx = text.find(label)
-        if idx == -1:
-            return ""
-        start = idx + len(label)
-        if next_labels:
-            ends = [text.find(nl, start) for nl in next_labels if text.find(nl, start) != -1]
-            end = min(ends) if ends else len(text)
-        else:
-            end = len(text)
-        return text[start:end].strip()
-
-    first  = grab("Reading 1,", ["Responsorial Psalm,", "Gospel,"])
-    psalm  = grab("Responsorial Psalm,", ["Gospel,"])
-    second = grab("Reading 2,", ["Responsorial Psalm,", "Gospel,"])
-    gosp   = grab("Gospel,", [])
-
-    def norm(s: str) -> str:
-        s = re.sub(r'\s+', ' ', s)
-        return s.strip(" .,:")
-    return norm(first), norm(second), norm(psalm), norm(gosp)
-
-# --- EWTN fallback ---
-def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
-    url = "https://www.ewtn.com/catholicism/daily-readings"
-    r = requests.get(url, headers=HEADERS, timeout=25)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
-    label = date.strftime("%B %-d").replace(" 0", " ")
-    txt = ""
-    # NOTE: using 'string' instead of deprecated 'text' arg
-    for el in soup.find_all(string=re.compile(label, re.I)):
-        try:
-            txt = el.parent.get_text(" ", strip=True)
-            break
-        except Exception:
-            pass
-    html = txt or soup.get_text(" ", strip=True)
-    return parse_usccb_dom(html, sunday=is_sunday(date))
-
-# ===== Ensemble resolver =====
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     """
-    Resolve readings with an ensemble:
-    - USCCB
-    - CatholicGallery
-    - Catholic.org
-    - EWTN (optional)
+    Single-source strategy:
+      - USCCB only (authoritative structure).
+      - If USCCB fails completely, all refs come back "" and the caller decides
+        whether to fail the run or log a warning.
     """
-    src = {
-        "usccb":   ("", "", "", ""),
-        "gallery": ("", "", "", ""),
-        "corg":    ("", "", "", ""),
-        "ewtn":    ("", "", "", ""),
-    }
+    first = second = psalm = gospel = ""
 
-    # USCCB
     try:
-        src["usccb"] = fetch_readings_usccb(date)
+        first, second, psalm, gospel = fetch_readings_usccb(date)
     except Exception as e:
         log("USCCB fetch issue", ymd(date), e)
 
-    # CatholicGallery
-    try:
-        src["gallery"] = fetch_readings_catholicgallery(date)
-    except Exception as e:
-        log("CatholicGallery fetch issue", ymd(date), e)
-
-    # Catholic.org
-    try:
-        src["corg"] = fetch_readings_catholicorg(date)
-    except Exception as e:
-        log("Catholic.org fetch issue", ymd(date), e)
-
-    # EWTN optional
-    if USE_EWTN_FALLBACK:
-        try:
-            src["ewtn"] = fetch_readings_ewtn(date)
-        except Exception as e:
-            log("EWTN fetch issue", ymd(date), e)
-
-    # Unpack
-    f_u, s_u, p_u, g_u = src["usccb"]
-    f_g, s_g, p_g, g_g = src["gallery"]
-    f_c, s_c, p_c, g_c = src["corg"]
-    f_e, s_e, p_e, g_e = src["ewtn"]
-
-    # Majority / priority vote
-    first  = _vote_slot(f_u, f_g, f_c, f_e)
-    psalm  = _vote_slot(p_u, p_g, p_c, p_e)
-    second = _vote_slot(s_u, s_g, s_c, s_e)
-    gospel = _vote_slot(g_u, g_g, g_c, g_e)
-
-    # Canonicalize once more so final strings are clean
-    first  = _canon(first)
-    psalm  = _canon(psalm)
-    second = _canon(second)
-    gospel = _canon(gospel)
-
-    # Safety: first must not be a Psalm (book of Psalms).
-    if first and PSALM_BOOK_RE.match(first):
-        log("first reading looks like psalm; clearing first", first)
-        first = ""
-
-    if psalm and not REF_RE.search(psalm):
-        log("psalm ref looks wrong; clearing psalm", psalm)
-        psalm = ""
-
-    # Optional logging so you can inspect disagreements
     log("resolved", ymd(date), "|",
         "F:", first or "—", "|",
         "S:", second or "—", "|",
@@ -369,8 +187,10 @@ def openai_client():
 
 def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[str, Any]:
     from openai import BadRequestError
-    messages = [{"role":"system","content":sys_msg},
-                {"role":"user","content":"\n".join(user_lines)}]
+    messages = [
+        {"role": "system", "content": sys_msg},
+        {"role": "user",   "content": "\n".join(user_lines)},
+    ]
 
     def _create(model, use_temp):
         kw = {
@@ -398,6 +218,7 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
                 r = _create(GEN_FALLBACK, False)
             else:
                 raise
+
     return json.loads(r.choices[0].message.content)
 
 STYLE_CARD = """ROLE: Catholic editor & theologian for FaithLinks.
@@ -422,15 +243,16 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 
     first_ref, second_ref, psalm_ref, gospel_ref = resolve_readings(date)
 
+    # Optional manual overrides
     overrides = load_json("public/readings-overrides.json", {})
     over = overrides.get(iso, {})
-    first_ref  = over.get("firstRef",  first_ref)
-    second_ref = over.get("secondRef", second_ref)
-    psalm_ref  = over.get("psalmRef",  psalm_ref)
-    gospel_ref = over.get("gospelRef", gospel_ref)
+    first_ref  = _s(over.get("firstRef",  first_ref))
+    second_ref = _s(over.get("secondRef", second_ref))
+    psalm_ref  = _s(over.get("psalmRef",  psalm_ref))
+    gospel_ref = _s(over.get("gospelRef", gospel_ref))
 
     # === HARD INVARIANTS ===
-    # For your use case, these three must exist.
+    # For your use case, these three must exist and be sane.
     core_missing = []
     if not first_ref:
         core_missing.append("first")
@@ -440,14 +262,20 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         core_missing.append("gospel")
 
     if core_missing:
-        raise SystemExit(f"{iso}: missing core reading(s): {', '.join(core_missing)}")
+        msg = f"{iso}: missing core reading(s): {', '.join(core_missing)}"
+        if USCCB_STRICT:
+            # Fail the run loudly, as you requested ("if no first reading, call it off").
+            raise SystemExit(msg)
+        else:
+            log("warn:", msg)
 
-    # Second reading is optional, but on Sundays we expect one.
+    # Second reading is liturgically expected on Sundays/solemnities, but we
+    # won't hard-fail if USCCB doesn't show one (there are edge cases).
     if is_sunday(date) and not second_ref:
         log(f"warn: {iso} is Sunday and has no second reading ref")
 
     saint = saint_for_date(date)
-    feast = saint.get("memorial","")
+    feast = saint.get("memorial", "")
 
     lines = [
         f"DATE: {iso}",
@@ -459,7 +287,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         f"SAINT_NAME: {saint.get('saintName','')}",
         f"SAINT_PROFILE: {saint.get('profile','')}",
         f"SAINT_LINK: {saint.get('link','')}",
-        "RETURN KEYS: [date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis, exegesis, tags, usccbLink, cycle, weekdayCycle, feast, gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey]",
+        "RETURN KEYS: [date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis, exegesis, tags, usccbLink, cycle, weekdayCycle, feast, gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey]"
     ]
 
     client = openai_client()
@@ -467,41 +295,48 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     if not isinstance(out, dict):
         out = {}
 
-    out["date"] = iso
-    out["usccbLink"] = usccb_link
+    out["date"]             = iso
+    out["usccbLink"]        = usccb_link
     out["firstReadingRef"]  = first_ref
     out["secondReadingRef"] = second_ref
     out["psalmRef"]         = psalm_ref
     out["gospelRef"]        = gospel_ref
     out["gospelReference"]  = gospel_ref
-    out["cycle"]        = compute_year_cycle(date)
-    out["weekdayCycle"] = compute_weekday_cycle(date)
-    out["feast"]        = feast
-    out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
+    out["cycle"]            = compute_year_cycle(date)
+    out["weekdayCycle"]     = compute_weekday_cycle(date)
+    out["feast"]            = feast
+    out["lectionaryKey"]    = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
 
     if not _s(second_ref):
         out["secondReading"] = ""
 
-    for k in ["date","quote","quoteCitation","firstReading","secondReading","psalmSummary","gospelSummary",
-              "saintReflection","dailyPrayer","theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
-              "feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"]:
-        out[k] = _s(out.get(k,""))
+    for k in [
+        "date","quote","quoteCitation","firstReading","secondReading","psalmSummary",
+        "gospelSummary","saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
+        "usccbLink","cycle","weekdayCycle","feast","gospelReference",
+        "firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"
+    ]:
+        out[k] = _s(out.get(k, ""))
 
     tags = out.get("tags", [])
     if not isinstance(tags, list):
         tags = []
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
+
     return out
 
 # ===== Final normalize =====
-REQ = ["date","quote","quoteCitation","firstReading","secondReading","psalmSummary","gospelSummary",
-       "saintReflection","dailyPrayer","theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
-       "feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"]
+REQ = [
+    "date","quote","quoteCitation","firstReading","secondReading","psalmSummary",
+    "gospelSummary","saintReflection","dailyPrayer","theologicalSynthesis","exegesis",
+    "usccbLink","cycle","weekdayCycle","feast","gospelReference","firstReadingRef",
+    "secondReadingRef","psalmRef","gospelRef","lectionaryKey"
+]
 
 def normalize_rows(rows: List[Dict[str,Any]]):
     for r in rows:
         for k in REQ:
-            r[k] = _s(r.get(k,""))
+            r[k] = _s(r.get(k, ""))
         tags = r.get("tags", [])
         if not isinstance(tags, list):
             tags = []
@@ -509,14 +344,16 @@ def normalize_rows(rows: List[Dict[str,Any]]):
 
 # ===== Main =====
 def main():
-    # Optional precheck: scrape only and print refs, no OpenAI calls or JSON write.
+    # Optional: precheck mode that just prints what we’d use for each date
     if os.getenv("USCCB_PRECHECK") == "1":
         start_env = os.getenv("START_DATE","").strip()
         days = int(os.getenv("DAYS","7"))
         start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
         for d in daterange(start, days):
-            f,s,p,g = resolve_readings(d)
-            print("[precheck]", d.isoformat(), "|", f or "—", "|", s or "—", "|", p or "MISSING-PSALM", "|", g or "—")
+            f, s, p, g = resolve_readings(d)
+            print("[precheck]", d.isoformat(), "|",
+                  f or "—", "|", s or "—", "|",
+                  p or "MISSING-PSALM", "|", g or "—")
         return
 
     start_env = os.getenv("START_DATE","").strip()
@@ -524,7 +361,8 @@ def main():
     start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
 
     log(f"tz={APP_TZ} start={start} days={days} model={GEN_MODEL}")
-    rows = []
+    rows: List[Dict[str, Any]] = []
+
     for d in daterange(start, days):
         t0 = time.time()
         rows.append(build_day_payload(d))
@@ -534,7 +372,7 @@ def main():
 
     normalize_rows(rows)
     os.makedirs("public", exist_ok=True)
-    with open("public/weeklyfeed.json","w",encoding="utf-8") as f:
+    with open("public/weeklyfeed.json", "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
     log(f"Wrote public/weeklyfeed.json ({len(rows)} days)")
 
