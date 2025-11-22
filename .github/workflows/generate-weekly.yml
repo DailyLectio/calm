@@ -107,52 +107,52 @@ jobs:
           set -euo pipefail
           python scripts/generate_weekly.py
 
-- name: Sanity checks (psalm/second/saint)
-  shell: bash
-  run: |
-    python - << 'PY'
-    import json, re, sys
-
-    d = json.load(open('public/weeklyfeed.json','r', encoding='utf-8'))
-
-    # Accept ANY scripture ref like:
-    # "Psalm 50:1-3", "Daniel 3:52-56", "1 Chronicles 29:10-12", etc.
-    ref_re = re.compile(
-        r'\b(?:[1-3]\s*)?[A-Za-z][A-Za-z ]*\s+\d+'
-        r'(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
-        re.I,
-    )
-
-    errs = []
-    for row in d:
-        iso = row.get('date','?')
-
-        # --- psalmRef sanity ---
-        ps = (row.get('psalmRef','') or '').strip()
-        if not ps or not ref_re.search(ps):
-            errs.append(f"{iso}: psalmRef looks wrong -> {ps!r}")
-
-        # --- second reading sanity ---
-        sr = (row.get('secondReadingRef','') or '').strip()
-        sr_txt = (row.get('secondReading','') or '').strip()
-
-        if not sr and sr_txt:
-            errs.append(f"{iso}: secondReading present but secondReadingRef is empty")
-
-        if sr and len(sr_txt.split()) < 50:
-            errs.append(f"{iso}: secondReading too short (<50 words) with ref {sr!r}")
-
-        # --- saint / feast soft check ---
-        if not (row.get('saintReflection','').strip() or row.get('feast','').strip()):
-            print(f"[warn] {iso}: saint/feast is blank – ok for simple weekdays.")
-
-    if errs:
-        print("Sanity check errors:")
-        print("\n- ".join("• " + e for e in errs))
-        sys.exit(1)
-
-    print("Sanity checks ✅ passed.")
-    PY
+      - name: Sanity checks (psalm/second/saint)
+        shell: bash
+        run: |
+          python - << 'PY'
+          import json, re, sys
+      
+          d = json.load(open('public/weeklyfeed.json','r', encoding='utf-8'))
+      
+          # Accept ANY scripture ref like:
+          # "Psalm 50:1-3", "Daniel 3:52-56", "1 Chronicles 29:10-12", etc.
+          ref_re = re.compile(
+              r'\b(?:[1-3]\s*)?[A-Za-z][A-Za-z ]*\s+\d+'
+              r'(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
+              re.I,
+          )
+      
+          errs = []
+          for row in d:
+              iso = row.get('date','?')
+      
+              # --- psalmRef sanity ---
+              ps = (row.get('psalmRef','') or '').strip()
+              if not ps or not ref_re.search(ps):
+                  errs.append(f"{iso}: psalmRef looks wrong -> {ps!r}")
+      
+              # --- second reading sanity ---
+              sr = (row.get('secondReadingRef','') or '').strip()
+              sr_txt = (row.get('secondReading','') or '').strip()
+      
+              if not sr and sr_txt:
+                  errs.append(f"{iso}: secondReading present but secondReadingRef is empty")
+      
+              if sr and len(sr_txt.split()) < 50:
+                  errs.append(f"{iso}: secondReading too short (<50 words) with ref {sr!r}")
+      
+              # --- saint / feast soft check ---
+              if not (row.get('saintReflection','').strip() or row.get('feast','').strip()):
+                  print(f"[warn] {iso}: saint/feast is blank – ok for simple weekdays.")
+      
+          if errs:
+              print("Sanity check errors:")
+              print("\n- ".join("• " + e for e in errs))
+              sys.exit(1)
+      
+          print("Sanity checks ✅ passed.")
+          PY
 
       - name: Debug invalid rows (types/keys)
         shell: bash
