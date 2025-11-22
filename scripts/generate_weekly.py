@@ -4,28 +4,28 @@
 """
 Generate public/weeklyfeed.json
 
-Fixes:
-- Robust Psalm extraction (header-proximity + page-wide fallback).
-- Second reading only when truly present (or Sunday + real ref).
-- Saints merged from local + remote URL.
-- Proper liturgical cycles (Year A/B/C, Cycle I/II).
-- Ensemble of CatholicGallery / USCCB / Catholic.org with EWTN as fallback,
-  using majority vote to lock in First, Psalm, Second (if any), and Gospel.
+Key fixes in this version:
+- USCCB parser now takes the first scripture ref after each heading
+  (First Reading / Responsorial Psalm / Second Reading / Gospel),
+  so psalms like 1 Chronicles 29 or Daniel 3 are picked up.
+- Psalm sanity check now accepts ANY valid scripture reference,
+  not just "Psalm N".
+- First reading is still prevented from being a Psalm (Ps/Psalm/Psalms N).
+- Ensemble voting across USCCB, CatholicGallery, Catholic.org, and optional EWTN.
 """
 
 import os, re, json, time, zoneinfo, datetime as dt
 from typing import Dict, Any, Tuple, List
-from collections import Counter
-
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
+from collections import Counter
 
 # ===== Config =====
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
 TZ = zoneinfo.ZoneInfo(APP_TZ)
 
 USCCB_STRICT       = os.getenv("USCCB_STRICT", "0") == "1"
-USE_EWTN_FALLBACK  = os.getenv("USE_EWTN_FALLBACK", "1") == "1"   # default ON to be safe
+USE_EWTN_FALLBACK  = os.getenv("USE_EWTN_FALLBACK", "1") == "1"   # default ON
 SAINT_JSON_URL     = os.getenv("SAINT_JSON_URL", "https://dailylectio.org/saint.json")
 
 GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5-mini")
@@ -46,12 +46,14 @@ def today_local() -> dt.date: return dt.datetime.now(TZ).date()
 def ymd(d: dt.date) -> str: return d.isoformat()
 def daterange(start: dt.date, days: int) -> List[dt.date]:
     return [start + dt.timedelta(days=i) for i in range(days)]
+
 def load_json(path, default):
     try:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return default
+
 def is_sunday(d: dt.date) -> bool: return d.weekday() == 6
 
 # ===== Liturgical cycles =====
@@ -79,11 +81,8 @@ REF_RE = re.compile(
     re.I,
 )
 
-# Accept either "Psalm 50..." or Daniel 3 canticles (used as responsorial psalms)
-PSALM_REF_RE = re.compile(
-    r'^((?:Ps|Psalm|Psalms)\s+\d+|Daniel\s+3\b)',
-    re.I,
-)
+# Only used to catch the *bad* case where FIRST is actually a Psalm.
+PSALM_BOOK_RE = re.compile(r'^(?:Ps|Psalm|Psalms)\s+\d+', re.I)
 
 HEADING_RE = re.compile(
     r'^(First Reading|Reading I|Reading 1|Second Reading|Reading II|Reading 2|Responsorial Psalm|Psalm|Alleluia|Gospel)\b',
@@ -104,62 +103,35 @@ def find_heading(soup: BeautifulSoup, pat: re.Pattern) -> Tag | None:
             return tag
     return None
 
-def siblings_text_until_next_heading(h: Tag) -> str:
-    out: List[str] = []
+def extract_ref_after_heading(soup: BeautifulSoup, pat: re.Pattern) -> str:
+    """
+    For USCCB-style pages: find the heading, then grab the first scripture ref
+    that appears in the following siblings before the next heading.
+    """
+    h = find_heading(soup, pat)
+    if not h:
+        return ""
     for sib in h.next_siblings:
         if isinstance(sib, NavigableString):
-            t = str(sib).strip()
-            if t:
-                out.append(t)
             continue
         if isinstance(sib, Tag):
-            t = text_of(sib)
-            if not t:
+            txt = text_of(sib)
+            if not txt:
                 continue
-            if HEADING_RE.search(t):
+            if HEADING_RE.search(txt):
                 break
-            out.append(t)
-    return " ".join(out)
-
-def nearest_psalm_citation(h: Tag) -> str:
-    # 1) within header+following section
-    chunk = (text_of(h) + " " + siblings_text_until_next_heading(h)).strip()
-    m = re.search(
-        r'(?:^|\s)((?:Ps(?:alm|alms)?|Psalm|Psalms)\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?)',
-        chunk, re.I
-    )
-    if m:
-        return m.group(1).strip()
-    # 2) look a few siblings backward (some pages float the citation on the right)
-    back = []
-    for sib in list(h.previous_siblings)[:6]:
-        if isinstance(sib, Tag):
-            back.append(text_of(sib))
-        elif isinstance(sib, NavigableString):
-            back.append(str(sib).strip())
-    back_txt = " ".join(reversed([t for t in back if t]))
-    m2 = re.search(
-        r'(?:^|\s)((?:Ps(?:alm|alms)?|Psalm|Psalms)\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?)',
-        back_txt, re.I
-    )
-    if m2:
-        return m2.group(1).strip()
+            m = REF_RE.search(txt)
+            if m:
+                return m.group(0).strip()
     return ""
 
-def pagewide_psalm_fallback(html: str) -> str:
-    m = re.search(
-        r'(?:^|\s)((?:Ps(?:alm|alms)?|Psalm|Psalms)\s+\d+(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?)',
-        html, re.I
-    )
-    return m.group(1).strip() if m else ""
-
-# ===== tiny voter Helper =====
+# ===== tiny voter helper =====
 def _canon(ref: str) -> str:
     """Canonicalize a scripture ref for comparison."""
     if not ref:
         return ""
-    ref = re.sub(r'\s+', ' ', ref)          # collapse whitespace
-    ref = ref.replace("First ", "1 ")       # normalize 'First/Second/Third X' a bit
+    ref = re.sub(r'\s+', ' ', ref)
+    ref = ref.replace("First ", "1 ")
     ref = ref.replace("Second ", "2 ")
     ref = ref.replace("Third ", "3 ")
     return ref.strip(" .,")
@@ -177,50 +149,29 @@ def _vote_slot(*candidates: str) -> str:
     best, freq = counts.most_common(1)[0]
     if freq >= 2:
         return best
-    # No agreement, fall back to first in original order
     return clean[0]
 
 # ===== Parsers =====
 def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
     soup = BeautifulSoup(html, "html.parser")
-    first = second = psalm = gospel = ""
-    saw_second_heading = False
+    first  = extract_ref_after_heading(soup, re.compile(r'^(First Reading|Reading I|Reading 1)\b', re.I))
+    psalm  = extract_ref_after_heading(soup, re.compile(r'^(Responsorial Psalm|Psalm)\b', re.I))
+    second = extract_ref_after_heading(soup, re.compile(r'^(Second Reading|Reading II|Reading 2)\b', re.I))
+    gospel = extract_ref_after_heading(soup, re.compile(r'^Gospel\b', re.I))
 
-    h_first = find_heading(soup, re.compile(r'^(First Reading|Reading I|Reading 1)\b', re.I))
-    if h_first:
-        ref = REF_RE.search(siblings_text_until_next_heading(h_first)) or REF_RE.search(text_of(h_first))
-        if ref:
-            first = ref.group(0).strip()
-
-    h_gospel = find_heading(soup, re.compile(r'^Gospel\b', re.I))
-    if h_gospel:
-        ref = REF_RE.search(siblings_text_until_next_heading(h_gospel)) or REF_RE.search(text_of(h_gospel))
-        if ref:
-            gospel = ref.group(0).strip()
-
-    h_psalm = find_heading(soup, re.compile(r'^(Responsorial Psalm|Psalm)\b', re.I))
-    if h_psalm:
-        psalm = nearest_psalm_citation(h_psalm)
-    if not psalm:
-        psalm = pagewide_psalm_fallback(soup.get_text(" ", strip=True))
-
-    h_second = find_heading(soup, re.compile(r'^(Second Reading|Reading II|Reading 2)\b', re.I))
-    if h_second:
-        saw_second_heading = True
-        ref = REF_RE.search(siblings_text_until_next_heading(h_second)) or REF_RE.search(text_of(h_second))
-        if ref:
-            second = ref.group(0).strip()
-
-    if not saw_second_heading and not (sunday and second):
+    # Weekdays often genuinely have no second reading; don't invent one.
+    if not second and not sunday:
         second = ""
-
-    if psalm:
-        parts = [p.strip() for p in re.split(r'[;,]\s*', psalm) if p.strip()]
-        psalm = ", ".join(dict.fromkeys(parts))
 
     return first or "", second or "", psalm or "", gospel or ""
 
-# --- CatholicGallery per-date source ---
+def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
+    url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
+    r = requests.get(url, headers=HEADERS, timeout=25)
+    r.raise_for_status()
+    return parse_usccb_dom(r.text, sunday=is_sunday(date))
+
+# --- CatholicGallery ---
 def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     """Per-date readings from CatholicGallery /mass-reading/DDMMYY/"""
     slug = date.strftime("%d%m%y")  # e.g. 201125 for 20 Nov 2025
@@ -231,59 +182,30 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     text = soup.get_text(" ", strip=True)
 
     def grab(label: str, next_labels: List[str]) -> str:
+        idx = text.find(label)
+        if idx == -1:
+            return ""
+        start = idx + len(label)
         if next_labels:
-            stop = "|".join(map(re.escape, next_labels))
-            pattern = rf"{re.escape(label)}\s*(.+?)(?={stop}|$)"
+            ends = [text.find(nl, start) for nl in next_labels if text.find(nl, start) != -1]
+            end = min(ends) if ends else len(text)
         else:
-            # If no explicit stop labels, grab until end of text
-            pattern = rf"{re.escape(label)}\s*(.+)"
-        m = re.search(pattern, text)
-        return m.group(1).strip() if m else ""
+            end = len(text)
+        return text[start:end].strip()
 
-    first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:", "Alleluia:"])
+    first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:"])
     psalm  = grab("Responsorial Psalm:", ["Alleluia:", "Gospel:"])
     second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
     gosp   = grab("Gospel:", [])
 
-    # Normalize first / second / psalm
     def norm(s: str) -> str:
         s = re.sub(r'\s+', ' ', s)
-        s = re.sub(r'^\b(First|Second)\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
+        # Strip labels like "First", "Second", "Reading", "Responsorial Psalm"
+        s = re.sub(r'^\bFirst\b|\bSecond\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
         return s.strip(" :.,")
-    first  = norm(first)
-    second = norm(second)
-    psalm  = norm(psalm)
+    return norm(first), norm(second), norm(psalm), norm(gosp)
 
-    # For Gospel, force it to a clean scripture ref using REF_RE
-    m = REF_RE.search(gosp)
-    gosp_ref = m.group(0).strip() if m else ""
-    gosp = gosp_ref
-
-    return first, second, psalm, gosp
-
-def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
-    url = f"https://bible.usccb.org/bible/readings/{date.strftime('%m%d%y')}.cfm"
-    r = requests.get(url, headers=HEADERS, timeout=25)
-    r.raise_for_status()
-    return parse_usccb_dom(r.text, sunday=is_sunday(date))
-
-def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
-    url = "https://www.ewtn.com/catholicism/daily-readings"
-    r = requests.get(url, headers=HEADERS, timeout=25)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
-    # NOTE: `text=` is deprecated; keeping for now, only triggers a warning.
-    label = date.strftime("%B %-d").replace(" 0", " ")
-    txt = ""
-    for el in soup.find_all(text=re.compile(label, re.I)):
-        try:
-            txt = el.parent.get_text(" ", strip=True)
-            break
-        except Exception:
-            pass
-    html = txt or soup.get_text(" ", strip=True)
-    return parse_usccb_dom(html, sunday=is_sunday(date))
-
+# --- Catholic.org ---
 def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
     """Daily reading from catholic.org with ?select_date=YYYY-MM-DD"""
     url = f"https://www.catholic.org/bible/daily_reading/?select_date={date.isoformat()}"
@@ -292,23 +214,47 @@ def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
     soup = BeautifulSoup(r.text, "html.parser")
     text = soup.get_text(" ", strip=True)
 
-    def grab(label: str) -> str:
-        # e.g. label="Reading 1," or "Responsorial Psalm,"
-        pattern = rf"{re.escape(label)}\s*(.+?)(?=\s+Responsorial Psalm,|\s+Gospel,|$)"
-        m = re.search(pattern, text)
-        return m.group(1).strip() if m else ""
+    def grab(label: str, next_labels: List[str]) -> str:
+        idx = text.find(label)
+        if idx == -1:
+            return ""
+        start = idx + len(label)
+        if next_labels:
+            ends = [text.find(nl, start) for nl in next_labels if text.find(nl, start) != -1]
+            end = min(ends) if ends else len(text)
+        else:
+            end = len(text)
+        return text[start:end].strip()
 
-    first  = grab("Reading 1,")
-    psalm  = grab("Responsorial Psalm,")
-    second = ""   # catholic.org weekday pages usually have only 1st + Psalm + Gospel
-    gosp   = grab("Gospel,")
+    first  = grab("Reading 1,", ["Responsorial Psalm,", "Gospel,"])
+    psalm  = grab("Responsorial Psalm,", ["Gospel,"])
+    second = grab("Reading 2,", ["Responsorial Psalm,", "Gospel,"])
+    gosp   = grab("Gospel,", [])
 
     def norm(s: str) -> str:
         s = re.sub(r'\s+', ' ', s)
-        return s.strip(" .,")
-
+        return s.strip(" .,:")
     return norm(first), norm(second), norm(psalm), norm(gosp)
 
+# --- EWTN fallback ---
+def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
+    url = "https://www.ewtn.com/catholicism/daily-readings"
+    r = requests.get(url, headers=HEADERS, timeout=25)
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html.parser")
+    label = date.strftime("%B %-d").replace(" 0", " ")
+    txt = ""
+    # NOTE: using 'string' instead of deprecated 'text' arg
+    for el in soup.find_all(string=re.compile(label, re.I)):
+        try:
+            txt = el.parent.get_text(" ", strip=True)
+            break
+        except Exception:
+            pass
+    html = txt or soup.get_text(" ", strip=True)
+    return parse_usccb_dom(html, sunday=is_sunday(date))
+
+# ===== Ensemble resolver =====
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     """
     Resolve readings with an ensemble:
@@ -361,15 +307,17 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
     second = _vote_slot(s_u, s_g, s_c, s_e)
     gospel = _vote_slot(g_u, g_g, g_c, g_e)
 
-    # Safety: first must not be a Psalm; psalm must look like a Psalm
-    if first and PSALM_REF_RE.match(first):
-        log("first reading looks like psalm; using psalm-only for this day", first)
-        first = ""  # rare red-flag case
+    # Safety: first must not be a Psalm (book of Psalms).
+    if first and PSALM_BOOK_RE.match(first):
+        log("first reading looks like psalm; clearing first", first)
+        first = ""
 
-    if psalm and not PSALM_REF_RE.match(psalm):
-        log("psalm ref looks unusual (keeping anyway):", psalm)
-        # we now KEEP it, just log – no clearing
+    # Psalm must at least look like *some* scripture reference (Chronicles, Daniel, etc.)
+    if psalm and not REF_RE.search(psalm):
+        log("psalm ref looks wrong; clearing psalm", psalm)
+        psalm = ""
 
+    # Optional logging so you can inspect disagreements
     log("resolved", ymd(date), "|",
         "F:", first or "—", "|",
         "S:", second or "—", "|",
@@ -407,12 +355,19 @@ def openai_client():
 
 def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[str, Any]:
     from openai import BadRequestError
-    messages = [{"role":"system","content":sys_msg},{"role":"user","content":"\n".join(user_lines)}]
+    messages = [{"role":"system","content":sys_msg},
+                {"role":"user","content":"\n".join(user_lines)}]
+
     def _create(model, use_temp):
-        kw = {"model":model,"messages":messages,"response_format":{"type":"json_object"}}
+        kw = {
+            "model": model,
+            "messages": messages,
+            "response_format": {"type": "json_object"},
+        }
         if use_temp:
             kw["temperature"] = temp
         return client.chat.completions.create(**kw)
+
     try:
         try:
             r = _create(GEN_MODEL, True)
@@ -461,6 +416,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     gospel_ref = over.get("gospelRef", gospel_ref)
 
     # === HARD INVARIANTS ===
+    # For your use case, these three must exist.
     core_missing = []
     if not first_ref:
         core_missing.append("first")
@@ -489,9 +445,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         f"SAINT_NAME: {saint.get('saintName','')}",
         f"SAINT_PROFILE: {saint.get('profile','')}",
         f"SAINT_LINK: {saint.get('link','')}",
-        "RETURN KEYS: [date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, "
-        "saintReflection, dailyPrayer, theologicalSynthesis, exegesis, tags, usccbLink, cycle, weekdayCycle, feast, "
-        "gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey]"
+        "RETURN KEYS: [date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, saintReflection, dailyPrayer, theologicalSynthesis, exegesis, tags, usccbLink, cycle, weekdayCycle, feast, gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey]",
     ]
 
     client = openai_client()
@@ -529,6 +483,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 REQ = ["date","quote","quoteCitation","firstReading","secondReading","psalmSummary","gospelSummary",
        "saintReflection","dailyPrayer","theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
        "feast","gospelReference","firstReadingRef","secondReadingRef","psalmRef","gospelRef","lectionaryKey"]
+
 def normalize_rows(rows: List[Dict[str,Any]]):
     for r in rows:
         for k in REQ:
@@ -540,6 +495,7 @@ def normalize_rows(rows: List[Dict[str,Any]]):
 
 # ===== Main =====
 def main():
+    # Optional precheck: scrape only and print refs, no OpenAI calls or JSON write.
     if os.getenv("USCCB_PRECHECK") == "1":
         start_env = os.getenv("START_DATE","").strip()
         days = int(os.getenv("DAYS","7"))
