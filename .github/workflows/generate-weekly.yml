@@ -91,8 +91,8 @@ jobs:
       - name: Generate weeklyfeed.json
         env:
           TZ: America/New_York
-          START_DATE: ${{ github.event.inputs.start_date }}
-          DAYS: ${{ github.event.inputs.days }}
+          START_DATE: ${{ github.event.inputs.start_date || '' }}
+          DAYS: ${{ github.event.inputs.days || '7' }}
           USCCB_STRICT: "0"
           USE_EWTN_FALLBACK: "1"
           USE_CATHOLIC_GALLERY: "1"
