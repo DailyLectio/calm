@@ -4,14 +4,13 @@
 """
 Generate public/weeklyfeed.json
 
-Fixes:
+Updates:
+- Scrapes Saint of the Day from Catholic Online (primary) with JSON fallback.
 - Robust Psalm extraction (header-proximity + page-wide fallback).
 - Second reading only when truly present (or Sunday + real ref).
-- Saints merged from local + remote URL.
 - Proper liturgical cycles (Year A/B/C, Cycle I/II).
-- CatholicGallery / Catholic.org / EWTN as fallbacks.
-- USCCB parsing based on visible headers (Reading I, Responsorial Psalm, Gospel),
-  not fragile div.name/div.address structures.
+- CatholicGallery / Catholic.org / EWTN as fallbacks for readings.
+- USCCB parsing based on visible headers.
 """
 
 import os, re, json, time, zoneinfo, datetime as dt
@@ -32,7 +31,7 @@ GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5-mini")
 GEN_FALLBACK       = os.getenv("GEN_FALLBACK", "gpt-5-mini")
 GEN_TEMP           = float(os.getenv("GEN_TEMP", "1"))
 
-# Use a "real" browser UA to avoid weird mobile/anti-bot versions of USCCB
+# Use a "real" browser UA to avoid weird mobile/anti-bot versions of USCCB/Catholic.org
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -103,8 +102,6 @@ def siblings_text_until_next_heading(h: Tag) -> str:
             t = text_of(sib)
             if not t:
                 continue
-            # We no longer rely on HEADING_RE here for parsing;
-            # this helper is only used by the non-USCCB sources
             out.append(t)
     return " ".join(out)
 
@@ -146,11 +143,6 @@ def _vote_slot(*candidates: str) -> str:
 
 # ===== USCCB parser (text-first) =====
 def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
-    """
-    Robust parsing strategy:
-    1. Search for the text headers (Reading I, Gospel, etc.) regardless of tag.
-    2. Find the closest following text that looks like a scripture citation.
-    """
     soup = BeautifulSoup(html, "html.parser")
 
     found = {
@@ -161,22 +153,13 @@ def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
     }
 
     def get_citation_after_header(header_text_pattern: str) -> str:
-        # Find a text node matching the header label (e.g. "Reading I", "Responsorial Psalm")
         header = soup.find(string=re.compile(header_text_pattern, re.I))
         if not header:
             return ""
-
-        # Go up to a reasonable container (usually <h3>, <h4>, <div>, etc.)
         container = header.parent
-
-        # Strategy A: citation is inside the same container
-        # e.g. <h3>Reading I <a>Is 25:6-10a</a></h3>
         internal_link = container.find("a")
         if internal_link:
             return internal_link.get_text(" ", strip=True)
-
-        # Strategy B: citation is in a following sibling node
-        # e.g. <div class="name">Reading I</div><div class="address"><a>Is 25:6-10a</a></div>
         sibling = container.next_sibling
         for _ in range(5):
             if not sibling:
@@ -186,32 +169,21 @@ def parse_usccb_dom(html: str, sunday: bool) -> Tuple[str, str, str, str]:
                 if any(ch.isdigit() for ch in text):
                     return text
             sibling = sibling.next_sibling
-
         return ""
 
-    # First Reading (Reading 1 / Reading I)
     found["first"] = get_citation_after_header(r"Reading\s+(1|I)(\s|$)")
-
-    # Second Reading (Reading 2 / Reading II)
     found["second"] = get_citation_after_header(r"Reading\s+(2|II)(\s|$)")
-
-    # Psalm (Responsorial Psalm / Psalm)
     found["psalm"] = get_citation_after_header(r"(Responsorial\s+Psalm|Responsorial|Psalm)")
-
-    # Gospel
     found["gospel"] = get_citation_after_header(r"^Gospel(\s|$)")
     if not found["gospel"]:
-        # Some pages bury the verse in the Alleluia block if the Gospel header is odd
         found["gospel"] = get_citation_after_header(r"Alleluia")
 
-    # Clean up and strip "Lectionary" noise if captured
     for k in found:
         txt = found[k] or ""
         txt = re.sub(r"Lectionary.*", "", txt, flags=re.I)
         txt = txt.replace("\n", " ").strip()
         found[k] = txt
 
-    # Weekdays typically have no second reading
     if not sunday:
         found["second"] = ""
 
@@ -224,22 +196,13 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
 
     first, second, psalm, gospel = parse_usccb_dom(r.text, sunday=is_sunday(date))
 
-    # Debug: if everything came back empty, log a snippet so we can see what USCCB served
     if not any([first, psalm, gospel]):
-        log(f"!! FAIL parsing {ymd(date)} – empty readings from USCCB. HTML snippet follows.")
-        try:
-            soup = BeautifulSoup(r.text, "html.parser")
-            snippet = soup.get_text(" ", strip=True)[:600]
-            log(snippet)
-        except Exception as e:
-            log("USCCB debug snippet failed:", e)
-
+        log(f"!! FAIL parsing {ymd(date)} – empty readings from USCCB.")
     return first, second, psalm, gospel
 
 # --- CatholicGallery secondary source ---
 def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
-    """Per-date readings from CatholicGallery /mass-reading/DDMMYY/"""
-    slug = date.strftime("%d%m%y")  # 201125 for 20 Nov 2025
+    slug = date.strftime("%d%m%y")
     url = f"https://www.catholicgallery.org/mass-reading/{slug}/"
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
@@ -247,7 +210,6 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     text = soup.get_text(" ", strip=True)
 
     def grab(label: str, next_labels: List[str]) -> str:
-        # label="First Reading:", next_labels=["Responsorial Psalm:", "Gospel:"]
         pattern = rf"{re.escape(label)}\s*(.+?)(?=" + "|".join(map(re.escape, next_labels)) + r"|$)"
         m = re.search(pattern, text)
         return m.group(1).strip() if m else ""
@@ -264,7 +226,6 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     return norm(first), norm(second), norm(psalm), norm(gosp)
 
 def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
-    """Daily reading from catholic.org with ?select_date=YYYY-MM-DD"""
     url = f"https://www.catholic.org/bible/daily_reading/?select_date={date.isoformat()}"
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
@@ -272,7 +233,6 @@ def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
     text = soup.get_text(" ", strip=True)
 
     def grab(label: str) -> str:
-        # e.g. label="Reading 1," or "Responsorial Psalm,"
         m = re.search(
             rf"{re.escape(label)}\s*([^R]+?)(?=\s+Responsorial Psalm,|\s+Gospel,|$)",
             text,
@@ -281,7 +241,7 @@ def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
 
     first  = grab("Reading 1,")
     psalm  = grab("Responsorial Psalm,")
-    second = ""   # catholic.org weekday pages usually have only 1st + Psalm + Gospel
+    second = ""
     gosp   = grab("Gospel,")
 
     def norm(s: str) -> str:
@@ -307,13 +267,6 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     return parse_usccb_dom(html, sunday=is_sunday(date))
 
 def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
-    """
-    Resolve readings with an ensemble:
-    - USCCB
-    - CatholicGallery
-    - Catholic.org
-    - EWTN (optional)
-    """
     src = {
         "usccb":   ("", "", "", ""),
         "gallery": ("", "", "", ""),
@@ -321,44 +274,37 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
         "ewtn":    ("", "", "", ""),
     }
 
-    # USCCB
     try:
         src["usccb"] = fetch_readings_usccb(date)
     except Exception as e:
         log("USCCB fetch issue", ymd(date), e)
 
-    # CatholicGallery
     try:
         src["gallery"] = fetch_readings_catholicgallery(date)
     except Exception as e:
         log("CatholicGallery fetch issue", ymd(date), e)
 
-    # Catholic.org
     try:
         src["corg"] = fetch_readings_catholicorg(date)
     except Exception as e:
         log("Catholic.org fetch issue", ymd(date), e)
 
-    # EWTN optional
     if USE_EWTN_FALLBACK:
         try:
             src["ewtn"] = fetch_readings_ewtn(date)
         except Exception as e:
             log("EWTN fetch issue", ymd(date), e)
 
-    # Unpack
     f_u, s_u, p_u, g_u = src["usccb"]
     f_g, s_g, p_g, g_g = src["gallery"]
     f_c, s_c, p_c, g_c = src["corg"]
     f_e, s_e, p_e, g_e = src["ewtn"]
 
-    # Majority / priority vote
     first  = _vote_slot(f_u, f_g, f_c, f_e)
     psalm  = _vote_slot(p_u, p_g, p_c, p_e)
     second = _vote_slot(s_u, s_g, s_c, s_e)
     gospel = _vote_slot(g_u, g_g, g_c, g_e)
 
-    # Safety: first must not be a Psalm; psalm must look like a Psalm *book* ref
     if first and PSALM_REF_RE.match(first):
         log("first reading looks like psalm; clearing first", first)
         first = ""
@@ -375,7 +321,67 @@ def resolve_readings(date: dt.date) -> Tuple[str, str, str, str]:
 
     return first or "", second or "", psalm or "", gospel or ""
 
-# ===== Saints (merge local + remote) =====
+# ===== Saints (Online Primary, JSON Backup) =====
+def fetch_saint_online(date: dt.date) -> Dict[str, Any]:
+    """
+    Scrape Catholic.org for the Saint of the Day.
+    Uses: https://www.catholic.org/saints/day.php?day=DD&month=MM
+    """
+    try:
+        url = f"https://www.catholic.org/saints/day.php?day={date.day}&month={date.month}"
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        if r.status_code != 200:
+            return {}
+        
+        soup = BeautifulSoup(r.text, "html.parser")
+        
+        # Catholic.org lists saints in a clean list or a "Saint of the Day" block
+        # Strategy: Look for the first <h3> or <h4> inside the content area that has a link
+        
+        saint_name = ""
+        saint_link = ""
+        saint_profile = ""
+        
+        # Attempt 1: Look for "Saint of the Day" specific header
+        # Sometimes there is a 'h1' with the date, then list of saints.
+        # We usually pick the first one as it is often the most prominent.
+        
+        # Find the main container (often varies, so we search generically for saint links)
+        # Catholic.org links usually look like /saints/saint.php?saint_id=...
+        
+        candidates = []
+        for a in soup.find_all("a", href=re.compile(r"/saints/saint\.php\?saint_id=")):
+            name = a.get_text(" ", strip=True)
+            if name and len(name) > 3:
+                # Basic filter to avoid navigation links
+                candidates.append((name, "https://www.catholic.org" + a["href"]))
+        
+        if candidates:
+            # We pick the first one, but if there's a "Feast" mentioned nearby, that's better.
+            # For simplicity, the first candidate on the "Day" page is usually the primary saint.
+            saint_name, saint_link = candidates[0]
+            
+            # Try to get a tiny profile snippet? 
+            # It's hard without visiting the detailed page. 
+            # We will rely on the AI to generate the reflection based on the Name.
+            saint_profile = f"Feast day of {saint_name}."
+
+        if saint_name:
+            # Normalize name
+            clean_name = saint_name.replace("St.", "Saint").strip()
+            return {
+                "date": ymd(date),
+                "saintName": clean_name,
+                "link": saint_link,
+                "profile": saint_profile,
+                "memorial": "Memorial" # Generic fallback, refined by AI or manual overrides
+            }
+            
+    except Exception as e:
+        log(f"Online saint fetch failed for {ymd(date)}: {e}")
+    
+    return {}
+
 def saints_local() -> List[Dict[str, Any]]:
     return load_json("public/saint.json", [])
 
@@ -390,11 +396,31 @@ def saints_remote() -> List[Dict[str, Any]]:
 
 def saint_for_date(d: dt.date) -> Dict[str, Any]:
     iso = ymd(d)
+    
+    # 1. Try Online Source (Primary)
+    online_data = fetch_saint_online(d)
+    if online_data and online_data.get("saintName"):
+        log(f"Found Saint (Online): {online_data['saintName']}")
+        return online_data
+
+    # 2. Consolidate Local + Remote JSON (Backup)
     merged: Dict[str, Dict[str, Any]] = {}
-    for row in saints_remote() + saints_local():
+    
+    # Remote first (higher priority in backup chain?), then Local overrides? 
+    # Usually Local overrides Remote.
+    all_rows = saints_remote() + saints_local()
+    
+    for row in all_rows:
         if isinstance(row, dict) and row.get("date"):
             merged.setdefault(row["date"], {}).update(row)
-    return merged.get(iso, {}).copy()
+            
+    backup_data = merged.get(iso, {}).copy()
+    
+    if backup_data.get("saintName"):
+        log(f"Found Saint (Backup JSON): {backup_data['saintName']}")
+        return backup_data
+        
+    return {}
 
 # ===== OpenAI =====
 def openai_client():
@@ -479,11 +505,14 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
             raise SystemExit(msg)
         log("warn:", msg)
 
-    # Second reading is optional, but on Sundays we expect one.
     if is_sunday(date) and not second_ref:
         log(f"warn: {iso} is Sunday and has no second reading ref")
 
     saint = saint_for_date(date)
+    # Use data from scraper/JSON, or empty strings if not found
+    saint_name = saint.get('saintName', '')
+    saint_profile = saint.get('profile', '')
+    saint_link = saint.get('link', '')
     feast = saint.get("memorial", "")
 
     lines = [
@@ -493,9 +522,9 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         f"SECOND_READING_REF: {second_ref}",
         f"PSALM_REF: {psalm_ref}",
         f"GOSPEL_REF: {gospel_ref}",
-        f"SAINT_NAME: {saint.get('saintName', '')}",
-        f"SAINT_PROFILE: {saint.get('profile', '')}",
-        f"SAINT_LINK: {saint.get('link', '')}",
+        f"SAINT_NAME: {saint_name}",
+        f"SAINT_PROFILE: {saint_profile}",
+        f"SAINT_LINK: {saint_link}",
         "RETURN KEYS: [date, quote, quoteCitation, firstReading, secondReading, psalmSummary, gospelSummary, "
         "saintReflection, dailyPrayer, theologicalSynthesis, exegesis, tags, usccbLink, cycle, weekdayCycle, feast, "
         "gospelReference, firstReadingRef, secondReadingRef, psalmRef, gospelRef, lectionaryKey]"
@@ -518,6 +547,10 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     out["feast"]        = feast
     out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
 
+    # Ensure saint-related fields in the AI output match our scraped data if the AI hallucinated something else
+    # Actually, we let the AI generate the *Reflection*, but the *Name* should implicitly match.
+    # We can inject the scraped name back into tags if needed, but the Prompt usually handles it.
+
     if not _s(second_ref):
         out["secondReading"] = ""
 
@@ -531,6 +564,11 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     tags = out.get("tags", [])
     if not isinstance(tags, list):
         tags = []
+    
+    # Auto-tag the saint name if present
+    if saint_name:
+        tags.insert(0, saint_name)
+        
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
     return out
 
@@ -552,11 +590,9 @@ def normalize_rows(rows: List[Dict[str, Any]]):
 
 # ===== Main =====
 def main():
-    # Optional precheck mode – no OpenAI, just make sure readings/psalm are wired up
+    # Optional precheck mode
     if os.getenv("USCCB_PRECHECK") == "1":
         start_env = os.getenv("START_DATE", "").strip()
-
-        # Handle DAYS being missing or blank from the workflow
         days_str = (os.getenv("DAYS", "") or "").strip()
         days = int(days_str or "7")
 
@@ -567,19 +603,19 @@ def main():
 
         for d in daterange(start, days):
             f, s, p, g = resolve_readings(d)
+            saint = saint_for_date(d)
             print(
                 "[precheck]", d.isoformat(), "|",
                 f or "—", "|",
                 s or "—", "|",
                 p or "MISSING-PSALM", "|",
-                g or "—",
+                g or "—", "|",
+                f"Saint: {saint.get('saintName', 'None')}"
             )
         return
 
     # Normal generation mode
     start_env = os.getenv("START_DATE", "").strip()
-
-    # Handle DAYS being missing or blank from the cron workflow
     days_str = (os.getenv("DAYS", "") or "").strip()
     days = int(days_str or "7")
 
