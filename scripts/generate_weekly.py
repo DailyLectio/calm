@@ -551,27 +551,45 @@ def normalize_rows(rows: List[Dict[str, Any]]):
         r["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
 # ===== Main =====
-# ===== Main =====
 def main():
+    # Optional precheck mode – no OpenAI, just make sure readings/psalm are wired up
     if os.getenv("USCCB_PRECHECK") == "1":
         start_env = os.getenv("START_DATE", "").strip()
+
+        # Handle DAYS being missing or blank from the workflow
         days_str = (os.getenv("DAYS", "") or "").strip()
         days = int(days_str or "7")
 
-        start = dt.date(*map(int, start_env.split("-'))) if start_env else today_local()
+        if start_env:
+            start = dt.date(*map(int, start_env.split("-")))
+        else:
+            start = today_local()
+
         for d in daterange(start, days):
             f, s, p, g = resolve_readings(d)
-            print("[precheck]", d.isoformat(), "|",
-                  f or "—", "|", s or "—", "|", p or "MISSING-PSALM", "|", g or "—")
+            print(
+                "[precheck]", d.isoformat(), "|",
+                f or "—", "|",
+                s or "—", "|",
+                p or "MISSING-PSALM", "|",
+                g or "—",
+            )
         return
 
+    # Normal generation mode
     start_env = os.getenv("START_DATE", "").strip()
+
+    # Handle DAYS being missing or blank from the cron workflow
     days_str = (os.getenv("DAYS", "") or "").strip()
     days = int(days_str or "7")
 
-    start = dt.date(*map(int, start_env.split("-'))) if start_env else today_local()
+    if start_env:
+        start = dt.date(*map(int, start_env.split("-")))
+    else:
+        start = today_local()
 
     log(f"tz={APP_TZ} start={start} days={days} model={GEN_MODEL}")
+
     rows = []
     for d in daterange(start, days):
         t0 = time.time()
