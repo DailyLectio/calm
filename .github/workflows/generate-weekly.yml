@@ -32,7 +32,7 @@ jobs:
       
       # Configuration
       APP_TZ: "America/New_York"
-      SAINT_JSON_URL: "https://dailylectio.org/saint.json" # Explicit backup source
+      SAINT_JSON_URL: "https://dailylectio.org/saint.json"
       
       # Model Settings
       GEN_MODEL: "gpt-5-mini"
@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'pip' # <--- Speeds up installation on repeat runs
+          # Removed 'cache: pip' to fix the error because requirements.txt doesn't exist
           
       - name: Install deps
         run: |
