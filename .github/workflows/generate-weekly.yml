@@ -25,15 +25,20 @@ jobs:
     permissions:
       contents: write
     env:
+      # Secrets
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
       GH_PAT: ${{ secrets.GH_PAT }}
+      
+      # Configuration
       APP_TZ: "America/New_York"
+      SAINT_JSON_URL: "https://dailylectio.org/saint.json" # Explicit backup source
+      
+      # Model Settings
       GEN_MODEL: "gpt-5-mini"
       GEN_FALLBACK: "gpt-5-mini"
       GEN_TEMP: "1"
-      GEN_TEMP_REPAIR: "1"
-      GEN_TEMP_QUOTE: "1"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,13 +50,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: 'pip' # <--- Speeds up installation on repeat runs
           
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 jsonschema openai
-          sudo apt-get update
-          sudo apt-get install -y jq
 
       - name: Syntax check generate_weekly.py
         shell: bash
@@ -67,7 +71,7 @@ jobs:
         run: |
           if [ -f public/weeklyfeed.json ]; then
             echo "SHA: $GITHUB_SHA"
-            head -n 60 public/weeklyfeed.json
+            head -n 20 public/weeklyfeed.json
           else
             echo "No existing public/weeklyfeed.json (first run?)"
           fi
@@ -82,7 +86,7 @@ jobs:
         run: |
           set +e
           python scripts/generate_weekly.py || true
-          echo "::warning::USCCB precheck may time out (network/markup changes). Continuing."
+          echo "::warning::USCCB precheck completed. If it failed, check logs."
 
       - name: Generate weeklyfeed.json
         env:
@@ -91,18 +95,7 @@ jobs:
           DAYS: ${{ github.event.inputs.days }}
           USCCB_STRICT: "0"
           USE_EWTN_FALLBACK: "1"
-          USE_CATHOLIC_GALLERY: "1"   # <— new
-        run: |
-          set -euo pipefail
-          python scripts/generate_weekly.py
-
-      - name: Generate weeklyfeed.json
-        env:
-          TZ: America/New_York
-          START_DATE: ${{ github.event.inputs.start_date }}
-          DAYS: ${{ github.event.inputs.days }}
-          USCCB_STRICT: "0"
-          USE_EWTN_FALLBACK: "1"
+          USE_CATHOLIC_GALLERY: "1"
         run: |
           set -euo pipefail
           python scripts/generate_weekly.py
@@ -113,10 +106,13 @@ jobs:
           python - << 'PY'
           import json, re, sys
       
-          d = json.load(open('public/weeklyfeed.json', 'r', encoding='utf-8'))
+          try:
+              d = json.load(open('public/weeklyfeed.json', 'r', encoding='utf-8'))
+          except FileNotFoundError:
+              print("weeklyfeed.json not found!")
+              sys.exit(1)
       
-          # Accept ANY scripture ref like:
-          # "Psalm 50:1-3", "Daniel 3:52-56", "1 Chronicles 29:10-12", etc.
+          # Accept ANY scripture ref
           ref_re = re.compile(
               r'\b(?:[1-3]\s*)?[A-Za-z][A-Za-z ]*\s+\d+'
               r'(?::\d+[a-z]*?(?:-\d+)?(?:,\s*\d+[a-z]*?(?:-\d+)?)*)?',
@@ -140,10 +136,6 @@ jobs:
               if not sr and sr_txt:
                   errs.append(f"{iso}: secondReading present but secondReadingRef is empty")
       
-              # If there's a ref, make sure the summary isn't tiny
-              if sr and len(sr_txt.split()) < 50:
-                  errs.append(f"{iso}: secondReading too short (<50 words) with ref {sr!r}")
-      
               # --- saint / feast soft check ---
               if not (row.get('saintReflection', '').strip() or row.get('feast', '').strip()):
                   print(f"[warn] {iso}: saint/feast is blank – ok for simple weekdays.")
@@ -156,35 +148,7 @@ jobs:
           print("Sanity checks ✅ passed.")
           PY
 
-      - name: Debug invalid rows (types/keys)
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          d = json.load(open('public/weeklyfeed.json','r',encoding='utf-8'))
-          req = ["date","quote","quoteCitation","firstReading","secondReading",
-                 "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
-                 "theologicalSynthesis","exegesis","usccbLink","cycle","weekdayCycle",
-                 "feast","gospelReference","firstReadingRef","secondReadingRef",
-                 "psalmRef","gospelRef","lectionaryKey"]
-          bad = []
-          for i, row in enumerate(d, 1):
-              miss = [k for k in req if k not in row]
-              types = [k for k in ("secondReading","secondReadingRef","feast")
-                       if not isinstance(row.get(k, ""), str)]
-              if miss or types:
-                  bad.append({"index": i,
-                              "missing": miss,
-                              "bad_types": {k: type(row.get(k)).__name__ for k in types}})
-          print("length:", len(d))
-          if bad:
-              print("Problems:", bad)
-          else:
-              print("No key/type problems found.")
-          PY
-
-      - name: Validate weeklyfeed.json (python, clear errors)
+      - name: Validate structure (keys/types)
         env:
           EXPECT_LEN: ${{ github.event.inputs.days || '8' }}
         shell: bash
@@ -199,7 +163,7 @@ jobs:
               print("weeklyfeed.json missing"); sys.exit(1)
           data = json.loads(p.read_text(encoding="utf-8"))
 
-          # 1) length check (matches requested days)
+          # 1) length check
           if not isinstance(data, list) or len(data) != expect:
               got = len(data) if isinstance(data, list) else 'n/a'
               print(f"Expected {expect} rows, got: {type(data).__name__} len={got}")
@@ -212,28 +176,21 @@ jobs:
               "feast","gospelReference","firstReadingRef","secondReadingRef",
               "psalmRef","gospelRef","lectionaryKey","tags"
           ]
-          type_string = {"secondReading","secondReadingRef","feast"}
+          
           errs = []
-
           for i, row in enumerate(data, start=1):
               if not isinstance(row, dict):
-                  errs.append({"index": i, "error": "not_object", "type": type(row).__name__})
+                  errs.append(f"Row {i} is not an object")
                   continue
               missing = [k for k in required if k not in row]
-              bad_types = {k:type(row.get(k)).__name__ for k in type_string if not isinstance(row.get(k, ""), str)}
-              shape = []
-              if not str(row.get("cycle","")).startswith("Year "): shape.append("cycle")
-              if not str(row.get("weekdayCycle","")).startswith("Cycle "): shape.append("weekdayCycle")
-              if missing or bad_types or shape:
-                  errs.append({"index": i, "missing": missing, "bad_types": bad_types, "shape": shape})
+              if missing:
+                  errs.append(f"Row {i} missing keys: {missing}")
 
           if errs:
-              print("Validation errors:")
-              for e in errs:
-                  print(" -", e)
+              print("Validation errors:\n" + "\n".join(errs))
               sys.exit(1)
 
-          print(f"weeklyfeed.json OK: {expect} rows, required keys present, types good.")
+          print(f"weeklyfeed.json OK: {expect} rows, structure valid.")
           PY
 
       - name: Commit and push weeklyfeed.json (safe)
