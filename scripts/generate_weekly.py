@@ -551,11 +551,14 @@ def normalize_rows(rows: List[Dict[str, Any]]):
         r["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
 
 # ===== Main =====
+# ===== Main =====
 def main():
     if os.getenv("USCCB_PRECHECK") == "1":
         start_env = os.getenv("START_DATE", "").strip()
-        days = int(os.getenv("DAYS", "7"))
-        start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
+        days_str = (os.getenv("DAYS", "") or "").strip()
+        days = int(days_str or "7")
+
+        start = dt.date(*map(int, start_env.split("-'))) if start_env else today_local()
         for d in daterange(start, days):
             f, s, p, g = resolve_readings(d)
             print("[precheck]", d.isoformat(), "|",
@@ -563,8 +566,10 @@ def main():
         return
 
     start_env = os.getenv("START_DATE", "").strip()
-    days = int(os.getenv("DAYS", "7"))
-    start = dt.date(*map(int, start_env.split("-"))) if start_env else today_local()
+    days_str = (os.getenv("DAYS", "") or "").strip()
+    days = int(days_str or "7")
+
+    start = dt.date(*map(int, start_env.split("-'))) if start_env else today_local()
 
     log(f"tz={APP_TZ} start={start} days={days} model={GEN_MODEL}")
     rows = []
