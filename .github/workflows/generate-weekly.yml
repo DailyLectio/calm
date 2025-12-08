@@ -150,25 +150,27 @@ jobs:
 
       - name: Validate structure (keys/types)
         env:
-          EXPECT_LEN: ${{ github.event.inputs.days || '8' }}
+          # default to 7 if no input is provided
+          EXPECT_LEN: ${{ github.event.inputs.days || '7' }}
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           import json, sys, pathlib, os
-
-          expect = int(os.environ.get("EXPECT_LEN","8"))
+      
+          # fall back to 7 if env var is missing
+          expect = int(os.environ.get("EXPECT_LEN","7"))
           p = pathlib.Path("public/weeklyfeed.json")
           if not p.exists():
               print("weeklyfeed.json missing"); sys.exit(1)
           data = json.loads(p.read_text(encoding="utf-8"))
-
+      
           # 1) length check
           if not isinstance(data, list) or len(data) != expect:
               got = len(data) if isinstance(data, list) else 'n/a'
               print(f"Expected {expect} rows, got: {type(data).__name__} len={got}")
               sys.exit(1)
-
+      
           required = [
               "date","quote","quoteCitation","firstReading","secondReading",
               "psalmSummary","gospelSummary","saintReflection","dailyPrayer",
@@ -185,11 +187,11 @@ jobs:
               missing = [k for k in required if k not in row]
               if missing:
                   errs.append(f"Row {i} missing keys: {missing}")
-
+      
           if errs:
               print("Validation errors:\n" + "\n".join(errs))
               sys.exit(1)
-
+      
           print(f"weeklyfeed.json OK: {expect} rows, structure valid.")
           PY
 
