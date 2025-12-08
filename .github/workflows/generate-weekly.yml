@@ -11,9 +11,9 @@ on:
         required: false
         default: ""
       days:
-        description: "How many days (default 8)"
+        description: "How many days (default 7)"
         required: false
-        default: "8"
+        default: "7"
 
 concurrency:
   group: generate-weekly
