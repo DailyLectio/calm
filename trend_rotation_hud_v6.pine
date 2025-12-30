@@ -1,0 +1,32 @@
+//@version=6
+indicator("Trend & Rotation HUD", overlay=true)
+
+// ── User inputs ──
+trendLoc    = input.string("bottom_left",  "Trend HUD position",    options=["top_left","top_right","bottom_left","bottom_right"])
+rotationLoc = input.string("bottom_right", "Rotation HUD position", options=["top_left","top_right","bottom_left","bottom_right"])
+textSize    = input.int(12, "Text size", minval=8, maxval=24)
+
+// Map string → chart position
+f_pos(loc) =>
+    loc == "top_left"  ? position.top_left :
+    loc == "top_right" ? position.top_right :
+    loc == "bottom_left" ? position.bottom_left : position.bottom_right
+
+// Example calculations
+trendVal    = ta.sma(close, 20) - ta.sma(close, 50)
+rotationVal = ta.rsi(close, 14) - 50
+
+// Color helper
+colorFor(v) => v > 0 ? color.lime : v < 0 ? color.red : color.orange
+
+// Create tables once
+var table trendTbl    = table.new(f_pos(trendLoc), 1, 1, border_width=1)
+var table rotationTbl = table.new(f_pos(rotationLoc), 1, 1, border_width=1)
+
+// Update tables on last bar
+if barstate.islast
+    table.move(trendTbl, f_pos(trendLoc), 0, 0)
+    table.cell(trendTbl, 0, 0, "Trend: " + str.tostring(trendVal, format.mintick), text_color=color.white, bgcolor=colorFor(trendVal), text_size=textSize)
+
+    table.move(rotationTbl, f_pos(rotationLoc), 0, 0)
+    table.cell(rotationTbl, 0, 0, "Rotation: " + str.tostring(rotationVal, format.mintick), text_color=color.white, bgcolor=colorFor(rotationVal), text_size=textSize)
