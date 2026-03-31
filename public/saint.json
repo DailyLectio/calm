@@ -1,442 +1,302 @@
 [
   {
-    "date": "2026-02-03",
-    "saintName": "St. Blaise",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "Blaise of Sebaste",
-    "saintAlt2": "",
-    "profile": "St. Blaise (d. 316) was a physician who became bishop of Sebaste and was later martyred for the faith. Tradition connects him with a miracle involving the healing of a child’s throat, which is why Catholics often seek his intercession for throat ailments and celebrate the Blessing of Throats on or near his feast day.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-04",
-    "saintName": "St. Joseph of Leonessa",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "Joseph of Leonessa",
-    "saintAlt2": "",
-    "profile": "St. Joseph of Leonessa was a Capuchin friar known for missionary zeal, courageous charity, and fidelity under hardship. His life reflects the Franciscan spirit of penance and preaching, offered with practical love for those most in need.",
-    "link": "https://www.vaticannews.va/en/saints/02/04.html"
-  },
-  {
-    "date": "2026-02-05",
-    "saintName": "St. Agatha",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Agatha is an early Christian virgin and martyr, long venerated for courageous fidelity to Christ amid persecution. Tradition remembers her steadfast refusal to renounce her faith and her charity toward others even in suffering, making her a powerful patron for those enduring trial and for communities seeking purity of heart and perseverance.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-06",
-    "saintName": "St. Paul Miki and Companions",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Paul Miki and his companions were Jesuit and lay Catholic martyrs of Japan, executed for proclaiming Christ during a brutal suppression of Christianity. Their witness shows how the Gospel can take root across cultures and how Christian hope endures even in public suffering.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-07",
-    "saintName": "St. Colette",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Colette was a French Poor Clare reformer who worked to renew religious life through deeper poverty, prayer, and fidelity to the Franciscan charism. Her example encourages conversion of heart and perseverance in reforms that begin with personal holiness.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-08",
-    "saintName": "St. Jerome Emiliani",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Jerome Emiliani is remembered for compassionate service to orphans and the poor, especially in times of plague and social upheaval. His life teaches that authentic devotion becomes concrete charity, building structures of care where society has failed the vulnerable.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-09",
-    "saintName": "St. Apollonia",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Apollonia is honored as a virgin and martyr of Alexandria, remembered for courageous endurance in persecution. She is often invoked as a patron for those suffering tooth pain and for all who seek steadfastness when faith is tested.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-10",
-    "saintName": "St. Scholastica",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Scholastica, the sister of St. Benedict, is honored as a pioneer of Benedictine women’s monastic life. Known for a deep life of prayer and a love that sought God above all, she reminds the Church that contemplation and charity are meant to shape every Christian community.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-11",
-    "saintName": "Our Lady of Lourdes",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "Blessed Virgin Mary (Lourdes)",
-    "saintAlt2": "",
-    "profile": "Our Lady of Lourdes commemorates the Marian apparitions to St. Bernadette Soubirous in 1858, calling the faithful to prayer, penance, and trust in God’s mercy. Lourdes has become a global shrine of healing and conversion, inviting Christians to bring suffering to Christ with hope.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-12",
-    "saintName": "St. Eulalia of Barcelona",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Eulalia of Barcelona is venerated as a young martyr whose steadfast faith became a sign of hope for persecuted Christians. Her courage and purity of heart encourage believers—especially the young—to remain faithful to Christ amid pressure and hostility.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-13",
-    "saintName": "St. Catherine de Ricci",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Catherine de Ricci was a Dominican mystic and prioress known for deep prayer, reforming zeal, and love for Christ crucified. Her life highlights how contemplation can bear fruit in wise leadership and spiritual renewal.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-14",
-    "saintName": "Sts. Cyril and Methodius",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saints Cyril and Methodius were missionary brothers to the Slavic peoples, celebrated for preaching the Gospel with cultural sensitivity and for developing Slavic liturgical and literary tradition. They model evangelization that is faithful to the Church and attentive to language, people, and place.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-15",
-    "saintName": "St. Claude de la Colombière",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Claude de la Colombière was a Jesuit priest known for preaching, spiritual direction, and fidelity amid trials. He is closely associated with the spread of devotion to the Sacred Heart, encouraging Christians to trust Christ’s mercy and live with sincere, practical charity.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-16",
-    "saintName": "St. Juliana of Nicomedia",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Juliana of Nicomedia is honored as a virgin and martyr who remained steadfast in faith during persecution. Her commemoration calls believers to integrity, courage, and reliance on God when confronted with coercion or compromise.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-17",
-    "saintName": "Seven Holy Founders of the Servite Order",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "The Seven Holy Founders of the Servite Order were a group of laymen who embraced a life of prayer, penance, and service, forming a community devoted to the Blessed Virgin Mary. Their witness emphasizes communal conversion and Marian discipleship expressed through humble service.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-18",
-    "saintName": "St. Simeon",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Simeon is venerated for faithful discipleship and a life oriented toward God’s promises. His remembrance invites the faithful to patient hope and to recognize the Lord’s presence even in ordinary seasons of life.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-19",
-    "saintName": "St. Conrad of Piacenza",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Conrad of Piacenza is remembered for deep repentance, simplicity, and a life redirected toward God after serious error. His story encourages honest conversion, restitution where possible, and trust that grace can rebuild a life.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-20",
-    "saintName": "St. Jacinta Marto",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Jacinta Marto, one of the Fatima seers, is remembered for childlike faith, prayer, and offering sacrifices for the conversion of sinners. Her short life witnesses to the power of simple holiness—especially through the Rosary, penance, and love for the Eucharist.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-21",
-    "saintName": "St. Peter Damian",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Peter Damian was a reforming monk, bishop, and Doctor of the Church known for zeal for holiness and integrity in ecclesial life. His teaching calls the faithful to repentance, sound doctrine, and the renewal that comes from serious prayer and discipline.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-22",
-    "saintName": "Chair of St. Peter",
-    "memorial": "Feast",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "Cathedra Petri",
-    "saintAlt2": "",
-    "profile": "The Feast of the Chair of St. Peter celebrates the mission Christ entrusted to the Apostle Peter to strengthen the brethren and serve the unity of the Church. The feast invites prayer for the pope and a renewed commitment to communion, sound teaching, and fidelity to the apostolic faith.",
-    "link": "https://catholicinsight.com/2025/02/22/the-feast-of-the-chair-of-st-peter/"
-  },
-  {
-    "date": "2026-02-23",
-    "saintName": "St. Polycarp",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Polycarp was an early Christian bishop and martyr, remembered as a faithful shepherd who endured persecution without denying Christ. His witness strengthens believers to remain steadfast and to pass on the apostolic faith with courage and gentleness.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-24",
-    "saintName": "St. Matthias",
-    "memorial": "Feast",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Matthias is the apostle chosen to replace Judas Iscariot, showing that God sustains the Church’s mission even through human failure. His feast calls believers to steadfast discipleship, humble service, and readiness to be Christ’s witness wherever the Gospel is needed.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-25",
-    "saintName": "St. Walburga",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Walburga is remembered as a missionary abbess associated with the evangelization of parts of Europe. Her life points to steady, community-building holiness that strengthens faith across generations.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-26",
-    "saintName": "St. Porphyry of Gaza",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Porphyry of Gaza is honored as a bishop who labored to strengthen the Christian community through pastoral leadership and perseverance amid religious conflict. His commemoration highlights courage in shepherding souls and steadiness in proclaiming Christ.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-27",
-    "saintName": "St. Gregory of Narek",
-    "memorial": "Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Gregory of Narek was an Armenian monk and mystical theologian renowned for profound prayers of repentance and trust in divine mercy. Honored as a Doctor of the Church, he teaches a spirituality of honest contrition, hope, and intimacy with God.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-02-28",
-    "saintName": "St. Hilary of Poitiers",
-    "memorial": "Optional Memorial",
-    "source": "User-provided February 2026 list",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Hilary of Poitiers was a bishop and influential defender of orthodox faith, especially during controversies about the divinity of Christ. His courageous teaching and pastoral leadership encourage believers to hold fast to truth with charity and intellectual integrity.",
-    "link": "https://www.catholic.org/calendar/february.php"
-  },
-  {
-    "date": "2026-03-01",
-    "saintName": "St. Aubin",
-    "memorial": "Optional Memorial",
-    "source": "Catholic Liturgical Calendar",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "St. Aubin (also known as St. Albin) was an early Christian saint venerated in the medieval period. Though details about his life remain sparse in historical records, he is honored in the Catholic tradition as a figure of early Christian virtue and devotion. His feast day commemorates his contributions to the spiritual heritage of the Church.",
-    "link": "https://www.catholic.org/calendar/march.php"
-  },
-  {
-    "date": "2026-03-02",
-    "saintName": "Blessed Charles the Good",
+    "date": "2026-04-01",
+    "saintName": "St. Hugh of Grenoble",
     "memorial": "Optional Memorial",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Charles of Flanders",
-    "saintAlt2": "Charles the Good, Count of Flanders",
-    "profile": "Blessed Charles the Good (1084-1127) was Count of Flanders and son of the Danish King Canute IV. A devoted Christian ruler, Charles was remembered for his profound commitment to justice and his extraordinary care for the poor and marginalized. He established fair laws, reduced taxes, and personally distributed his wealth to those in need. During a famine in 1125, he ensured bread was distributed to the hungry and prevented grain hoarding. His deep piety manifested in daily theological discussions and his unwavering defense of the Church. Tragically, on March 2, 1127, he was murdered in the church of St. Donatian by knights while praying, becoming a martyr. The people immediately revered him as a saint, though official beatification came in 1882. He remains a model of Christian governance and sacrificial love.",
-    "link": "https://saints-alive.siministries.org/saints-alive/saint/bl-charles-the-good/"
+    "saintAlt1": "Hugh of Châteauneuf",
+    "saintAlt2": "",
+    "profile": "St. Hugh of Grenoble (1053-1132) was a French bishop and a key supporter of the Carthusian Order. Though he felt inadequate for his role and often requested to resign, Pope Gregory VII insisted he remain as bishop. He was known for his eloquent preaching, his reform of his diocese, and for granting St. Bruno the land where the Grande Chartreuse, the motherhouse of the Carthusian Order, was built.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-hugh-of-grenoble/"
   },
   {
-    "date": "2026-03-03",
-    "saintName": "Saint Katharine Drexel",
-    "memorial": "Memorial",
+    "date": "2026-04-02",
+    "saintName": "Holy Thursday",
+    "memorial": "Triduum",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Mother Katharine Drexel",
-    "saintAlt2": "Saint Katharine of Philadelphia",
-    "profile": "Saint Katharine Drexel (1858-1955) was an American heiress who became one of the most generous benefactors of the Church and a powerful advocate for racial justice. Born into the prominent Drexel banking family, she was moved to religious life after meeting Pope Leo XIII in 1887. In 1891, she founded the Sisters of the Blessed Sacrament, a religious congregation dedicated to serving Black and Indigenous American communities. Through her organization, she established schools, hospitals, and Xavier University of Louisiana. Despite opposition and racism, her tireless work brought Catholic education and spiritual development to thousands of marginalized people. Katharine was beatified in 1988 following the miraculous healing of a boy's deafness, and canonized on October 1, 2000, becoming the second U.S.-born saint. Her legacy demonstrates prophetic witness and sacrificial commitment to the Gospel's preferential option for the poor.",
-    "link": "https://www.katharinedrexel.org/"
+    "saintAlt1": "Maundy Thursday",
+    "saintAlt2": "Thursday of the Lord's Supper",
+    "profile": "Holy Thursday commemorates the Last Supper of Jesus Christ with the Apostles, the institution of the Eucharist, the institution of the priesthood, and Christ's command of brotherly love through the washing of feet. It marks the beginning of the Easter Triduum, the three most sacred days of the Catholic liturgical year.",
+    "link": "https://mycatholic.life/catholic-holidays/holy-thursday/"
   },
   {
-    "date": "2026-03-04",
-    "saintName": "Saint Casimir",
-    "memorial": "Optional Memorial",
+    "date": "2026-04-03",
+    "saintName": "Good Friday of the Lord's Passion",
+    "memorial": "Triduum",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Casimir the Prince",
-    "saintAlt2": "Saint Casimir of Poland",
-    "profile": "Saint Casimir (1458-1484) was a Polish prince and son of King Casimir IV, demonstrating extraordinary holiness despite his royal status. From childhood, Casimir rejected the pomp and privilege of princely life, choosing instead to wear plain garments and dedicate himself to prayer, study, and service to the poor. He was known for his intense piety, devotion to the Virgin Mary, and profound generosity toward the sick and downtrodden. Rather than pursue political power, Casimir used his position to defend justice and care for his people. He died of tuberculosis at only 25 years old, his brief life a complete witness to the Gospel. His cult began immediately after his death, and he was canonized in the early 1520s. Casimir remains patron saint of Poland, Lithuania, and Lithuanian youth, remembered as a prince who truly \"lost his life to find it.\"",
-    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/march-4-saint-casimir/"
+    "saintAlt1": "Good Friday",
+    "saintAlt2": "Holy Friday",
+    "profile": "Good Friday is the solemn memorial of the crucifixion and death of Jesus Christ at Calvary. It is a day of strict fasting, penance, and mourning, where the Church strips her altars and venerates the Cross, remembering the supreme sacrifice of the Lamb of God for the redemption of humanity.",
+    "link": "https://mycatholic.life/catholic-holidays/good-friday/"
   },
   {
-    "date": "2026-03-05",
-    "saintName": "Saint John Joseph of the Cross",
-    "memorial": "Optional Memorial",
+    "date": "2026-04-04",
+    "saintName": "Holy Saturday",
+    "memorial": "Triduum",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "John Joseph of the Cross",
-    "saintAlt2": "Saint Carlo Gaetano Calosinto",
-    "profile": "Saint John Joseph of the Cross (1654-1739) was an Italian Franciscan friar born on the island of Ischia near Naples. From his youth, he demonstrated an extraordinary calling to holiness, joining the Franciscan Order of Strict Observance at age 16, becoming the first Italian in this reform movement. Though he desired solitude and penance, obedience moved him to accept numerous leadership roles, including provincial minister, positions he held with extraordinary humility and charity. Despite his spiritual austerity and mortification, he was known for his gift of miracles, his ability to read hearts, and his wisdom as a confessor. Even in positions of authority, John Joseph remained simple and willing to perform menial tasks for his community. His final years were dedicated entirely to hearing confessions and interceding for souls. Canonized in 1839, he exemplifies how self-denial and obedience become pathways to greater charity and spiritual effectiveness.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-john-joseph-of-the-cross/"
+    "saintAlt1": "Easter Vigil",
+    "saintAlt2": "Black Saturday",
+    "profile": "Holy Saturday commemorates the day Jesus Christ lay in the tomb after his death. The Church waits in silence and fasting until nightfall, when the Easter Vigil is celebrated. This magnificent liturgy begins in darkness, kindles the new fire, blesses the Paschal candle, and welcomes new members into the Church through Baptism and Confirmation.",
+    "link": "https://mycatholic.life/catholic-holidays/holy-saturday/"
   },
   {
-    "date": "2026-03-06",
-    "saintName": "Saint Colette",
-    "memorial": "Optional Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Nicolette",
-    "saintAlt2": "Saint Colette of Corbie",
-    "profile": "Saint Colette (1380-1447) was a French Franciscan reformer of extraordinary vision and determination. Orphaned at seventeen, she distributed her inheritance to the poor and took the Franciscan Third Order Rule, living as a solitary hermit in a cell attached to a church in Corbie. In 1406, Saint Francis appeared to her in visions, calling her to restore his orders to their primitive observance of radical poverty and austerity. With papal approval from Pope Benedict XIII, Colette began establishing reformed Poor Clare monasteries, eventually founding seventeen convents throughout France, the Low Countries, and Germany. She worked tirelessly to reinvigorate the spirit of Francis in a period of great spiritual decline. Her constitutions guided communities in living the strictest observance, and her reform movement produced the Colettines, a branch still thriving today. Known for her mystical visions, her moral authority, and her prophetic witness during the Church's troubled Great Western Schism, Colette died in 1447 and was canonized in 1807.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-colette/"
-  },
-  {
-    "date": "2026-03-07",
-    "saintName": "Saints Perpetua and Felicity",
-    "memorial": "Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Perpetua and Felicitas",
-    "saintAlt2": "Martyrs of Carthage",
-    "profile": "Saints Perpetua and Felicity (died c. 203) were two remarkable Christian martyrs from Carthage in Roman North Africa, representing different social standings united in faith. Perpetua was a twenty-two-year-old noblewoman, recently married, with an infant son, while Felicity was her slave, pregnant with child. During the persecution by Emperor Septimius Severus, both were arrested for refusing to participate in pagan sacrifices. Perpetua kept a diary—the oldest surviving Christian writing by a woman—documenting their imprisonment and trial. Despite her father's pleas and her child's needs, Perpetua refused to renounce her faith. While imprisoned, Felicity gave birth to a daughter and joyfully accepted martyrdom. Their courage inspired all in prison, including their male companions. Thrown into the arena, they were attacked by a wild heifer but survived; they were finally executed by the sword. Their joy in facing death, documented in Perpetua's own words, astounded witnesses. Few saints were more honored in the early Church, and their witness remains a profound testimony to the power of faith and the communion of saints across all social boundaries.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saints-perpetua-and-felicity/"
-  },
-  {
-    "date": "2026-03-08",
-    "saintName": "Saint John of God",
-    "memorial": "Optional Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "John of God",
-    "saintAlt2": "Saint John Ciudad",
-    "profile": "Saint John of God (1495-1550) was born in Portugal and lived a wandering, disconsolate life as a shepherd, soldier, and bookseller before his conversion. At age fifty, moved by a powerful sermon about Christian charity, he experienced a profound spiritual transformation and went to Granada, Spain, seeking to serve God through suffering. Initially, his excessive penances and emotional displays led authorities to confine him in an asylum, but a wise spiritual director redirected his fervor toward organized charitable work. There, John began caring for the sick and abandoned poor with extraordinary tenderness, nursing lepers and plague victims. Two former enemies, Antonio Martin and Pedro Velasco, were converted by his example and became his first companions, forming the nucleus of the Hospitaller Order of Saint John of God. Though he received no formal religious approval in his lifetime, his work revolutionized healthcare for the poor. John died in 1550, was canonized in 1690, and is honored as patron of hospitals, nurses, and the sick—prophetically addressing the healthcare crisis by demonstrating that Christ himself appears in the suffering and vulnerable.",
-    "link": "https://www.britannica.com/biography/Saint-John-of-God"
-  },
-  {
-    "date": "2026-03-09",
-    "saintName": "Saint Frances of Rome",
-    "memorial": "Optional Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Francesca Bussa de' Leoni",
-    "saintAlt2": "Saint Frances Romana",
-    "profile": "Saint Frances of Rome (1384-1440) was an Italian mystic and founder of a religious community who lived a hidden sanctity while fulfilling demanding family obligations. Born into Roman nobility, Frances was married at age twelve to Lorenzo Ponziani, an aristocratic military commander, and bore children while secretly practicing intense spirituality. Her biographer notes that she perceived an angel guide who visibly illuminated her path. During Rome's turbulent periods, her husband was wounded in war, her son was taken as ransom, and she suffered great trials. Rather than escape these sufferings, Frances embraced them as pathways to holiness. After her husband's death in 1436, the fifty-two-year-old widow walked barefoot through Rome to the monastery of oblates she had envisioned and founded. She became superior of the Olivetan Oblates of Mary—women living in community without formal vows. Frances exemplifies how holiness is achieved not through withdrawal from the world's demands, but through fidelity to duty united with contemplative prayer. Canonized in 1608, she became patron of automobile drivers because her guardian angel's light preceded her like divine headlights guiding her way.",
-    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/march-9-saint-frances-of-rome-religious/"
-  },
-  {
-    "date": "2026-03-15",
-    "saintName": "Saint Louise de Marillac",
-    "memorial": "Optional Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Louise de Marillac",
-    "saintAlt2": "Saint Louise de Marillac, Virgin",
-    "profile": "Saint Louise de Marillac (1591-1660) was a French widow and co-founder, with Saint Vincent de Paul, of the Daughters of Charity—a revolutionary religious community dedicated to serving the poorest of the poor. Born into a wealthy family, Louise moved comfortably in royal circles, yet she possessed a remarkable ability to accompany people in misery with genuine compassion and practical effectiveness. After her husband's death, she encountered Saint Vincent de Paul and recognized in him the priest from her earlier mystical vision. Together, they founded a community in 1633 comprising young women, many illiterate, who took no formal vows but committed themselves to serving abandoned children, plague victims, prisoners, and the mentally ill throughout France. Louise established networks of charitable centers, pushed for schools and clinics in every village, and trained her sisters through personal modeling and written guidelines. During her lifetime, the Daughters expanded to over forty houses. Though she lacked formal theological training, Louise exemplified a spirituality of seeing Christ in the face of the poor and implementing systemic solutions to poverty. Canonized in 1934 and declared patroness of social workers in 1960, she remains a prophetic figure challenging comfortable Christianity to incarnate solidarity with the suffering.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-louise-de-marillac/"
-  },
-  {
-    "date": "2026-03-17",
-    "saintName": "Saint Patrick",
-    "memorial": "Feast",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Patrick of Ireland",
-    "saintAlt2": "Patrick the Apostle of Ireland",
-    "profile": "Saint Patrick (c. 386-461) was a British-born missionary who became the Apostle of Ireland and transformed the island from paganism to Christianity. Captured by Irish raiders at age sixteen and enslaved for six years as a shepherd, Patrick experienced his captivity as a spiritual awakening through prayer. After escaping and returning to Britain, he trained for priesthood in Gaul under Saint Germanus and was ordained a bishop by Pope Celestine I. Answering a vision calling him back to Ireland, Patrick arrived in 432 and spent nearly forty years baptizing thousands, establishing monasteries, and organizing the Church into dioceses. Rather than destroying pagan traditions, he incorporatively integrated them—most famously combining the Celtic sun cross with Christian symbolism, creating the Celtic cross. Facing constant opposition and imprisonment, Patrick's remarkable Confessio—his own spiritual autobiography—reveals a man of profound faith, learning, and humility. He mastered the Irish language, respected the indigenous spiritual framework, and succeeded where earlier missionaries failed. By his death in 461, Ireland's transformation was complete. Patrick's feast day is celebrated worldwide, making him one of history's most beloved saints, though his greatest achievement was building a Christian civilization that would preserve learning during Europe's dark ages.",
-    "link": "https://www.biography.com/religious-figures/saint-patrick"
-  },
-  {
-    "date": "2026-03-18",
-    "saintName": "Saint Cyril of Jerusalem",
-    "memorial": "Optional Memorial",
-    "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Cyril of Jerusalem",
-    "saintAlt2": "Saint Cyril, Bishop of Jerusalem",
-    "profile": "Saint Cyril of Jerusalem (c. 315-386) was a bishop and Doctor of the Church who demonstrated extraordinary courage defending orthodox Christian faith during the Arian crisis. Appointed bishop around 350 during a period of theological confusion, Cyril steadfastly defended the Nicene Creed's teaching that Jesus Christ was fully divine against the widespread Arian heresy denying Christ's full divinity. His unwavering fidelity cost him dearly: he was exiled three times by emperors sympathetic to Arianism, yet each time he returned to resume his pastoral duties. In 351, a miraculous cross of light surrounded by a rainbow appeared in the sky over Jerusalem—an event witnessed by thousands and which seemed to validate Cyril's theological stance. His greatest contribution came through his Catechetical Lectures delivered in the Church of the Holy Sepulchre, profound instructions on Christian doctrine that remain foundational texts for catechesis. The Council of Constantinople in 381 vindicated his orthodoxy and confirmed his episcopal office. Though persecuted, exiled, and opposed by powerful leaders, Cyril never wavered from proclaiming Christ's full divinity. Declared Doctor of the Church by Pope Leo XIII in 1883, Cyril exemplifies how faithfulness through suffering establishes truth and preserves the apostolic faith for future generations.",
-    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/march-18-saint-cyril-of-jerusalem-bishop-and-doctor/"
-  },
-  {
-    "date": "2026-03-19",
-    "saintName": "Saint Joseph",
+    "date": "2026-04-05",
+    "saintName": "Easter Sunday of the Resurrection of the Lord",
     "memorial": "Solemnity",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Joseph of Nazareth",
-    "saintAlt2": "Saint Joseph, Husband of Mary",
-    "profile": "Saint Joseph (first century) was the earthly father and guardian of Jesus Christ and spouse of the Virgin Mary, a quiet figure whose obedience and righteousness were foundational to Christ's incarnation. Though Scripture reveals little about Joseph beyond his essential role, the Gospels emphasize that he was a just man—meaning he was righteous, faithful, and responsive to God's will. When Joseph discovered Mary was with child, he planned to divorce her quietly rather than expose her to shame, but an angel revealed that the child was the Son of God conceived by the Holy Spirit. Joseph's humble acceptance and trust became exemplary: he named Jesus (exercising paternal authority), protected the holy family by fleeing to Egypt, and provided for them through his carpentry trade in Nazareth. The Gospels note that Jesus was obedient to Joseph, meaning the incarnate Word submitted to a human father's direction. Joseph's role was not peripheral but absolutely essential—God entrusted the Son with a human father's guidance and protection. His perpetual virginity with Mary, his willingness to be called Jesus' father, his silence and service, and his complete obedience to God's designs make Joseph a model of masculine virtue. Honored as patron of the universal Church, fathers, workers, and a happy death, Joseph remains the model of faithful discipleship lived through humble, loving responsibility rather than public prominence.",
-    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/march-19-saint-joseph-husband-of-the-blessed-virgin-mary/"
+    "saintAlt1": "Easter",
+    "saintAlt2": "Pascha",
+    "profile": "Easter Sunday is the greatest feast in the Christian calendar, celebrating the glorious resurrection of Jesus Christ from the dead on the third day after his crucifixion. It is the triumph of life over death, the fulfillment of Old Testament prophecies, and the foundation of the Christian faith and hope for eternal life.",
+    "link": "https://mycatholic.life/catholic-holidays/easter-sunday/"
   },
   {
-    "date": "2026-03-20",
-    "saintName": "Blessed John of Parma",
+    "date": "2026-04-06",
+    "saintName": "St. Crescentia Hoess",
     "memorial": "Optional Memorial",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Giovanni da Parma",
-    "saintAlt2": "John Buralli",
-    "profile": "Blessed John of Parma (1209-1289) was a philosopher, theologian, and seventh Minister General of the Franciscan Order, known for his learning, holiness, and commitment to restoring the spirit of Saint Francis. Born into an Italian noble family, John distinguished himself as a professor of philosophy and theology before joining the Franciscans, impelled by a love of God to abandon the world. His exceptional learning and piety brought him to the attention of Pope Innocent IV, who asked him to represent the Franciscan Order at the Council of Lyons in 1245. Impressed by John's wisdom and virtue, the pope himself nominated him for election as Minister General in 1247. During his ten-year tenure, John revitalized the order by traveling on foot throughout all Franciscan provinces, sometimes arriving unannounced to observe the true spiritual condition of communities. He embodied the Franciscan charism through poverty—dressed in a poor habit, accompanied by only one or two companions, and willing to remain unknown until his identity was revealed. The pope called him an \"angel of peace,\" and he was sent as papal legate to Constantinople where he successfully worked toward reunion with the Greek Orthodox. At John's urging, Saint Bonaventure succeeded him as general. John spent his final years in contemplative prayer at the hermitage of Greccio, where he died in 1289. Beatified in 1624, he remains a model of intellectual virtue united with spiritual simplicity.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/blessed-john-of-parma/"
+    "saintAlt1": "Maria Crescentia Höss",
+    "saintAlt2": "",
+    "profile": "St. Crescentia Hoess (1682-1744) was a German Franciscan Tertiary who endured immense hardship and rejection when she first entered the convent because her family was too poor to provide a dowry. She responded to cruelty with profound humility and cheerful service, eventually becoming novice mistress and superior, known for her mystical visions and deep spiritual wisdom.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-crescentia-hoess/"
   },
   {
-    "date": "2026-03-23",
-    "saintName": "Saint Turibius of Mogrovejo",
+    "date": "2026-04-07",
+    "saintName": "St. John Baptist de La Salle",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Jean-Baptiste de La Salle",
+    "saintAlt2": "Patron of Teachers",
+    "profile": "St. John Baptist de La Salle (1651-1719) was a French priest and educational reformer who founded the Institute of the Brothers of the Christian Schools (De La Salle Brothers). He revolutionized education by teaching in the vernacular rather than Latin, grouping students by ability, and making high-quality education accessible to the poor. He is the patron saint of teachers.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-7-saint-john-baptist-de-la-salle-priest/"
+  },
+  {
+    "date": "2026-04-08",
+    "saintName": "St. Julie Billiart",
     "memorial": "Optional Memorial",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Turibius of Mogrovejo",
-    "saintAlt2": "Saint Toribio Alfonso de Mogrovejo",
-    "profile": "Saint Turibius of Mogrovejo (1538-1606) was Archbishop of Lima, Peru, who transformed the Church in South America through his prophetic vision of racial justice and tireless missionary work. Initially serving as a respected civil judge under King Philip II of Spain, Turibius was nominated—despite his initial reluctance and lack of clergy experience—to lead the newly established Lima archdiocese in 1580. Rather than accepting comfortable authority, he began an arduous apostolic visitation of his immense archdiocese on foot, speaking indigenous languages, celebrating Mass with intense fervor, and confirming nearly half a million people. His second and third visitations brought him through hostile territories and tropical illnesses, yet he persisted in bringing the sacraments and catechesis to every parish. Turibius was prophetically ahead of his time in insisting that Spanish colonizers and indigenous peoples possessed equal dignity before God—revolutionary teaching in his era. Among those he confirmed were future Saints Rose of Lima, Martin de Porres, and John Masías. He worked alongside the great missionary Saint Francis Solanus and established the first seminary in the New World in Lima (1591), training priests in authentic pastoral ministry. Turibius wrote extensive visitation records demonstrating administrative brilliance alongside spiritual depth. He died in 1606 and was canonized in 1726, remaining a model of prophetic leadership that challenges injustice while extending Christ's mercy.",
-    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/march-23-saint-turibius-of-mogrovejo-bishop/"
+    "saintAlt1": "Marie Rose Julie Billiart",
+    "saintAlt2": "The Smiling Saint",
+    "profile": "St. Julie Billiart (1751-1816) was a French woman who, despite being paralyzed for 22 years and surviving the terror of the French Revolution, founded the Sisters of Notre Dame de Namur to educate young girls. She was miraculously cured of her paralysis and spent the rest of her life tirelessly expanding her order, always repeating her motto: 'How good is the good God.'",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-julie-billiart/"
   },
   {
-    "date": "2026-03-25",
-    "saintName": "Annunciation of the Lord",
+    "date": "2026-04-09",
+    "saintName": "St. Casilda",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Casilda of Toledo",
+    "saintAlt2": "",
+    "profile": "St. Casilda (d. 1050) was the daughter of a Muslim leader in Toledo, Spain, during the Islamic occupation. Secretly sympathetic to the Christian prisoners, she smuggled food to them in her skirts. When her father demanded to see what she was hiding, the bread miraculously turned into roses. She eventually converted to Christianity and lived as a solitary ascetic.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=561"
+  },
+  {
+    "date": "2026-04-10",
+    "saintName": "St. Magdalene of Canossa",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Maddalena di Canossa",
+    "saintAlt2": "",
+    "profile": "St. Magdalene of Canossa (1774-1835) was an Italian noblewoman who renounced her immense wealth and status to serve the poor. Seeing the devastating effects of poverty and ignorance in Verona, she founded the Canossian Daughters of Charity, dedicating her life to education, healthcare, and pastoral work for abandoned children and marginalized women.",
+    "link": "https://www.vatican.va/news_services/liturgy/saints/ns_lit_doc_20011001_maddalena-canossa_en.html"
+  },
+  {
+    "date": "2026-04-11",
+    "saintName": "St. Stanislaus",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Stanislaus of Szczepanów",
+    "saintAlt2": "Stanisław Szczepanowski",
+    "profile": "St. Stanislaus (1030-1079) was the Bishop of Kraków and a fierce defender of moral integrity against the corrupt King Bolesław II the Bold. Excommunicating the king for his scandalous and cruel behavior, Stanislaus was martyred when the king personally murdered him while the bishop was celebrating Mass. He is a patron saint of Poland.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-11-saint-stanislaus-bishop-and-martyr/"
+  },
+  {
+    "date": "2026-04-12",
+    "saintName": "Divine Mercy Sunday",
     "memorial": "Solemnity",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "The Annunciation",
-    "saintAlt2": "Feast of the Annunciation",
-    "profile": "The Annunciation of the Lord (celebrated March 25) is one of the Church's most profound solemnities, commemorating the angel Gabriel's announcement to the Virgin Mary that she would bear the Son of God. This moment represents the pivotal instant when God's eternal plan of salvation entered human history through Mary's free consent. The Annunciation is inseparable from the Incarnation—God became flesh in the womb of a young Jewish woman who responded to the impossible with faith and obedience: \"Behold, I am the handmaid of the Lord; let it be done to me according to your word.\" This solemnity has been observed since at least the sixth century and holds supreme importance in Catholic devotion. The Incarnation flowing from Mary's fiat reveals her essential role in redemptive history. Through her acceptance, God's transcendent love became intimate and vulnerable, entering the human condition completely. The Annunciation thus celebrates not only Mary's singular vocation but also the mystery of divine condescension—God's humility in honoring human freedom. This feast connects to Easter: Christ's incarnation leads to his passion, death, and resurrection. The Church observes this solemnity with special solemnity, recognizing that in Mary's \"yes\" to God, all humanity is offered the invitation to become co-workers in redemption. The Annunciation remains the theological foundation for Marian devotion and Christian hope.",
-    "link": "https://mycatholic.life/catholic-holidays/annunciation-of-the-lord/"
+    "saintAlt1": "Second Sunday of Easter",
+    "saintAlt2": "Feast of Divine Mercy",
+    "profile": "Divine Mercy Sunday, celebrated on the Octave Day of Easter, highlights the unfathomable mercy of God as revealed through the private revelations to St. Faustina Kowalska. Instituted by St. John Paul II, the feast invites the faithful to trust entirely in Christ's redeeming love, offering special graces of complete forgiveness of sins and punishment to those who receive Holy Communion and go to Confession.",
+    "link": "https://mycatholic.life/catholic-holidays/divine-mercy-sunday/"
   },
   {
-    "date": "2026-03-26",
-    "saintName": "Saint Margaret Clitherow",
+    "date": "2026-04-13",
+    "saintName": "St. Martin I",
     "memorial": "Optional Memorial",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Margaret Clitherow",
-    "saintAlt2": "The Pearl of York",
-    "profile": "Saint Margaret Clitherow (1556-1586) was an English martyr known as \"The Pearl of York,\" the first woman executed for harboring Catholic priests during the Protestant persecution under Queen Elizabeth I. Born Protestant, Margaret converted to Catholicism a few years after her marriage to John Clitherow, a prosperous butcher. Her conversion came not from intellectual argument but from her direct encounter with the emptiness of the state Church and the vibrant faith she witnessed in persecuted Catholics. Despite the grave danger, Margaret became a living witness to religious freedom, sheltering fugitive priests in her home where secret Masses were celebrated. She personally visited imprisoned priests, bringing them food and comfort, and supported Catholic families with encouragement and material aid. Her courage provoked authorities, and after a search of her home in March 1586, she was arrested. Margaret refused to plead guilty or innocent, declaring that only God could judge her. This refusal meant she would be \"pressed to death\" under an 800-pound weight—the legal punishment for those who would not submit to trial. On March 25, 1586 (Good Friday that year), she sewed her own shroud, prayed for the Pope, cardinals, clergy, and even the Queen, and was slowly crushed to death, praying aloud until the end. The witnesses reported her extraordinary courage and unwavering faith. Canonized in 1970 by Pope Paul VI, Margaret exemplifies radical fidelity—a woman willing to die rather than betray her faith or abandon persecuted believers.",
-    "link": "https://www.britannica.com/biography/Saint-Margaret-Clitherow"
+    "saintAlt1": "Pope Martin I",
+    "saintAlt2": "Martin the Confessor",
+    "profile": "St. Martin I (d. 655) was a courageous Pope who vigorously defended the orthodox teaching that Jesus Christ possessed both a human and divine will, condemning the Monothelite heresy. Because of his steadfast faith, he was arrested by the Byzantine Emperor, subjected to brutal imprisonment, and died in exile, making him the last Pope to be honored as a martyr.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-13-saint-martin-i-pope-and-martyr/"
   },
   {
-    "date": "2026-03-29",
-    "saintName": "Palm Sunday of the Lord's Passion",
-    "memorial": "Solemnity",
+    "date": "2026-04-14",
+    "saintName": "Blessed Peter Gonzalez",
+    "memorial": "Optional Memorial",
     "source": "Roman Catholic Liturgical Calendar",
-    "saintAlt1": "Palm Sunday",
-    "saintAlt2": "Sixth Sunday of Lent",
-    "profile": "Palm Sunday of the Lord's Passion (the Sunday before Easter, March 29 in 2026) is the gateway to Holy Week, combining the joyous commemoration of Christ's triumphal entry into Jerusalem with the solemn remembrance of his impending passion and death. The liturgy begins with the blessing of palms and a procession reenacting Jesus' entrance into the holy city, when crowds welcomed him as a messianic king, laying branches before him and crying \"Hosanna!\" (\"Save us!\"). Yet the readings shift dramatically, revealing the tragic irony: Jesus entered Jerusalem not as a conquering military messiah but as the Suffering Servant, arriving on a humble donkey to face rejection, trial, and crucifixion. The Gospel reading is the Passion account, a lengthy narrative detailing Christ's betrayal, abandonment, torture, and death—inviting the assembly to witness his supreme act of redemptive love. Palm Sunday paradoxically celebrates both royalty and suffering, triumph and tragedy, hope and sorrow. It marks the beginning of the Church's most sacred season, when the mystery of salvation reaches its climax. The contrast between the palms and the cross, between welcome and rejection, encapsulates the paschal mystery at the heart of Christian faith: Christ's dying and rising achieves humanity's redemption through his obedient self-offering.",
-    "link": "https://mycatholic.life/catholic-holidays/palm-sunday/"
+    "saintAlt1": "Pedro González Telmo",
+    "saintAlt2": "St. Telmo",
+    "profile": "Blessed Peter Gonzalez (1190-1246) was a Spanish Dominican friar who, after a public humiliation riding a horse, abandoned his vain pursuit of worldly honors to embrace a life of severe penance and preaching. He became the confessor to King St. Ferdinand III, but dedicated most of his time preaching to sailors and the poor, becoming the patron saint of Spanish mariners.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/blessed-peter-gonzalez/"
+  },
+  {
+    "date": "2026-04-15",
+    "saintName": "St. Caesar de Bus",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "César de Bus",
+    "saintAlt2": "",
+    "profile": "St. Caesar de Bus (1544-1607) was a French priest who transitioned from a life of military and courtly leisure to profound piety. Recognizing the dire need for religious education following the Council of Trent, he founded the Fathers of Christian Doctrine (Doctrinarians), dedicating his life to innovative, engaging, and accessible catechesis for the common people.",
+    "link": "https://www.vaticannews.va/en/saints/04/15.html"
+  },
+  {
+    "date": "2026-04-16",
+    "saintName": "St. Bernadette Soubirous",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Marie-Bernarde Soubirous",
+    "saintAlt2": "Bernadette of Lourdes",
+    "profile": "St. Bernadette Soubirous (1844-1879) was a humble, uneducated peasant girl from Lourdes, France, who received eighteen visions of the Blessed Virgin Mary in 1858. Despite relentless interrogation and public skepticism, she remained steadfast in conveying Mary's message of prayer and penance. She later retreated from the public eye to live as a Sister of Charity, embracing a life of quiet suffering.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-bernadette-soubirous/"
+  },
+  {
+    "date": "2026-04-17",
+    "saintName": "St. Benedict Joseph Labre",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Benoît-Joseph Labre",
+    "saintAlt2": "The Beggar of Rome",
+    "profile": "St. Benedict Joseph Labre (1748-1783) was a French mendicant who, after being turned away from several strict monastic orders, found his calling as a homeless pilgrim. Traveling on foot to the great shrines of Europe, he embraced radical poverty, living off alms and spending hours in Eucharistic adoration. He died in Rome, revered by the poor as the 'saint of the Forty Hours.'",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=1148"
+  },
+  {
+    "date": "2026-04-18",
+    "saintName": "Blessed James Oldo",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Giacomo Oldi",
+    "saintAlt2": "",
+    "profile": "Blessed James Oldo (1364-1404) was a wealthy Italian layman whose life was transformed when he witnessed a traveling preacher and reflected on his own mortality during an outbreak of plague. He and his wife embraced the Franciscan Third Order, turning their lavish home into a chapel and dedicating their wealth to the sick and imprisoned.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/blessed-james-oldo/"
+  },
+  {
+    "date": "2026-04-19",
+    "saintName": "St. Pope Leo IX",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Bruno of Egisheim-Dagsburg",
+    "saintAlt2": "",
+    "profile": "St. Pope Leo IX (1002-1054) was a German aristocratic pontiff who initiated rigorous reforms within the Church, vigorously fighting against simony and clerical marriage. Through his extensive travels and synods across Europe, he reasserted papal authority. His papacy was historically significant as it coincided with the tragic onset of the Great Schism of 1054 between the Eastern and Western Churches.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=4270"
+  },
+  {
+    "date": "2026-04-20",
+    "saintName": "St. Agnes of Montepulciano",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Agnese Segni",
+    "saintAlt2": "",
+    "profile": "St. Agnes of Montepulciano (1268-1317) was an Italian Dominican nun and mystic renowned for her profound holiness from a very young age, becoming a superior at just 15 years old. She was famous for her deep prayer life, miracles, and the physical manifestation of manna falling like snow upon her during her prayers. Her incorrupt body was later venerated by St. Catherine of Siena.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-agnes-of-montepulciano/"
+  },
+  {
+    "date": "2026-04-21",
+    "saintName": "St. Anselm",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Anselm of Canterbury",
+    "saintAlt2": "Anselm of Aosta",
+    "profile": "St. Anselm (1033-1109) was a Benedictine monk, Archbishop of Canterbury, and brilliant philosopher. He is considered the father of Scholasticism and is famous for his ontological argument for the existence of God. As Archbishop, he fiercely defended the independence of the Church against English kings, resulting in his exile. He is honored as a Doctor of the Church.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-21-saint-anselm-bishop-and-doctor/"
+  },
+  {
+    "date": "2026-04-22",
+    "saintName": "St. Pope Caius",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Pope St. Gaius",
+    "saintAlt2": "",
+    "profile": "St. Pope Caius (d. 296) led the early Church during a rare period of relative peace before the severe persecutions of Diocletian. According to tradition, he decreed that a man must pass through all the lower orders (porter, lector, acolyte, exorcist, subdeacon, deacon, and priest) before being ordained a bishop. He is honored as a martyr of the early Church.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=5321"
+  },
+  {
+    "date": "2026-04-23",
+    "saintName": "St. George",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "George of Lydda",
+    "saintAlt2": "The Great Martyr",
+    "profile": "St. George (d. 303) was a Roman soldier of Greek origin who was martyred during the Diocletianic Persecution for refusing to renounce his Christian faith. Though the famous legend of him slaying a dragon emerged centuries later, the historical reality of his courageous martyrdom made him an enduring symbol of Christian valor and the patron saint of England and many other nations.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-george/"
+  },
+  {
+    "date": "2026-04-24",
+    "saintName": "St. Fidelis of Sigmaringen",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Mark Rey",
+    "saintAlt2": "The Poor Man's Lawyer",
+    "profile": "St. Fidelis of Sigmaringen (1577-1622) began his career as a lawyer dedicated to the poor but left the profession out of disgust with its corruption. He became a Capuchin Franciscan priest, known for his ardent preaching and tireless charity. Sent as a missionary to Calvinist Switzerland amid intense hostility, he was ambushed and martyred for defending the Catholic faith.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-fidelis-of-sigmaringen/"
+  },
+  {
+    "date": "2026-04-25",
+    "saintName": "St. Mark, Evangelist",
+    "memorial": "Feast",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "John Mark",
+    "saintAlt2": "Saint Mark the Apostle",
+    "profile": "St. Mark the Evangelist is the traditional author of the Gospel of Mark. A companion of both St. Paul and St. Peter, his Gospel is heavily influenced by Peter's eyewitness testimony. According to tradition, Mark founded the Church in Alexandria, Egypt, becoming its first bishop before being martyred. His symbol in Christian art is the winged lion.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-25-saint-mark-evangelist-feast/"
+  },
+  {
+    "date": "2026-04-26",
+    "saintName": "Our Lady of Good Counsel",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Mater boni consilii",
+    "saintAlt2": "Mary of Good Counsel",
+    "profile": "Our Lady of Good Counsel is a title of the Blessed Virgin Mary associated with a miraculous fresco found in the thirteenth-century Augustinian church in Genazzano, Italy. The devotion emphasizes Mary's role as a wise and loving mother who provides spiritual guidance and counsel to her children who seek her intercession in times of doubt or difficulty.",
+    "link": "https://www.vaticannews.va/en/church/news/2019-04/our-lady-of-good-counsel.html"
+  },
+  {
+    "date": "2026-04-27",
+    "saintName": "St. Zita",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Sitha",
+    "saintAlt2": "Citha",
+    "profile": "St. Zita (1212-1272) was an Italian woman who worked as a domestic servant for the wealthy Fatinelli family in Lucca from the age of twelve until her death. Initially despised by the other servants for her piety and diligence, her patient endurance and profound charity eventually won over the entire household. She is venerated as the patron saint of domestic workers.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-zita/"
+  },
+  {
+    "date": "2026-04-28",
+    "saintName": "St. Peter Chanel",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Pierre-Louis-Marie Chanel",
+    "saintAlt2": "Protomartyr of Oceania",
+    "profile": "St. Peter Chanel (1803-1841) was a French Marist priest and the first martyr of Oceania. Sent as a missionary to the island of Futuna, he struggled for years with little success in converting the local populace. However, after he baptized the chieftain's son, the enraged chieftain had him clubbed to death. His martyrdom sparked a massive wave of conversions across the island.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-28-saint-peter-chanel-priest-and-martyr/"
+  },
+  {
+    "date": "2026-04-29",
+    "saintName": "St. Catherine of Siena",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Caterina di Jacopo di Benincasa",
+    "saintAlt2": "Doctor of the Church",
+    "profile": "St. Catherine of Siena (1347-1380) was a Dominican tertiary and mystic whose profound union with Christ propelled her into the center of medieval European politics. Though unlettered, she dictated 'The Dialogue,' a masterpiece of spiritual theology, and famously convinced Pope Gregory XI to return the papacy from Avignon to Rome. She is a Doctor of the Church and co-patroness of Europe.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-29-saint-catherine-of-siena-virgin-and-doctor/"
+  },
+  {
+    "date": "2026-04-30",
+    "saintName": "St. Pope Pius V",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Antonio Ghislieri",
+    "saintAlt2": "Michele Ghislieri",
+    "profile": "St. Pope Pius V (1504-1572) was a Dominican friar who, as Pope, vigorously implemented the sweeping reforms of the Council of Trent. He standardized the Roman Missal, published the Roman Catechism, and organized the Holy League that defeated the Ottoman fleet at the miraculous Battle of Lepanto in 1571, an event he attributed to the intercession of the Rosary.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/april-30-saint-pius-v-pope/"
   }
 ]
