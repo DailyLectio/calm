@@ -1,302 +1,152 @@
 [
   {
+    "date": "2026-05-01",
+    "saintName": "Saint Joseph the Worker",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "San Giuseppe Artigiano",
+    "saintAlt2": "",
+    "profile": "The memorial of Saint Joseph the Worker emphasizes the theological dignity of human participation in God's ongoing creation. Following the incarnation, the hidden life of the Holy Family reveals that ordinary human labor, when offered in obedience and silence, becomes a primary means of sanctification. Joseph’s role as the guardian of the Word Incarnate demonstrates that true discipleship is found in the quiet, sacrificial preservation of the sacred mysteries within the context of daily duty.",
+    "link": "https://focus.org/posts/meet-the-saints-st-joseph/"
+  },
+  {
+    "date": "2026-05-02",
+    "saintName": "Saint Athanasius",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Athanasius the Great",
+    "saintAlt2": "Father of Orthodoxy",
+    "profile": "Saint Athanasius (c. 296–373) was a bishop and Doctor of the Church who served as the preeminent defender of the divinity of Christ against the Arian heresy. His theological masterpiece, 'On the Incarnation,' argues that only if the Word is truly God can humanity be truly divinized. His life of repeated exiles witnesses to the truth that the integrity of the Creed is the foundation of the Church’s life and that the Truth remains sovereign even when opposed by worldly powers.",
+    "link": "https://www.catholicculture.org/culture/liturgicalyear/calendar/day.cfm?date=2026-05-02"
+  },
+  {
+    "date": "2026-05-03",
+    "saintName": "Saints Philip and James",
+    "memorial": "Feast",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Philip and James the Less",
+    "saintAlt2": "",
+    "profile": "The Feast of Saints Philip and James honors two of the original Twelve Apostles. Philip’s request to 'show us the Father' allowed Christ to reveal the profound unity between the Father and the Son, emphasizing that to see Christ is to see the source of all being. James the Less, often associated with the early Church in Jerusalem, represents the apostolic commitment to the law of love and the necessity of works as the fruit of living faith. Together, they signify the spread of the Gospel through the apostolic succession.",
+    "link": "https://www.diocesepb.org/news/news-and-notes.html/article/2024/05/03/saints-philip-and-james-apostles"
+  },
+  {
+    "date": "2026-05-13",
+    "saintName": "Our Lady of Fatima",
+    "memorial": "Optional Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Blessed Virgin Mary of Fatima",
+    "saintAlt2": "",
+    "profile": "Our Lady of Fatima commemorates the 1917 Marian apparitions in Portugal, which served as a prophetic call for prayer, penance, and conversion. Theologically, the message of Fatima reaffirms the reality of human sin and its consequences, while offering the Immaculate Heart of Mary as a refuge and a path leading to God. It emphasizes that history is not a closed circuit of human will but is subject to the intervention of Divine Mercy through the intercession of the Mother of God.",
+    "link": "https://thenationalshrineofmarymotherofthechurch.com/may-13-is-the-feast-of-our-lady-of-fatima/"
+  },
+  {
+    "date": "2026-05-14",
+    "saintName": "Saint Matthias",
+    "memorial": "Feast",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Matthias the Apostle",
+    "saintAlt2": "",
+    "profile": "Saint Matthias was chosen by the early community to fill the vacancy in the College of the Twelve following the betrayal of Judas. His selection through the casting of lots highlights the Church's reliance on Divine Providence rather than human preference. His inclusion ensures that the apostolic witness to the Resurrection remained complete and unified, demonstrating that God provides the necessary instruments to sustain the mission of the Church even in the wake of human failure.",
+    "link": "https://en.wikipedia.org/wiki/Matthias_the_Apostle"
+  },
+  {
+    "date": "2026-05-24",
+    "saintName": "Pentecost Sunday",
+    "memorial": "Solemnity",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Whitsunday",
+    "saintAlt2": "The Descent of the Holy Spirit",
+    "profile": "Pentecost Sunday marks the descent of the Holy Spirit upon the Apostles and the Blessed Virgin Mary, signifying the birth of the Church and the fulfillment of Christ's promise to remain with His followers. This 'greatest of fifty days' represents the transformation of fear into apostolic zeal and the unification of divided humanity through the language of charity. Theologically, Pentecost is the outpouring of the Divine Life that animates the Mystical Body, enabling the sacraments to bear fruit in the world.",
+    "link": "https://www.archlou.org/wp-content/uploads/2025/08/Liturgical-Year-2026-Overview.pdf"
+  },
+  {
+    "date": "2026-05-26",
+    "saintName": "Saint Philip Neri",
+    "memorial": "Memorial",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Apostle of Rome",
+    "saintAlt2": "Pippo Buono",
+    "profile": "Saint Philip Neri (1515–1595) is celebrated for his profound mystical life and his role in the Catholic Reformation. His spirituality was marked by an interior fire—symbolized by the miraculous expansion of his heart—which manifested as a joyful, humble, and informal approach to holiness. He founded the Congregation of the Oratory, emphasizing that the path to God is found through the constant practice of humility and the sanctification of the ordinary human heart through the sacraments.",
+    "link": "https://www.ebsco.com/research-starters/history/saint-philip-neri"
+  },
+  {
+    "date": "2026-05-31",
+    "saintName": "The Visitation of the Blessed Virgin Mary",
+    "memorial": "Feast",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Visitation of Our Lady",
+    "saintAlt2": "",
+    "profile": "The Feast of the Visitation celebrates Mary's journey to her cousin Elizabeth, carrying the unborn Christ within her. This encounter is a profound theological type of the Ark of the Covenant, where the presence of the Lord brings joy and the outpouring of the Holy Spirit to the household of Zechariah. Mary's 'Magnificat' serves as the definitive hymn of the Church, glorifying God for His mercy and His preference for the lowly, affirming that the Incarnation is the ultimate fulfillment of God's promises.",
+    "link": "https://www.rcdvictoria.org/diocesanblog/may-31-the-visitation-of-the-blessed-virgin-mary"
+  },
+  {
     "date": "2026-06-01",
     "saintName": "Saint Justin Martyr",
     "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Justin the Philosopher",
     "saintAlt2": "",
-    "profile": "Saint Justin Martyr was a second-century philosopher who searched through many pagan schools before finding in Christ the fullness of truth, uniting faith and reason in his writings. He defended the early Church in two Apologies addressed to the Roman authorities and gave one of the earliest descriptions of the Eucharist, bearing courageous witness until his beheading in Rome around 165 for refusing to renounce the Gospel.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-justin-martyr/"
-  },
-  {
-    "date": "2026-06-02",
-    "saintName": "Saints Marcellinus and Peter",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saints Marcellinus, a priest, and Peter, an exorcist, served the Christians of Rome during the fierce Diocletian persecution, strengthening the faithful and bringing many converts to baptism. Arrested and ordered to clear the place of their own execution in a forest, they were beheaded and secretly buried, yet their hidden tomb quickly became a place of pilgrimage, and their names entered the Roman Canon as enduring witnesses to Christ.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saints-marcellinus-and-peter/"
+    "profile": "Saint Justin Martyr (c. 100–165) represents the early Church's engagement with Hellenistic philosophy, demonstrating that all truth belongs to Christ, the eternal Logos. His apologies defend the Christian mysteries not as irrational myths but as the fulfillment of human reason. Theologically, his martyrdom underscores that the truth of the Incarnation demands absolute fidelity, rejecting the idolatrous claims of the state.",
+    "link": "https://www.catholic.org/saints/saint.php?saint_id=73"
   },
   {
     "date": "2026-06-03",
     "saintName": "Saint Charles Lwanga and Companions",
     "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Martyrs of Uganda",
     "saintAlt2": "",
-    "profile": "Saint Charles Lwanga was a Ugandan catechist who, together with a group of royal pages and companions, resisted the immoral demands of King Mwanga and boldly professed faith in Christ. Between 1885 and 1887 they were tortured and burned or speared to death at Namugongo, and their joyful courage under fire made them powerful patrons of African youth and a sign that the Gospel had truly taken root in Africa.",
+    "profile": "The martyrdom of Saint Charles Lwanga and his companions (d. 1886) provides a profound witness to the transforming grace of baptism. By choosing death over moral corruption, they demonstrated the theological reality that citizenship in the Kingdom of God supersedes earthly allegiances. Their sacrifice reveals the power of the Holy Spirit to elevate human nature, configuring the believer entirely to the cross of Christ.",
     "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-charles-lwanga-and-companions/"
   },
   {
-    "date": "2026-06-04",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-05",
-    "saintName": "Saint Boniface",
-    "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Boniface, an English monk from Devon, left his homeland to evangelize the Germanic peoples, tirelessly preaching, founding dioceses, and reforming the clergy under papal mandate. Known as the 'Apostle of Germany', he sealed his life of missionary zeal when he and his companions were martyred around 754, his blood crowning decades of service that shaped the future of the Church in Europe.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-boniface/"
-  },
-  {
-    "date": "2026-06-06",
-    "saintName": "Saint Norbert",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Norbert of Xanten was a court cleric whose sudden conversion led him to embrace a life of radical poverty and itinerant preaching in the early twelfth century. He founded the Premonstratensian canons to combine contemplative life with active ministry and, later as archbishop of Magdeburg, worked to reform clergy and defend the Church, showing how true reform begins with personal conversion.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-norbert/"
-  },
-  {
     "date": "2026-06-07",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
+    "saintName": "The Most Holy Body and Blood of Christ",
+    "memorial": "Solemnity",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Corpus Christi",
     "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-08",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-09",
-    "saintName": "Saint Ephrem",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Ephrem the Syrian was a fourth-century deacon, teacher, and prolific hymn-writer whose poetic theology earned him the title 'Harp of the Holy Spirit'. Teaching in Nisibis and later in Edessa, he composed biblical commentaries and liturgical songs that defended orthodox faith against heresies, uniting rigorous doctrine with ardent devotion and a deep love for the Virgin Mary.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-ephrem/"
-  },
-  {
-    "date": "2026-06-10",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-11",
-    "saintName": "Saint Barnabas",
-    "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Barnabas, a Levite from Cyprus, was among the first believers in Jerusalem and played a vital role in welcoming Saint Paul into the apostolic circle. A trusted missionary companion of Paul and a champion of Gentile converts at the Council of Jerusalem, he is remembered as a 'good man, full of the Holy Spirit and of faith', whose generosity and encouragement built up the early Church.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-barnabas/"
+    "profile": "The Solemnity of the Most Holy Body and Blood of Christ celebrates the real, substantial presence of Christ in the Eucharist. Theologically, it affirms the doctrine of transubstantiation, where the accidents of bread and wine remain while their substance is entirely transformed into the Body, Blood, Soul, and Divinity of Christ. This sacrament perpetuates the sacrifice of Calvary and serves as the eschatological banquet, uniting the pilgrim Church with the heavenly liturgy.",
+    "link": "https://mycatholic.life/catholic-holidays/corpus-christi/"
   },
   {
     "date": "2026-06-12",
-    "saintName": "Most Sacred Heart of Jesus",
+    "saintName": "The Most Sacred Heart of Jesus",
     "memorial": "Solemnity",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Sacred Heart",
     "saintAlt2": "",
-    "profile": "The Solemnity of the Most Sacred Heart of Jesus celebrates the burning love of Christ who, in his pierced Heart, reveals the inexhaustible mercy of God for sinners. Flowing from Scripture and the visions of saints like Margaret Mary Alacoque, this devotion invites the faithful to contemplate the Heart of Jesus as a refuge of compassion, reparation, and intimate friendship with the Lord who loves us to the end.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/most-sacred-heart-of-jesus/"
+    "profile": "The Solemnity of the Most Sacred Heart of Jesus contemplates the mystery of the Incarnation through the lens of divine love. The physical heart of Christ serves as the definitive symbol of God's infinite, redeeming love for humanity, pierced for our transgressions. Theologically, devotion to the Sacred Heart emphasizes the necessity of reparation and the reality that Christ's human nature is the instrument of divine mercy and atonement.",
+    "link": "https://mycatholic.life/catholic-holidays/solemnity-of-the-most-sacred-heart-of-jesus/"
   },
   {
     "date": "2026-06-13",
-    "saintName": "Immaculate Heart of Mary",
+    "saintName": "Saint Anthony of Padua",
     "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "The Memorial of the Immaculate Heart of Mary honors the interior life of the Mother of God, whose heart was perfectly attuned to the will of the Father and wholly united to her Son. Contemplating her joys and sorrows, especially at the foot of the Cross, the Church sees in her a model of pure love and discipleship and asks her to lead us ever more deeply into the Heart of Jesus.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/immaculate-heart-of-the-blessed-virgin-mary/"
-  },
-  {
-    "date": "2026-06-14",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-15",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-16",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-17",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-18",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-19",
-    "saintName": "Saint Romuald",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Romuald was a restless nobleman-turned-monk who, after witnessing a family duel, embraced a life of strict penance and solitude in tenth-century Italy. He founded the Camaldolese hermits, blending eremitical and cenobitic traditions, and through his rugged example of prayer and austerity he renewed monastic life and called many back to the simplicity of the Gospel.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-romuald/"
-  },
-  {
-    "date": "2026-06-20",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-21",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-22",
-    "saintName": "Saints John Fisher and Thomas More",
-    "memorial": "Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint John Fisher, a learned bishop, and Saint Thomas More, an upright layman and Lord Chancellor, opposed King Henry VIII's break with Rome out of fidelity to the Church and the primacy of the pope. Imprisoned and executed for treason in 1535, they are honored together as martyrs of conscience whose integrity, courage, and wit continue to inspire those who defend truth in public life.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saints-john-fisher-and-thomas-more/"
-  },
-  {
-    "date": "2026-06-23",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Anthony of Lisbon",
+    "saintAlt2": "Evangelical Doctor",
+    "profile": "Saint Anthony of Padua (1195–1231), recognized as the Evangelical Doctor, embodied the profound integration of theological erudition and evangelical zeal. His preaching illuminated the Scriptures, bringing the light of orthodox theology to combat the heresies of his time. Theologically, his life demonstrates that the transmission of the Word relies on total reliance on the Holy Spirit and a life conforming entirely to the Gospel poverty modeled by Christ.",
+    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-anthony-of-padua/"
   },
   {
     "date": "2026-06-24",
-    "saintName": "Nativity of Saint John the Baptist",
+    "saintName": "The Nativity of Saint John the Baptist",
     "memorial": "Solemnity",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Birth of John the Baptist",
     "saintAlt2": "",
-    "profile": "The Nativity of Saint John the Baptist, one of the few birthdays celebrated in the liturgical year, honors the prophet who leapt for joy in his mother's womb and prepared the way for Christ. Chosen from the womb to be the Forerunner, John preached conversion, baptized in the Jordan, pointed to Jesus as the Lamb of God, and sealed his testimony with martyrdom at Herod's command.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/nativity-of-saint-john-the-baptist/"
-  },
-  {
-    "date": "2026-06-25",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-26",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-27",
-    "saintName": "Saint Cyril of Alexandria",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Cyril of Alexandria was a fifth-century bishop and theologian who vigorously defended the truth that the one born of Mary is truly God incarnate. As a leading voice at the Council of Ephesus, he upheld the title Theotokos, 'God-bearer', for Mary, safeguarding the unity of Christ's person and leaving a rich legacy of biblical commentaries and doctrinal writings.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saint-cyril-of-alexandria/"
-  },
-  {
-    "date": "2026-06-28",
-    "saintName": "Saints Peter and Paul",
-    "memorial": "Solemnity",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "Saint Peter, the fisherman chosen as the rock of the Church, and Saint Paul, the former persecutor turned Apostle to the Gentiles, shed their blood for Christ in Rome in the first century. Celebrated together, they embody the unity and missionary dynamism of the Church, Peter strengthening the brethren in faith and Paul tirelessly preaching the Gospel to the ends of the earth.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/saints-peter-and-paul/"
+    "profile": "The Nativity of Saint John the Baptist celebrates the hinge between the Old and New Covenants. Theologically, John embodies the fulfillment of prophetic anticipation, identifying the Lamb of God who takes away the sins of the world. His life of asceticism and his declaration that 'He must increase, but I must decrease' summarizes the fundamental theological posture of the creature before the Creator.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/june-24-birth-of-saint-john-the-baptist/"
   },
   {
     "date": "2026-06-29",
-    "saintName": "",
-    "memorial": "",
-    "source": "",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "",
-    "link": ""
-  },
-  {
-    "date": "2026-06-30",
-    "saintName": "First Martyrs of the Holy Roman Church",
-    "memorial": "Optional Memorial",
-    "source": "https://www.liturgyoffice.org.uk/Calendar/2026/Jun.shtml",
-    "saintAlt1": "",
-    "saintAlt2": "",
-    "profile": "The First Martyrs of the Holy Roman Church commemorate the unnamed Christians who, falsely accused by Emperor Nero of setting the great fire of Rome in 64, were subjected to savage tortures and executions. Their hidden fidelity and patient endurance, recorded by historians like Tacitus, show how the blood of martyrs became the seed of a rapidly growing Church in the heart of the empire.",
-    "link": "https://www.franciscanmedia.org/saint-of-the-day/first-martyrs-of-the-church-of-rome/"
+    "saintName": "Saints Peter and Paul",
+    "memorial": "Solemnity",
+    "source": "Roman Catholic Liturgical Calendar",
+    "saintAlt1": "Peter the Apostle",
+    "saintAlt2": "Paul the Apostle",
+    "profile": "The Solemnity of Saints Peter and Paul honors the apostolic foundations of the Church. Theologically, Peter represents the institutional and unifying authority entrusted by Christ, while Paul signifies the charismatic and missionary expansion of the Gospel. Together, they illustrate the complementary nature of charism and office within the ecclesiology of the Church, both culminating in the ultimate witness of martyrdom.",
+    "link": "https://mycatholic.life/saints/saints-of-the-liturgical-year/june-29-saints-peter-and-paul-apostles/"
   }
 ]
