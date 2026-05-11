@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "crons": [
+    { "path": "/api/send", "schedule": "0 12 * * *" }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Lectio Links",
+    "slug": "lectio-links",
+    "scheme": "lectiolinks",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dailyword.lectiolinks"
+    },
+
+    "android": {
+      "package": "com.dailyword.lectiolinks"
+    },
+
+    "plugins": ["expo-notifications"],
+
+    "extra": {
+      "FEED_URL": "https://dailylectio.org/devotions.json",
+      "BACKEND_URL": "https://calm-ttxp.vercel.app/api",
+      "BRAND": {
+        "marianBlue": "#1F6BB5",
+        "gold": "#D4AF37",
+        "black": "#000000"
+      }
+    }
+  }
+}

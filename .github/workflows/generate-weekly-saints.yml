@@ -1,0 +1,65 @@
+name: Generate Weekly Devotions (Saints Trial)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Start date (YYYY-MM-DD). Leave blank for today."
+        required: false
+        default: ""
+      days:
+        description: "How many days to generate"
+        required: false
+        default: "7"
+  # (Optional) run on schedule but only on this branch
+  schedule:
+    - cron: "5 9 * * 4"   # Thursdays 09:05 UTC
+
+jobs:
+  gen-weekly-saints:
+    if: github.ref == 'refs/heads/saints-trial'   # ensure it only runs on the trial branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      APP_TZ: America/New_York
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+      GEN_MODEL: gpt-5-mini
+      GEN_FALLBACK: gpt-5-mini
+      SAINT_FALLBACK: "1"     # turn on the new fallback
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: saints-trial
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests jsonschema openai
+
+      - name: USCCB precheck
+        run: |
+          USCCB_PRECHECK=1 START_DATE="${{ github.event.inputs.start_date }}" DAYS="${{ github.event.inputs.days }}" \
+          python scripts/generate_weekly_saints.py
+
+      - name: Generate weeklyfeed.json (trial)
+        env:
+          TZ: America/New_York
+        run: |
+          set -euo pipefail
+          export START_DATE="${{ github.event.inputs.start_date }}"
+          export DAYS="${{ github.event.inputs.days }}"
+          python scripts/generate_weekly_saints.py
+
+      - name: Validate weeklyfeed.json shape & fields
+        run: |
+          set -euo pipefail
+          test -f public/weeklyfeed.json
+          jq 'length==7' public/weeklyfeed.json >/dev/null
+          jq -e 'all(.[]; has("date") and has("quote") and has("quoteCitation") and has("firstReading") and has("psalmSummary") and has("gospelSummary") and has("saintReflection") and has("dailyPrayer") and has("theologicalSynthesis") and has("exegesis") and has("secondReading") and has("tags") and has("us

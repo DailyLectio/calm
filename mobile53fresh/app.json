@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "FaithLinks • Test",
+    "slug": "faithlinks",
+    "version": "1.0.100",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "bundleIdentifier": "org.dailylectio.faithlinks",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "org.dailylectio.faithlinks",
+      "versionCode": 100,
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "FEED_URL": "https://dailylectio.org/devotions.json",
+      "eas": {
+        "projectId": "13c142ac-4622-4aeb-8925-fbede346ef64"
+      }
+    }
+  }
+}

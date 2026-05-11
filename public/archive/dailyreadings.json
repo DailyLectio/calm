@@ -1,0 +1,77 @@
+{
+  "date": "2025-08-15",
+  "liturgicalDay": {
+    "title": "Solemnity of the Assumption of the Blessed Virgin Mary",
+    "cycle": "Year C",
+    "weekdayCycle": "Cycle I"
+  },
+  "usccb": {
+    "primary": "https://bible.usccb.org/bible/readings/081525.cfm",
+    "alternates": [
+      {
+        "label": "Readings for the Vigil Mass",
+        "url": "https://bible.usccb.org/bible/readings/081425-Vigil.cfm",
+        "context": "vigil"
+      },
+      {
+        "label": "Readings for the Mass during the Day (shown)",
+        "url": "https://bible.usccb.org/bible/readings/081525.cfm",
+        "context": "mass-during-day"
+      }
+    ]
+  },
+  "translation": {
+    "name": "Douay-Rheims (public domain)",
+    "abbrev": "DR",
+    "attributionUrl": "https://drbo.org/"
+  },
+  "sections": [
+    {
+      "type": "first",
+      "heading": "First Reading",
+      "reference": "Revelation 11:19a; 12:1–6a, 10ab",
+      "text": null
+    },
+    {
+      "type": "psalm",
+      "heading": "Responsorial Psalm",
+      "reference": "Psalm 45:10–12, 16",
+      "antiphon": "The queen stands at your right hand, arrayed in gold.",
+      "verses": [
+        "Daughters of kings are among your ladies of honor.",
+        "On your right stands the queen in gold of Ophir.",
+        "Hear, O daughter, consider, and incline your ear."
+      ]
+    },
+    {
+      "type": "second",
+      "heading": "Second Reading",
+      "reference": "1 Corinthians 15:20–27",
+      "text": null
+    },
+    {
+      "type": "alleluia",
+      "heading": "Alleluia",
+      "reference": "Mary is taken up to heaven; a chorus of angels exults.",
+      "text": "Alleluia, alleluia. Mary is taken up to heaven; the hosts of angels shout for joy. Alleluia."
+    },
+    {
+      "type": "gospel",
+      "heading": "Gospel",
+      "reference": "Luke 1:39–56",
+      "text": null
+    },
+    {
+      "type": "saint",
+      "heading": "Saint of the Day",
+      "name": "The Assumption of the Blessed Virgin Mary",
+      "link": "https://www.vatican.va/content/john-paul-ii/en/apost_constitutions/documents/hf_jp-ii_apc_19901101_assunzione-maria.html"
+    }
+  ],
+  "provenance": {
+    "builtAt": "2025-08-15T08:05:00Z",
+    "tz": "America/New_York",
+    "calendarSource": "General Roman Calendar (USA)",
+    "textSource": "DR (public domain) or null if unavailable"
+  }
+}

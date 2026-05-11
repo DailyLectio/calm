@@ -1,0 +1,141 @@
+name: Update Daily Devotion
+
+on:
+  # Fire automatically when the weekly job finishes successfully
+  workflow_run:
+    workflows: ["Generate Weekly Devotions (Fri–Thu)"]
+    types: [completed]
+
+  # Safety net: also run every day around 3:35am Eastern
+  schedule:
+    - cron: "35 8 * * *"   # ~03:35 EST
+    - cron: "35 7 * * *"   # ~03:35 EDT
+
+  # Manual button in Actions
+  workflow_dispatch: {}
+
+concurrency:
+  group: daily-devotion
+  cancel-in-progress: true
+
+jobs:
+  update-devotion:
+    # If triggered by weekly, only proceed on success
+    if: >
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      APP_TZ: America/New_York
+
+    steps:
+      - name: Checkout repo (main, full history)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Soft check: do NOT fail here. Expose an output we can branch on.
+      - name: Sanity check weeklyfeed for today
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          tz = os.environ.get("APP_TZ","America/New_York")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+
+          try:
+            with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+              data = json.load(f)
+          except Exception:
+            with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write("found=false\n")
+            print("found=false")
+            sys.exit(0)
+
+          ok = any(isinstance(e,dict) and str(e.get("date","")).strip()==today for e in data)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+            out.write(f"found={'true' if ok else 'false'}\n")
+          print(f"found={'true' if ok else 'false'}")
+          PY
+
+      # If today is missing, generate just today's entry into weeklyfeed.json
+      - name: Auto-refresh weeklyfeed.json for today (1-day) if missing
+        if: steps.check.outputs.found != 'true'
+        env:
+          APP_TZ: ${{ env.APP_TZ }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+          GEN_MODEL: gpt-5-mini
+          GEN_FALLBACK: gpt-5-mini
+          GEN_TEMP: "1"
+          GEN_TEMP_REPAIR: "1"
+          GEN_TEMP_QUOTE: "1"
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_DATE="$(TZ=$APP_TZ date +%Y-%m-%d)" DAYS=1 USCCB_STRICT=0 \
+          python3 scripts/generate_weekly.py
+          echo "Refreshed weeklyfeed.json for $START_DATE"
+
+      # Re-verify after refresh; now fail if still missing
+      - name: Re-verify presence of today after refresh
+        if: steps.check.outputs.found != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          tz = os.environ.get("APP_TZ","America/New_York")
+          today = datetime.now(ZoneInfo(tz)).date().isoformat()
+          with open("public/weeklyfeed.json","r",encoding="utf-8") as f:
+            data = json.load(f)
+          ok = any(isinstance(e,dict) and str(e.get("date","")).strip()==today for e in data)
+          if not ok:
+            print(f"[fatal] Today {today} still not present after refresh.")
+            sys.exit(1)
+          print(f"Found {today} after refresh; continuing.")
+          PY
+
+      - name: "Optional - log saint.json availability (non-fatal)"
+        run: |
+          echo "Checking saint.json…"
+          set -e
+          curl -I https://dailylectio.org/saint.json || true
+          curl -fsSL https://dailylectio.org/saint.json | head -c 400 || echo "saint.json not available (skipping override)"
+          echo
+
+      - name: Run daily devotion update (Python)
+        run: |
+          python3 update_daily_devotion.py --tz "$APP_TZ" --skip-dist
+
+      - name: Commit and push changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+          git config --local user.name  "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/devotions.json public/past_reflections/ public/past_reflections/index.json
+          git add -f dist/devotions.json || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Daily devotion update for $(TZ=$APP_TZ date +%Y-%m-%d)"
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main

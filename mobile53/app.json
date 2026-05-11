@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Lectio Links",
+    "slug": "faithlinks-app",
+    "scheme": "lectiolinks",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-notifications"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dailyword.lectiolinks"
+    },
+    "android": {
+      "package": "com.dailyword.lectiolinks"
+    },
+    "extra": {
+      "FEED_URL": "https://dailylectio.org/devotions.json",
+      "BACKEND_URL": "https://calm-ttxp.vercel.app/api",
+      "BRAND": {
+        "marianBlue": "#1F6BB5",
+        "gold": "#D4AF37",
+        "black": "#000000"
+      },
+      "eas": {
+        "projectId": "ae9d8e6f-42af-44f2-9c86-0f56dc4e4e9c"
+      }
+    },
+    "owner": "faithlinks"
+  }
+}

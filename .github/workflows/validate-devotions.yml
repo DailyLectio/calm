@@ -1,0 +1,39 @@
+name: Validate Devotions JSON
+
+on:
+  push:
+    paths:
+      - 'public/devotions.json'
+      - 'schemas/devotion.schema.json'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install jq jsonschema
+
+      - name: Snapshot — show key values from first array element
+        run: |
+          if [ ! -s public/devotions.json ]; then
+            echo "No public/devotions.json to snapshot; exiting."
+            exit 0
+          fi
+          echo "date\tcycle\tweekdayCycle"
+          jq -r '.[0] | "\(.date)\t\(.cycle)\t\(.weekdayCycle)"' public/devotions.json
+
+      - name: Run JSON Schema validation
+        run: |
+          chmod +x scripts/validate_devotions_advanced.py
+          ./scripts/validate_devotions_advanced.py
