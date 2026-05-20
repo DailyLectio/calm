@@ -194,6 +194,10 @@ def fetch_readings_usccb(date: dt.date) -> Tuple[str, str, str, str]:
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
 
+    # Detect Cloudflare/Obolus bot-protection challenge page (served as 200 or 403)
+    if "X_Obolus_Proof" in r.text or "Checking connection" in r.text:
+        raise ValueError(f"USCCB bot-protection challenge for {ymd(date)} — skipping")
+
     first, second, psalm, gospel = parse_usccb_dom(r.text, sunday=is_sunday(date))
 
     if not any([first, psalm, gospel]):
@@ -210,14 +214,16 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     text = soup.get_text(" ", strip=True)
 
     def grab(label: str, next_labels: List[str]) -> str:
-        pattern = rf"{re.escape(label)}\s*(.+?)(?=" + "|".join(map(re.escape, next_labels)) + r"|$)"
-        m = re.search(pattern, text)
+        stops = list(next_labels) + ["Lectionary:", "First Reading:", "Second Reading:"]
+        alt = "|".join(map(re.escape, stops))
+        pattern = rf"{re.escape(label)}\s*(.+?)(?={alt}|$)"
+        m = re.search(pattern, text, re.DOTALL)
         return m.group(1).strip() if m else ""
 
     first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:"])
     psalm  = grab("Responsorial Psalm:", ["Alleluia:", "Gospel:"])
     second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
-    gosp   = grab("Gospel:", [])
+    gosp   = grab("Gospel:", ["Lectionary:", "First Reading:"])
 
     def norm(s: str) -> str:
         s = re.sub(r'\s+', ' ', s)
@@ -234,8 +240,9 @@ def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
 
     def grab(label: str) -> str:
         m = re.search(
-            rf"{re.escape(label)}\s*([^R]+?)(?=\s+Responsorial Psalm,|\s+Gospel,|$)",
+            rf"{re.escape(label)}\s*(.+?)(?=\s+(?:Reading\s+\d+,|Responsorial Psalm,|Gospel,|Alleluia,|Printable)|$)",
             text,
+            re.DOTALL,
         )
         return m.group(1).strip() if m else ""
 
