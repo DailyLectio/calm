@@ -1,56 +1,50 @@
+# Daily Lectio Data Site
 
----
+This repository publishes the JSON feeds used by the Daily Lectio website and connected mobile/front-end clients. Vercel serves files from `public/` at the site root, so `public/devotions.json` becomes `/devotions.json`, `public/weeklyfeed.json` becomes `/weeklyfeed.json`, and `public/saint.json` becomes `/saint.json`.
 
-## How It Works
+## Live JSON Feeds
 
-1. **Content Editors** update `public/weeklyfeed.json` with devotion entries for each day (each entry has a `date` field in `YYYY-MM-DD` format).
+- `public/devotions.json` is the daily live devotion feed. It is generated from the weekly feed by `update_daily_devotion.py`.
+- `public/weeklyfeed.json` is the rolling source feed for daily Scripture reflections. Each entry uses a `date` field in `YYYY-MM-DD` format plus reflection fields such as `quote`, `firstReading`, `psalmSummary`, `gospelSummary`, `saintReflection`, `dailyPrayer`, `theologicalSynthesis`, `exegesis`, tags, reading references, and source links.
+- `public/saint.json` is the current saint reflection feed. It is an array of daily records with `date`, `saintName`, `memorial`, `source`, `saintAlt1`, `saintAlt2`, `profile`, and `link`.
+- `public/past_reflections/` stores archived daily devotion snapshots by year/month/date, with `public/past_reflections/index.json` as the archive index.
+- `public/archive/` and `public/feeds/` hold legacy and generated feed artifacts used for backups, testing, or older clients.
 
-2. **GitHub Actions** runs daily (configured in `.github/workflows/daily-devotion-update.yml`):
-   - Runs the Node.js script `.github/scripts/updateDevotion.js`.
-   - Script reads `weeklyfeed.json`, filters out today's devotion, and overwrites `devotions.json`.
-   - Commits and pushes this updated file back to the repository.
+## Automation
 
-3. **Vercel** auto-deploys on repo changes, serving the latest daily devotions JSON.
+- `.github/workflows/daily-devotion-update.yml` runs daily and can also be started manually. It checks whether today's entry exists in `public/weeklyfeed.json`, generates a one-day fallback if needed, runs `update_daily_devotion.py`, and commits updates to `public/devotions.json` plus the past-reflections archive.
+- `.github/workflows/generate-weekly.yml` generates the weekly devotion feed.
+- `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to refresh `public/saint.json` using `scripts/generate_saints.py`.
+- `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
-4. **Framer front-end** fetches `devotions.json` dynamically and displays devotion content based on categories (quote, psalm, readings, etc.).
+## Updating Content
 
----
+To update daily devotion content, edit or regenerate `public/weeklyfeed.json`, then let the daily workflow produce `public/devotions.json`.
 
-## How to Set Up Locally
+To update saint reflections, edit or regenerate `public/saint.json`. The website expects the same record structure for every day:
 
-- Clone this repo.
-- Modify `public/weeklyfeed.json` to add/edit weekly devotion data.
-- The `.github/workflows/daily-devotion-update.yml` and `.github/scripts/updateDevotion.js` manage daily JSON updates via GitHub Actions.
-
----
-
-## GitHub Actions Notes
-
-- Requires a **Personal Access Token (PAT)** stored as the secret `GH_PAT` with `repo` scope to allow workflow pushes.
-- Workflow runs daily (set by cron) and can be triggered manually from the GitHub Actions tab.
-
----
+```json
+{
+  "date": "YYYY-MM-DD",
+  "saintName": "Saint Name",
+  "memorial": "Memorial",
+  "source": "USCCB 2026 Liturgical Calendar",
+  "saintAlt1": "Alternate name",
+  "saintAlt2": "",
+  "profile": "Short saint reflection for display.",
+  "link": "https://source.example"
+}
+```
 
 ## Deployment
 
-- Hosted on [Vercel](https://vercel.com), connected to this GitHub repo.
-- Make sure to redeploy manually or push changes to `weeklyfeed.json` to see updates.
+The site is hosted on Vercel and connected to this GitHub repository. Pushing changes to `main` triggers a deployment so the website can fetch the latest JSON feeds.
 
----
+## Troubleshooting
 
-## Troubleshooting & FAQs
+- If the website is stale, check the relevant public file first: `/devotions.json`, `/weeklyfeed.json`, or `/saint.json`.
+- If daily updates are not refreshing, check the GitHub Actions run for `Update Daily Devotion`.
+- Make sure `GH_PAT`, `OPENAI_API_KEY`, and `OPENAI_PROJECT` secrets are current where the workflows require them.
+- Keep all feed dates in `YYYY-MM-DD` format. The automation uses the `America/New_York` timezone.
 
-- If daily updates are not refreshing, check the Actions tab for workflow run status.
-- Make sure the `GH_PAT` secret is up to date and has sufficient permissions.
-- Verify the date format in `weeklyfeed.json` matches `YYYY-MM-DD` (US Eastern timezone used in update script).
-
----
-
-## Contact & Support
-
-For help, open an issue or contact the maintainer.
-
----
-
-*This project is maintained by Daily Lectio Media LLC
-
+This project is maintained by Daily Lectio Media LLC.
