@@ -1,8 +1,16 @@
 # Framer presentation source — Archives repair
 
-`DevotionsArchive.tsx` is the reviewed-source candidate for the existing FaithLinks 2.0 Framer code file of the same name. Git changes do not automatically update that separate Framer project. Installation/publishing status must be verified independently.
+`DevotionsArchive.tsx` is the reviewed source for the existing FaithLinks 2.0 Framer code file of the same name. Git changes do not automatically update that separate Framer project. Installation/publishing status must be verified independently.
 
-Status on 2026-08-30: installed in Framer as an operator-approved **unpublished draft**, with no strict typecheck diagnostics. The draft's Search Index URL is pinned to Git review commit `ca42821d8e54ce5216cc9290ca91a92621e26e7e` under `raw.githubusercontent.com/DailyLectio/calm/.../public/past_reflections/search-v1.json`. It is a test data source, not the daily production URL. Before publishing, merge/rebuild/verify the backend, change that property to the primary endpoint below, and obtain operator approval. Framer reports no staging and would publish directly to production.
+Status on 2026-08-30: **published with operator approval** to `https://www.lectiolinks.com/archives`, Framer version `3a6227de5`. Backend release `2ce847e51a0760dfb7d73ed33ff3a39851e14968` was fast-forwarded to main and deployed successfully to both existing Vercel projects. Both data domains matched that Git baseline. All three Framer breakpoint instances now use the primary endpoint below, not the pinned Git review URL. Strict Framer typecheck returned no diagnostics; post-publication preview reported no remaining changes, errors or warnings. Live browser checks passed for 347 saved reflections through August 30, historical-date search, full detail, Clear filters, pagination and Refresh. All 82 Python tests passed before release.
+
+### Staging decision
+
+Settings > Versions shows **Staging — UPGRADE** on the current project. Staging remains disabled; no plan or billing change was made. Publishing currently updates production directly. The operator approved this release after reviewing the unpublished draft. A paid staging upgrade requires separate operator approval.
+
+If staging is approved and enabled later: publish the reviewed draft to the Framer staging URL, test it, obtain operator approval, then deploy that exact version to the production custom domain. Verify staging is actually enabled before assuming Publish is safe for preview. See [Framer staging and versions](https://www.framer.com/help/articles/staging-and-versions/).
+
+Framer staging isolates presentation changes only. The component's external production JSON still changes with the daily Git/Vercel workflow. Use a pinned public review index for draft data tests, and switch back to the primary endpoint before production release. Monthly saints remain manual: Codex prepares, operator reviews, Codex commits/pushes and verifies data deployment. Routine data changes do not require republishing unchanged Framer code.
 
 ## Data contract
 
