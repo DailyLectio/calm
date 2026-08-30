@@ -57,6 +57,9 @@ jobs:
 
   publish:
     needs: prepare
+    permissions:
+      contents: write
+      actions: write
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -68,7 +71,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -79,3 +82,7 @@ jobs:
           path: artifacts
       - name: Validate and safely merge prepared data; no regeneration on retries
         run: python -m scripts.publish_feed --mode weekly
+      - name: Explicitly trigger validation (workflow-token pushes do not trigger push Actions)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m scripts.dispatch_validation

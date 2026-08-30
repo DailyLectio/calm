@@ -9,25 +9,43 @@ on:
       - '.github/workflows/generate-weekly.yml'
       - 'scripts/publish_feed.py'
       - 'scripts/verify_publishing_identity.py'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      publish_probe:
+        description: 'Test a real non-forced bot push with an empty commit; changes no files'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   identity:
+    permissions:
+      contents: write
+      actions: write
+    concurrency:
+      group: production-feed-writer
+      queue: max
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: python -m pip install -r requirements-saints.txt
       - name: Check real publisher credentials without changing production
         env:
-          PUBLISH_TOKEN: ${{ secrets.GH_PAT }}
+          PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -m scripts.verify_publishing_identity
+      - name: Explicitly requested real publishing probe (no content changes)
+        if: inputs.publish_probe
+        env:
+          PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m scripts.verify_publishing_identity --publish-probe

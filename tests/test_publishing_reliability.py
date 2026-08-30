@@ -14,7 +14,8 @@ from scripts.feed_io import write_json, read_array
 from scripts import check_live_publication as health
 from scripts import publish_feed as publisher, generate_weekly
 from scripts.prepare_publication import prepare, release_friday
-from scripts.report_publication_health import MARKER, report_health
+from scripts.report_publication_health import MARKER, TITLE, report_health
+from scripts.dispatch_validation import dispatch
 from scripts.saints_feed import reflection
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -180,6 +181,12 @@ class GitPublisherTests(unittest.TestCase):
 
 
 class HealthTests(unittest.TestCase):
+    def test_missing_browser_cors_permission_is_not_a_healthy_json_response(self):
+        response = Mock(headers={"Content-Type": "application/json"})
+        with patch.object(health.requests, "get", return_value=response):
+            with self.assertRaisesRegex(ValueError, "CORS"):
+                health.fetch_json("https://dailylectio.org/devotions.json")
+
     def setUp(self):
         self.now = datetime(2026, 9, 1, 6, tzinfo=ZoneInfo("America/New_York"))
         self.expected = {"devotions.json": [row("2026-09-01")],
@@ -252,13 +259,14 @@ class AlertTests(unittest.TestCase):
     def test_repeated_identical_failure_does_not_spam(self):
         body = f"{MARKER}\n<!-- failure:{health.fingerprint('stale')} -->"
         api = Mock()
-        api.call.return_value = [{"number": 1, "body": body, "html_url": "url"}]
+        api.call.return_value = [{"number": 1, "title": TITLE, "user": {"login": "github-actions[bot]"}, "body": body, "html_url": "url"}]
         report_health(api, {"ok": False, "error": "stale"}, "run")
         self.assertEqual(api.call.call_count, 1)
 
     def test_recovery_closes_only_owned_incident(self):
         api = Mock()
-        api.call.side_effect = [[{"number": 8, "body": "Other user issue"}, {"number": 9, "body": MARKER}], {}, {}]
+        api.call.side_effect = [[{"number": 8, "title": TITLE, "body": MARKER, "user": {"login": "some-user"}},
+                                {"number": 9, "title": TITLE, "body": MARKER, "user": {"login": "github-actions[bot]"}}], {}, {}]
         report_health(api, {"ok": True}, "run")
         api.call.assert_called_with("PATCH", "issues/9", {"state": "closed"})
 
@@ -270,6 +278,14 @@ class AlertTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_explicit_dispatch_uses_workflow_token_without_putting_it_in_url(self):
+        session = Mock()
+        dispatch("offline-test-token", "DailyLectio/calm", session)
+        url = session.post.call_args.args[0]
+        self.assertNotIn("offline-test-token", url)
+        self.assertEqual(session.post.call_args.kwargs["json"], {"ref": "main"})
+        session.post.return_value.raise_for_status.assert_called_once()
+
     def workflow(self, name):
         # BaseLoader keeps YAML 1.1's 'on' and booleans as strings, matching Actions keys.
         return yaml.load((ROOT / ".github/workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
@@ -280,6 +296,8 @@ class WorkflowTests(unittest.TestCase):
             queue = flow["jobs"]["publish"]["concurrency"]
             self.assertEqual(queue, {"group": "production-feed-writer", "queue": "max", "cancel-in-progress": "false"})
             self.assertEqual(flow["jobs"]["publish"]["needs"], "prepare")
+            self.assertEqual(flow["jobs"]["publish"]["permissions"], {"contents": "write", "actions": "write"})
+            self.assertNotIn("GH_PAT", json.dumps(flow))
             self.assertTrue(all(s["timezone"] == "America/New_York" for s in flow["on"]["schedule"]))
 
     def test_validation_runs_even_for_documentation_only_pull_requests(self):

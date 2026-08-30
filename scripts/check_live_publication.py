@@ -22,6 +22,11 @@ def fetch_json(url):
     response = requests.get(url, timeout=20, headers={"User-Agent": "DailyLectio-publication-health",
                             "Cache-Control": "no-cache", "Origin": "https://www.lectiolinks.com"})
     response.raise_for_status()
+    if any(url.startswith(host + "/") for host in HOSTS):
+        if "application/json" not in response.headers.get("Content-Type", "").lower():
+            raise ValueError(f"{url}: response is not served as JSON")
+        if response.headers.get("Access-Control-Allow-Origin") not in ("*", "https://www.lectiolinks.com"):
+            raise ValueError(f"{url}: CORS does not allow the LectioLinks website")
     return response.json()
 
 

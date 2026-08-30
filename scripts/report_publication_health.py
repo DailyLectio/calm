@@ -40,7 +40,9 @@ def report_health(api, report, run_url, assignee="DailyLectio", test=False):
         if len(batch) < 100:
             break
         page += 1
-    incident = next((i for i in issues if "pull_request" not in i and MARKER in (i.get("body") or "")), None)
+    incident = next((i for i in issues if "pull_request" not in i and i.get("title") == TITLE
+                     and i.get("user", {}).get("login") == "github-actions[bot]"
+                     and MARKER in (i.get("body") or "")), None)
     if report["ok"]:
         if incident:
             api.call("POST", f"issues/{incident['number']}/comments", {"body": f"Publication verified healthy.\n\n{run_url}"})

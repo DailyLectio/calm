@@ -18,7 +18,7 @@ This repository publishes the JSON feeds used by the Daily Lectio website and co
 - `.github/workflows/check-saints-readiness.yml` checks the next complete month on the 20th through the 31st, or a manually selected month. Missing or incomplete days fail visibly in Actions; notification delivery depends on the repository/user's GitHub notification settings.
 - `.github/workflows/validate-publication.yml` checks maintained Python syntax, conflict markers, regression tests and published/rolling feeds on every `main` push and every pull request, including documentation-only changes. In-job validation remains essential; this check is not an enforced branch-protection or deployment gate.
 - `.github/workflows/publication-health.yml` verifies real public content at 06:00 Eastern, hourly at :17 from 07:00–23:00, after publisher runs, and on relevant pushes. Failure opens one incident issue assigned to `DailyLectio`; changed failures update it and recovery closes it. Override the recipient with repository variable `PUBLICATION_HEALTH_ASSIGNEE`. Notification receipt depends on that account's GitHub settings.
-- `.github/workflows/verify-publishing-identity.yml` checks the actual `GH_PAT` identity, repository push permission and a non-writing Git push dry run before any future protection policy is enforced.
+- `.github/workflows/verify-publishing-identity.yml` checks the job-scoped workflow token and Git push transport before future protection is enforced. An explicitly requested manual probe can test a real bot push with an empty commit; no file content changes.
 - `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
 ## Updating Content
@@ -76,7 +76,7 @@ The site is hosted on Vercel and connected to this GitHub repository. Pushing ch
 
 - If the website is stale, check the relevant public file first: `/devotions.json`, `/weeklyfeed.json`, or `/saint.json`.
 - If daily updates are not refreshing, check the GitHub Actions run for `Update Daily Devotion`.
-- Make sure `GH_PAT`, `OPENAI_API_KEY`, and `OPENAI_PROJECT` secrets are current where the workflows require them.
+- Keep `OPENAI_API_KEY` and `OPENAI_PROJECT` current. Production writers use GitHub's short-lived `GITHUB_TOKEN`, not the old failing `GH_PAT`; validation is explicitly dispatched after publishing.
 - Keep all feed dates in `YYYY-MM-DD` format. The automation uses the `America/New_York` timezone.
 
 This project is maintained by Daily Lectio Media LLC.
