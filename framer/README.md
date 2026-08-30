@@ -2,6 +2,8 @@
 
 `DevotionsArchive.tsx` is the reviewed-source candidate for the existing FaithLinks 2.0 Framer code file of the same name. Git changes do not automatically update that separate Framer project. Installation/publishing status must be verified independently.
 
+Status on 2026-08-30: installed in Framer as an operator-approved **unpublished draft**, with no strict typecheck diagnostics. The draft's Search Index URL is pinned to Git review commit `ca42821d8e54ce5216cc9290ca91a92621e26e7e` under `raw.githubusercontent.com/DailyLectio/calm/.../public/past_reflections/search-v1.json`. It is a test data source, not the daily production URL. Before publishing, merge/rebuild/verify the backend, change that property to the primary endpoint below, and obtain operator approval. Framer reports no staging and would publish directly to production.
+
 ## Data contract
 
 - Primary endpoint: `https://www.dailylectio.org/past_reflections/search-v1.json`.
