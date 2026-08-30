@@ -72,6 +72,12 @@ During each year's editorial review, compare these fixtures and reading/feast ex
 
 ## Deployment
 
+### Server-backed Archives repair candidate
+
+The Archives search index is derived from saved reflections, without rewriting historical files. Run `python -m scripts.build_archive_search` after an approved manual archive correction; daily publishing maintains it automatically. `python -m scripts.build_archive_search --check` verifies complete coverage and freshness. The endpoint is `/past_reflections/search-v1.json`; the existing `/past_reflections/index.json` contract is unchanged.
+
+The separate Framer component candidate, installation steps, cache/refresh behavior and operator-review release checklist are documented in [framer/README.md](framer/README.md). Git pushes do **not** install or publish Framer code. This candidate is not a claim that the public Archives page has been updated.
+
 The site is hosted on Vercel and connected to this GitHub repository. Pushing changes to `main` triggers a deployment so the website can fetch the latest JSON feeds.
 
 ## Troubleshooting

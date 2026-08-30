@@ -15,7 +15,7 @@ from scripts.validate_publication import validate_rows
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "DailyLectio/calm"
 HOSTS = ("https://dailylectio.org", "https://www.dailylectio.org")
-FILES = ("devotions.json", "weeklyfeed.json", "saint.json")
+FILES = ("devotions.json", "weeklyfeed.json", "saint.json", "past_reflections/search-v1.json")
 
 
 def fetch_json(url):

@@ -24,3 +24,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Validate published and rolling feeds
         run: python -m scripts.validate_publication
+      - name: Verify archive search matches every saved snapshot
+        run: python -m scripts.build_archive_search --check

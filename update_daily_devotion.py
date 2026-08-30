@@ -11,6 +11,7 @@ from scripts.feed_io import read_array
 from scripts.liturgical_calendar import sunday_cycle, weekday_cycle
 from scripts.saints_feed import select_saint, reflection
 from scripts.validate_publication import validate_rows
+from scripts.build_archive_search import build as build_archive_search, SEARCH_NAME
 
 # ---------- Paths ----------
 BASE_DIR = Path(__file__).resolve().parent
@@ -256,6 +257,7 @@ def main() -> None:
     # Fail before writing any output if the archive index is damaged.
     if INDEX_PATH.exists():
         read_array(INDEX_PATH)
+    search_payload = build_archive_search(ARCHIVE_DIR, payload)
 
     print(f"[info] writing {PUBLIC_TARGET} (count={len(payload)}) skip_dist={args.skip_dist} dry={args.dry_run}")
     if args.dry_run:
@@ -269,6 +271,7 @@ def main() -> None:
 
     for e in payload:
         archive_entry(e)
+    atomic_write_json(ARCHIVE_DIR / SEARCH_NAME, search_payload)
 
 if __name__ == "__main__":
     main()

@@ -167,6 +167,9 @@ class GitPublisherTests(unittest.TestCase):
         self.assertEqual(daily["date"], "2026-09-01")
         self.assertEqual(self.published("public/past_reflections/2026/09/2026-09-01.json"), daily)
         self.assertEqual(self.published("public/past_reflections/index.json")[0]["date"], daily["date"])
+        search = self.published("public/past_reflections/search-v1.json")
+        self.assertEqual(search["entries"][0]["date"], daily["date"])
+        self.assertEqual(search["entries"][0]["synthesis"], daily["theologicalSynthesis"])
         self.assertEqual(len(self.published()), 2)
 
     def test_daily_future_or_midnight_crossing_never_pushes(self):
@@ -191,7 +194,8 @@ class HealthTests(unittest.TestCase):
         self.now = datetime(2026, 9, 1, 6, tzinfo=ZoneInfo("America/New_York"))
         self.expected = {"devotions.json": [row("2026-09-01")],
                          "weeklyfeed.json": [row(f"2026-09-{d:02}") for d in range(1, 4)],
-                         "saint.json": [saint(f"2026-09-{d:02}") for d in range(1, 4)]}
+                         "saint.json": [saint(f"2026-09-{d:02}") for d in range(1, 4)],
+                         "past_reflections/search-v1.json": {"schemaVersion": 1, "revision": "offline-fixture"}}
         self.live = {f"https://test/{key}": copy.deepcopy(value) for key, value in self.expected.items()}
         self.live["https://test/past_reflections/2026/09/2026-09-01.json"] = row("2026-09-01")
         self.live["https://test/past_reflections/index.json"] = [dict(row("2026-09-01"), path="/past_reflections/2026/09/2026-09-01.json")]
@@ -243,10 +247,15 @@ class HealthTests(unittest.TestCase):
 
     def test_remote_baseline_pins_all_files_to_one_sha(self):
         sha = "b" * 40
-        fetch = Mock(side_effect=[{"sha": sha}, [], [], []])
+        fetch = Mock(side_effect=[{"sha": sha}, [], [], [], {}])
         self.assertEqual(health.baseline(True, fetch=fetch)[0], sha)
         for call in fetch.call_args_list[1:]:
             self.assertIn("/" + sha + "/public/", call.args[0])
+
+    def test_stale_search_revision_fails_live_health(self):
+        self.live["https://test/past_reflections/search-v1.json"]["revision"] = "stale"
+        with self.assertRaisesRegex(ValueError, "same-date edits"):
+            self.check()
 
 
 class AlertTests(unittest.TestCase):

@@ -101,6 +101,7 @@ def publish(candidate, mode, root=ROOT, retries=3, today=None, before_push=None)
                                     "--skip-dist"], cwd=scratch, check=True)
                     validate_rows(read_array(scratch / "public/devotions.json"), expected_dates=[current_day])
                     paths += ["public/devotions.json", "public/past_reflections/index.json",
+                              "public/past_reflections/search-v1.json",
                               f"public/past_reflections/{current_day[:4]}/{current_day[5:7]}/{current_day}.json"]
                 git(scratch, "add", "--", *paths)
                 changed = git(scratch, "diff", "--cached", "--name-only").stdout.splitlines()

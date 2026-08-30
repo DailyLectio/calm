@@ -1,6 +1,15 @@
 {
   "headers": [
     {
+      "source": "/past_reflections/:path*",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
       "source": "/saint.json",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
