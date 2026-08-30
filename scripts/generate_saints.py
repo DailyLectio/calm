@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-Generates public/saint.json…
+Adds missing monthly records to public/saint.json without replacing history.
 """
-import os, sys, json, re, time, datetime as dt
+import os, sys, json, re, time, tempfile, datetime as dt
 from typing import List, Dict, Any
-from pathlib import Path              # ← add this line
+from pathlib import Path
+from zoneinfo import ZoneInfo
 import requests
 from bs4 import BeautifulSoup
 
 TZ = os.getenv("APP_TZ","America/New_York")
+FIELDS = ("date", "saintName", "memorial", "source", "saintAlt1", "saintAlt2", "profile", "link")
 
 def log(*args):
     if os.getenv("VERBOSE","1") != "0":
@@ -32,12 +34,42 @@ def month_range(start: dt.date, months:int) -> List[dt.date]:
     return dates
 
 def try_load_existing(path="public/saint.json") -> Dict[str, Any]:
+    """A missing file can be initialized; a corrupt file must never be replaced."""
     try:
         with open(path,"r",encoding="utf-8") as f:
             arr = json.load(f)
-        return {x.get("date"): x for x in arr if isinstance(x, dict) and "date" in x}
-    except Exception:
+    except FileNotFoundError:
         return {}
+    if not isinstance(arr, list):
+        raise ValueError("Existing saint.json must be an array")
+    existing = {}
+    for row in arr:
+        if not isinstance(row, dict) or any(not isinstance(row.get(k), str) for k in FIELDS):
+            raise ValueError("Existing saint.json has an invalid record or field type")
+        date = row["date"]
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            raise ValueError(f"Invalid saint date: {date!r}")
+        dt.date.fromisoformat(date)
+        if date in existing:
+            raise ValueError(f"Duplicate saint date: {date}")
+        existing[date] = row
+    return existing
+
+
+def write_records(path: Path, records: List[Dict[str, Any]]) -> None:
+    """Replace only a fully serialized file, keeping the old file on failure."""
+    payload = json.dumps(records, ensure_ascii=False, indent=4) + "\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(payload)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 HEADERS = {"User-Agent": "FaithLinksSaintsBot/1.0"}
 
@@ -65,10 +97,7 @@ def scrape_usccb(date: dt.date) -> Dict[str,str]:
 def build_record(date: dt.date, existing: Dict[str,Any]) -> Dict[str,Any]:
     iso = date.isoformat()
     if iso in existing:
-        rec = existing[iso].copy()
-        rec["date"] = iso
-        rec.setdefault("source","(existing)")
-        return rec
+        return existing[iso].copy()
     data = {"date": iso, "saintName":"", "memorial":"", "source":"", "saintAlt1":"", "saintAlt2":"", "profile":"", "link":""}
     try:
         u = scrape_usccb(date)
@@ -81,33 +110,43 @@ def build_record(date: dt.date, existing: Dict[str,Any]) -> Dict[str,Any]:
 
 def main():
     start_month = os.getenv("START_MONTH","").strip()
-    months = int(os.getenv("MONTHS","1"))
     try:
+        months = int(os.getenv("MONTHS", "").strip() or "1")
+        if not 1 <= months <= 12:
+            raise ValueError("MONTHS must be between 1 and 12")
         if start_month:
+            if not re.fullmatch(r"\d{4}-\d{2}", start_month):
+                raise ValueError("START_MONTH must be YYYY-MM")
             y, m = map(int, start_month.split("-"))
             start = dt.date(y, m, 1)
         else:
-            today = dt.date.today()
+            today = dt.datetime.now(ZoneInfo(TZ)).date()
             y = today.year + (1 if today.month==12 else 0)
             m = 1 if today.month==12 else today.month+1
             start = dt.date(y, m, 1)
     except Exception:
-        print("Invalid START_MONTH; expected YYYY-MM", file=sys.stderr)
+        print("Invalid month configuration: use START_MONTH=YYYY-MM, MONTHS=1..12 and a valid APP_TZ", file=sys.stderr)
         sys.exit(2)
 
+    # Validate the entire requested range before any scraping or writing.
+    dates = month_range(start, months)
     existing = try_load_existing()
-    out: List[Dict[str,Any]] = []
+    merged = dict(existing)
+    added = 0
 
-    for d in month_range(start, months):
-        rec = build_record(d, existing)
-        out.append(rec)
+    for d in dates:
+        if d.isoformat() in existing:
+            continue
+        merged[d.isoformat()] = build_record(d, existing)
+        added += 1
         time.sleep(0.7)
 
-    out.sort(key=lambda x: x.get("date",""))
-    Path("public").mkdir(parents=True, exist_ok=True)
-    with open("public/saint.json","w",encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=4)
-    log("Wrote public/saint.json with", len(out), "records")
+    if not added:
+        log("All requested dates already exist; saint.json left unchanged")
+        return
+    out = [merged[date] for date in sorted(merged)]
+    write_records(Path("public/saint.json"), out)
+    log("Wrote public/saint.json with", len(out), "records; preserved", len(existing), "and added", added)
 
 if __name__ == "__main__":
     main()

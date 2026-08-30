@@ -14,7 +14,7 @@ This repository publishes the JSON feeds used by the Daily Lectio website and co
 
 - `.github/workflows/daily-devotion-update.yml` runs daily and can also be started manually. It checks whether today's entry exists in `public/weeklyfeed.json`, generates a one-day fallback if needed, runs `update_daily_devotion.py`, and commits updates to `public/devotions.json` plus the past-reflections archive.
 - `.github/workflows/generate-weekly.yml` generates the weekly devotion feed.
-- `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to refresh `public/saint.json` using `scripts/generate_saints.py`.
+- `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to add missing dates to `public/saint.json` using `scripts/generate_saints.py`. It preserves all existing dates and reviewed profiles, including months outside the requested range.
 - `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
 ## Updating Content
@@ -35,6 +35,16 @@ To update saint reflections, edit or regenerate `public/saint.json`. The website
   "link": "https://source.example"
 }
 ```
+
+### Monthly saints review and preservation
+
+Append each reviewed month to `public/saint.json`, retaining the eight fields above, all earlier records, and one unique record per date. Check complete calendar coverage and compare earlier records with the previous commit before publishing.
+
+The automatic monthly generator is a calendar scaffold, not a replacement for editorial review: newly scraped records can have blank profiles and need reviewed Catholic biographical/theological paragraphs. It never replaces existing records, including incomplete ones. To improve an existing date, edit it explicitly as part of the review process.
+
+`START_MONTH` defaults to next month in `America/New_York`; an absent or blank `MONTHS` defaults to one month (supported range 1–12). Invalid existing JSON, duplicate dates, or invalid field types stop generation without rewriting the file. When the month is already present, the file is left byte-for-byte unchanged. Writes use an atomic replacement, and monthly workflow runs are serialized.
+
+Run the offline regression suite with `python -m unittest discover -s tests -p 'test_generate_saints.py' -v` after installing `requests` and `beautifulsoup4` (also `tzdata` on Windows). Then check GitHub/Vercel status and the live `/saint.json`. A first-day `update_daily_devotion.py --date YYYY-MM-01 --dry-run --skip-dist` checks data readiness only; verify the actual website post on that date after the daily job runs.
 
 ## Deployment
 
