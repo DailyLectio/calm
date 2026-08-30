@@ -12,16 +12,20 @@ This repository publishes the JSON feeds used by the Daily Lectio website and co
 
 ## Automation
 
-- `.github/workflows/daily-devotion-update.yml` installs `requirements-devotions.txt`, checks today's Eastern-calendar date, and generates only a missing source day. The validated recovery record is merged into `public/weeklyfeed.json` without replacing other dates. The job validates before publishing and before committing the source, daily feed, and archive.
-- `.github/workflows/generate-weekly.yml` generates and validates the weekly devotion feed. Both generators retain their existing `gpt-5-mini` model settings.
+- `.github/workflows/daily-devotion-update.yml` prepares today's Eastern-calendar date at 03:35, retries at 04:35, and also runs after successful weekly preparation/publication. It generates only a missing source day. A separate queued publisher validates and merges against fresh `main`, then commits the source, daily feed, and current archive together.
+- `.github/workflows/generate-weekly.yml` prepares the upcoming Friday–Thursday window on Thursday at 03:05 Eastern. It retains all existing dates and reviewed overlaps. Both generators retain their existing `gpt-5-mini` model settings.
 - `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to create review-only calendar drafts with `scripts/generate_saints.py`. It never changes the published saints file. Drafts are retained as GitHub Actions artifacts for 30 days.
 - `.github/workflows/check-saints-readiness.yml` checks the next complete month on the 20th through the 31st, or a manually selected month. Missing or incomplete days fail visibly in Actions; notification delivery depends on the repository/user's GitHub notification settings.
-- `.github/workflows/validate-publication.yml` runs regression tests and validates published/rolling devotion feeds on relevant pushes and pull requests. It replaces the disabled legacy validation workflow. In-job validation remains essential because some bot pushes do not trigger other Actions workflows; this check is not a branch-protection or deployment gate.
+- `.github/workflows/validate-publication.yml` checks maintained Python syntax, conflict markers, regression tests and published/rolling feeds on every `main` push and every pull request, including documentation-only changes. In-job validation remains essential; this check is not an enforced branch-protection or deployment gate.
+- `.github/workflows/publication-health.yml` verifies real public content at 06:00 Eastern, hourly at :17 from 07:00–23:00, after publisher runs, and on relevant pushes. Failure opens one incident issue assigned to `DailyLectio`; changed failures update it and recovery closes it. Override the recipient with repository variable `PUBLICATION_HEALTH_ASSIGNEE`. Notification receipt depends on that account's GitHub settings.
+- `.github/workflows/verify-publishing-identity.yml` checks the actual `GH_PAT` identity, repository push permission and a non-writing Git push dry run before any future protection policy is enforced.
 - `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
 ## Updating Content
 
 To update daily devotion content, edit or regenerate `public/weeklyfeed.json`, then let the daily workflow produce `public/devotions.json`.
+
+The production operating procedure, candidate-artifact recovery, schedules, alert limitations, local Git synchronization and maintenance commands are in [the publishing runbook](docs/PUBLISHING.md). Retired experiments are preserved as non-executable reference files under [docs/retired](docs/retired/README.md). Mobile/template build dependencies and Framer settings have not been removed or consolidated.
 
 To update saint reflections, append reviewed records to `public/saint.json`. Automated drafts must be reviewed first. The website expects the same record structure for every day:
 

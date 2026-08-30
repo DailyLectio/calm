@@ -1,0 +1,74 @@
+name: Publication Health
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+      timezone: America/New_York
+    - cron: '17 7-23 * * *'
+      timezone: America/New_York
+  push:
+    branches: [main]
+    paths:
+      - 'public/devotions.json'
+      - 'public/weeklyfeed.json'
+      - 'public/saint.json'
+      - 'scripts/check_live_publication.py'
+      - 'scripts/report_publication_health.py'
+      - '.github/workflows/publication-health.yml'
+  workflow_run:
+    workflows: ['Update Daily Devotion', 'Generate Weekly Devotions (Fri–Thu)']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      alert_test:
+        description: 'Create and close an assigned synthetic notification test issue'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: publication-health
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements-devotions.txt
+      - name: Verify date, complete content, prepared coverage, both hosts and current snapshot
+        id: health
+        continue-on-error: true
+        run: python -m scripts.check_live_publication --remote-baseline --attempts 8 --delay 25
+      - name: Route failure or recovery to a deduplicated assigned incident
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEALTH_ASSIGNEE: ${{ vars.PUBLICATION_HEALTH_ASSIGNEE || 'DailyLectio' }}
+        run: python -m scripts.report_publication_health
+      - name: Test notification routing when explicitly requested
+        if: inputs.alert_test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEALTH_ASSIGNEE: ${{ vars.PUBLICATION_HEALTH_ASSIGNEE || 'DailyLectio' }}
+          ALERT_TEST: 'true'
+        run: python -m scripts.report_publication_health
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: publication-health
+          path: artifacts/publication-health.json
+          retention-days: 30
+      - name: Keep failures visible in Actions
+        if: always() && steps.health.outcome != 'success'
+        run: exit 1

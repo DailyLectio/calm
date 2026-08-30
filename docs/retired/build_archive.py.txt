@@ -1,3 +1,4 @@
+RETIRED: historical source only; not executable. See docs/retired/README.md.
 #!/usr/bin/env python3
 import json, sys
 from pathlib import Path

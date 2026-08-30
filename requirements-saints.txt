@@ -1,0 +1,4 @@
+# Calendar drafts and offline monthly tests; deliberately no model SDK.
+requests==2.34.2
+beautifulsoup4==4.15.0
+tzdata==2026.3

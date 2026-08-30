@@ -4,7 +4,7 @@
   "description": "Multipage site template",
   "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"No tests specified\" && exit 0",
+    "test": "python -m scripts.check_maintenance && python -m unittest discover -s tests -v && python -m scripts.validate_publication",
     "build": "gulp build && node -e \"require('fs').cpSync('public','dist',{recursive:true})\""
   },
   "author": "TemplateMonster",

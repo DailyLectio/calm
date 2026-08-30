@@ -1,27 +1,9 @@
 name: Validate Publication
-# New active workflow replaces the previously disabled legacy validation workflow.
+
 on:
   push:
-    paths:
-      - 'public/weeklyfeed.json'
-      - 'public/devotions.json'
-      - 'public/saint.json'
-      - 'scripts/**'
-      - 'tests/**'
-      - 'schemas/**'
-      - 'update_daily_devotion.py'
-      - 'requirements-devotions.txt'
-      - '.github/workflows/**'
-      - '.github/scripts/**'
-  pull_request:
-    paths:
-      - 'public/**'
-      - 'scripts/**'
-      - 'tests/**'
-      - 'schemas/**'
-      - 'update_daily_devotion.py'
-      - 'requirements-devotions.txt'
-      - '.github/**'
+    branches: [main]
+  pull_request: {}
   workflow_dispatch: {}
 
 permissions:
@@ -36,6 +18,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -r requirements-devotions.txt
+      - name: Maintained Python syntax and conflict-marker check
+        run: python -m scripts.check_maintenance
       - name: Offline regression suite
         run: python -m unittest discover -s tests -v
       - name: Validate published and rolling feeds

@@ -1,0 +1,33 @@
+name: Verify Publishing Identity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-publishing-identity.yml'
+      - '.github/workflows/daily-devotion-update.yml'
+      - '.github/workflows/generate-weekly.yml'
+      - 'scripts/publish_feed.py'
+      - 'scripts/verify_publishing_identity.py'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GH_PAT }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements-saints.txt
+      - name: Check real publisher credentials without changing production
+        env:
+          PUBLISH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python -m scripts.verify_publishing_identity

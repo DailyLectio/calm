@@ -1,3 +1,4 @@
+# RETIRED: kept for reference only; not an active GitHub workflow.
 name: Exp Markdown to JSON Devotions
 
 on:

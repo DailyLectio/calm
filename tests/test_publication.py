@@ -207,8 +207,9 @@ class FileTests(unittest.TestCase):
     def test_invalid_weekly_result_never_overwrites_source(self):
         self.seed([devotion()])
         before = self.feed.read_bytes()
-        with patch.dict(generate_weekly.os.environ, {"START_DATE": "2026-09-01", "DAYS": "1", "USCCB_PRECHECK": "0"}), \
-             patch.object(generate_weekly, "build_day_payload", return_value={"date": "2026-09-01"}), \
+        with patch.dict(generate_weekly.os.environ, {"START_DATE": "2026-10-01", "DAYS": "1", "USCCB_PRECHECK": "0"}), \
+             patch.object(generate_weekly, "saint_for_date", return_value=saint("2026-10-01")), \
+             patch.object(generate_weekly, "build_day_payload", return_value={"date": "2026-10-01"}), \
              patch.object(generate_weekly.time, "sleep"), patch.object(generate_weekly, "write_json") as write:
             with self.assertRaises(ValueError):
                 generate_weekly.main()

@@ -25,7 +25,7 @@ if __package__ in (None, ""):
 from scripts.liturgical_calendar import first_sunday_of_advent, sunday_cycle, weekday_cycle
 from scripts.saints_feed import select_saint, reflection
 from scripts.validate_publication import validate_rows
-from scripts.feed_io import write_json
+from scripts.feed_io import read_array, write_json
 
 # ===== Config =====
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
@@ -263,7 +263,7 @@ def fetch_readings_ewtn(date: dt.date) -> Tuple[str, str, str, str]:
     r = requests.get(url, headers=HEADERS, timeout=25)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
-    label = date.strftime("%B %-d").replace(" 0", " ")
+    label = f"{date:%B} {date.day}"
     txt = ""
     for el in soup.find_all(string=re.compile(label, re.I)):
         try:
@@ -613,8 +613,18 @@ def main():
 
     log(f"tz={APP_TZ} start={start} days={days} model={GEN_MODEL}")
 
+    if not 1 <= days <= 14:
+        raise ValueError("DAYS must be 1..14")
+    target = Path("public/weeklyfeed.json")
+    existing = read_array(target) if target.exists() else []
+    if existing:
+        validate_rows(existing)
+    by_date = {r["date"]: r for r in existing}
+    missing = [d for d in daterange(start, days) if ymd(d) not in by_date]
+    for d in missing:
+        saint_for_date(d)  # Preflight the whole window before any paid calls.
     rows = []
-    for d in daterange(start, days):
+    for d in missing:
         t0 = time.time()
         rows.append(build_day_payload(d))
         elapsed = time.time() - t0
@@ -622,9 +632,13 @@ def main():
             time.sleep(0.7 - elapsed)
 
     normalize_rows(rows)
-    validate_rows(rows, expected_dates=[ymd(d) for d in daterange(start, days)])
-    write_json(Path("public/weeklyfeed.json"), rows)
-    log(f"Wrote public/weeklyfeed.json ({len(rows)} days)")
+    if rows:
+        validate_rows(rows, expected_dates=[ymd(d) for d in missing])
+        by_date.update({r["date"]: r for r in rows})
+        merged = sorted(by_date.values(), key=lambda r: r["date"])
+        validate_rows(merged)
+        write_json(target, merged)
+    log(f"Prepared {len(rows)} new days; retained {len(existing)} existing records")
 
 if __name__ == "__main__":
     main()
