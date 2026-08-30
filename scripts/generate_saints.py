@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Adds missing monthly records to public/saint.json without replacing history.
+Builds review-only monthly drafts; never changes the published saints feed.
 """
 import os, sys, json, re, time, tempfile, datetime as dt
 from typing import List, Dict, Any
@@ -144,9 +144,12 @@ def main():
     if not added:
         log("All requested dates already exist; saint.json left unchanged")
         return
-    out = [merged[date] for date in sorted(merged)]
-    write_records(Path("public/saint.json"), out)
-    log("Wrote public/saint.json with", len(out), "records; preserved", len(existing), "and added", added)
+    # Scraping does not constitute editorial approval. Keep new scaffold records
+    # outside public/ until a reviewed monthly update explicitly publishes them.
+    out = [merged[day.isoformat()] for day in dates]
+    target = Path("drafts") / f"saints-{start:%Y-%m}.json"
+    write_records(target, out)
+    log("Wrote review draft", target, "with", len(out), "records; live feed unchanged")
 
 if __name__ == "__main__":
     main()

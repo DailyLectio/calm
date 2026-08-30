@@ -38,6 +38,10 @@ class MonthlySaintsTests(unittest.TestCase):
     def read(self):
         return json.loads(self.path.read_text(encoding="utf-8"))
 
+    def draft(self):
+        path = next(Path("drafts").glob("saints-*.json"))
+        return json.loads(path.read_text(encoding="utf-8"))
+
     def month(self, year, month):
         return [record(d.isoformat()) for d in saints.month_range(dt.date(year, month, 1), 1)]
 
@@ -46,10 +50,10 @@ class MonthlySaintsTests(unittest.TestCase):
         expected = copy.deepcopy(existing)
         self.seed(existing)
         saints.main()
-        result = self.read()
+        self.assertEqual(self.read(), expected)
+        result = self.draft()
         by_date = {row["date"]: row for row in result}
-        self.assertEqual(len(result), 93)
-        self.assertEqual([by_date[row["date"]] for row in existing], expected)
+        self.assertEqual(len(result), 31)
         self.assertEqual(list(by_date), sorted(by_date))
         self.assertTrue(all(tuple(row) == saints.FIELDS for row in result))
 
@@ -64,19 +68,22 @@ class MonthlySaintsTests(unittest.TestCase):
     def test_partial_month_only_adds_missing_dates(self):
         self.seed([record("2026-09-01"), record("2026-10-03")])
         saints.main()
-        self.assertEqual(len(self.read()), 32)
+        self.assertEqual(len(self.read()), 2)
+        self.assertEqual(len(self.draft()), 31)
         self.assertEqual(self.scrape.call_count, 30)
-        self.assertEqual(self.read()[3], record("2026-10-03"))
+        self.assertEqual(self.draft()[2], record("2026-10-03"))
 
     def test_blank_months_defaults_to_one(self):
         os.environ["MONTHS"] = "  "
         saints.main()
-        self.assertEqual(len(self.read()), 31)
+        self.assertFalse(self.path.exists())
+        self.assertEqual(len(self.draft()), 31)
 
     def test_absent_months_defaults_to_one(self):
         os.environ.pop("MONTHS")
         saints.main()
-        self.assertEqual(len(self.read()), 31)
+        self.assertFalse(self.path.exists())
+        self.assertEqual(len(self.draft()), 31)
 
     def test_next_month_uses_configured_timezone(self):
         os.environ["START_MONTH"] = ""
@@ -84,15 +91,16 @@ class MonthlySaintsTests(unittest.TestCase):
             clock.now.return_value.date.return_value = dt.date(2026, 8, 31)
             saints.main()
             self.assertEqual(clock.now.call_args.args[0].key, "America/New_York")
-        self.assertEqual(self.read()[0]["date"], "2026-09-01")
-        self.assertEqual(self.read()[-1]["date"], "2026-09-30")
+        self.assertEqual(self.draft()[0]["date"], "2026-09-01")
+        self.assertEqual(self.draft()[-1]["date"], "2026-09-30")
 
     def test_december_to_january_and_leap_year(self):
         os.environ.update(START_MONTH="2027-12", MONTHS="2")
         self.seed([record("2026-09-01")])
         saints.main()
-        self.assertEqual(len(self.read()), 63)
-        self.assertEqual(self.read()[-1]["date"], "2028-01-31")
+        self.assertEqual(len(self.read()), 1)
+        self.assertEqual(len(self.draft()), 62)
+        self.assertEqual(self.draft()[-1]["date"], "2028-01-31")
         self.assertEqual(len(saints.month_range(dt.date(2028, 2, 1), 1)), 29)
 
     def test_invalid_month_configuration_does_not_write(self):
@@ -143,7 +151,7 @@ class MonthlySaintsTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 saints.main()
         self.assertEqual(self.path.read_bytes(), before)
-        self.assertEqual(list(self.path.parent.glob("*.tmp")), [])
+        self.assertEqual(list(Path(".").rglob("*.tmp")), [])
 
     def test_existing_record_is_not_mutated_by_build_record(self):
         existing = {"2026-09-01": record("2026-09-01")}
@@ -159,8 +167,9 @@ class MonthlySaintsTests(unittest.TestCase):
         self.seed([record("2026-09-01")])
         saints.main()
         self.assertEqual(self.read()[0], record("2026-09-01"))
-        self.assertEqual(len(self.read()), 32)
-        self.assertEqual(self.read()[-1]["profile"], "")
+        self.assertEqual(len(self.read()), 1)
+        self.assertEqual(len(self.draft()), 31)
+        self.assertEqual(self.draft()[-1]["profile"], "")
 
 
 if __name__ == "__main__":

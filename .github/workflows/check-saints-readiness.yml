@@ -1,0 +1,28 @@
+name: Check Reviewed Saints Readiness
+
+on:
+  schedule:
+    - cron: '43 10 20-31 * *'
+  workflow_dispatch:
+    inputs:
+      month:
+        description: 'YYYY-MM (blank means next month in America/New_York)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    env:
+      APP_TZ: America/New_York
+      REVIEW_MONTH: ${{ github.event.inputs.month || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require complete reviewed coverage for the upcoming month
+        run: python -m scripts.check_saints_readiness --month "$REVIEW_MONTH"

@@ -2,10 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Devotions JSON Array",
   "type": "array",
+  "minItems": 1,
   "items": {
     "type": "object",
     "properties": {
-      "date": { "type": "string" },
+      "date": { "type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
       "quote": { "type": "string" },
       "quoteCitation": { "type": "string" },
       "firstReading": { "type": "string" },

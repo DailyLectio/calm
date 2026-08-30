@@ -7,6 +7,10 @@ from datetime import datetime, timedelta, date
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from typing import Any, Dict, List, Optional
+from scripts.feed_io import read_array
+from scripts.liturgical_calendar import sunday_cycle, weekday_cycle
+from scripts.saints_feed import select_saint, reflection
+from scripts.validate_publication import validate_rows
 
 # ---------- Paths ----------
 BASE_DIR = Path(__file__).resolve().parent
@@ -109,16 +113,6 @@ def saint_for_today(saint_data: Any, today: str) -> Optional[Dict[str, str]]:
 
     return None
 
-    # fuzzy fallback using feast text
-    feast = (weekly_feast or "").lower().strip()
-    if feast and isinstance(saint_data, list):
-        for entry in saint_data:
-            if isinstance(entry, dict):
-                nm = (entry.get("saintName") or entry.get("name") or "").lower()
-                if nm and nm in feast:
-                    return _normalize_saint_entry(entry)
-    return None
-
 # ---------- tagging ----------
 THEME_MAP = {
     r"\bhumbl(e|ity)\b": "humility",
@@ -184,11 +178,24 @@ def auto_tags(entry: Dict[str, Any], saint_used: bool) -> list[str]:
 
 # ---------- tidy ----------
 def clean_keys(entry: Dict[str, Any]) -> Dict[str, Any]:
-    if "gospelRef" in entry and "gospelReference" in entry:
-        entry.pop("gospelReference", None)
+    # Keep both aliases for compatibility with all existing clients and schema.
+    entry["gospelReference"] = entry.get("gospelRef", "")
+    day = date.fromisoformat(entry["date"])
+    entry["cycle"] = sunday_cycle(day)
+    entry["weekdayCycle"] = weekday_cycle(day)
     for k in ("secondReading","feast","secondReadingRef"):
         if entry.get(k) is None:
             entry[k] = ""
+    return entry
+
+
+def prepare_entry(source: dict) -> dict:
+    entry = dict(source)
+    saint = select_saint(entry["date"])
+    entry["saintReflection"] = reflection(saint)
+    entry = clean_keys(entry)
+    slug = re.sub(r"[^a-z0-9]+", "-", saint["saintName"].lower()).strip("-")
+    entry["tags"] = list(dict.fromkeys([slug, "saints"] + auto_tags(entry, True)))[:12]
     return entry
 
 def archive_entry(entry: dict) -> None:
@@ -200,11 +207,7 @@ def archive_entry(entry: dict) -> None:
     path = ARCHIVE_DIR / yyyy / mm / f"{d}.json"
     atomic_write_json(path, entry)
     # index update
-    try:
-        idx = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
-        if not isinstance(idx, list): idx = []
-    except Exception:
-        idx = []
+    idx = read_array(INDEX_PATH) if INDEX_PATH.exists() else []
     row = {
         "date": d,
         "quote": entry.get("quote",""),
@@ -221,7 +224,7 @@ def archive_entry(entry: dict) -> None:
     by_date[d] = row
     new_idx = sorted(by_date.values(), key=lambda r: r["date"], reverse=True)
     atomic_write_json(INDEX_PATH, new_idx)
-    print(f"[ok] archived {d} → {path}")
+    print(f"[ok] archived {d} -> {path}")
 
 # ---------- main ----------
 def main() -> None:
@@ -232,41 +235,27 @@ def main() -> None:
     print(f"[info] tz={args.tz} today={today}")
     if not WEEKLY_PATH.exists():
         print(f"[error] missing {WEEKLY_PATH}", file=sys.stderr); sys.exit(1)
-    weekly = load_weekly(WEEKLY_PATH)
+    weekly = read_array(WEEKLY_PATH)
 
     entry = next((e for e in weekly if str(e.get("date","")).strip()==today), None)
     if not entry:
         print(f"[error] weeklyfeed has no entry for {today}", file=sys.stderr); sys.exit(1)
-    entry = dict(entry)  # copy
-
-    saint_data = fetch_json(SAINT_URL)
-    saint = saint_for_today(saint_data, today)  # date-only match
-    saint_used = False
-    if saint:
-        title = saint["name"]
-        if saint["memorial"]:
-            title = f"{title} ({saint['memorial']})"
-        composed = f"{title}: {saint['bio']}" if title and saint["bio"] else (saint["bio"] or title)
-        if composed:
-            entry["saintReflection"] = composed
-            saint_used = True
-
-    # Ensure simple secondReading string
-    if "secondReading" not in entry or entry["secondReading"] is None:
-        entry["secondReading"] = str(entry.get("secondReadingRef") or "")
-
-    entry = clean_keys(entry)
-    entry["tags"] = auto_tags(entry, saint_used)
+    entry = prepare_entry(entry)
 
     # backfill support (optional)
     payload = [entry]
     if args.backfill > 0:
-        days = {(datetime.now(tz) - timedelta(days=i)).date().isoformat() for i in range(args.backfill)}
+        days = {(date.fromisoformat(today) - timedelta(days=i)).isoformat() for i in range(args.backfill)}
         extra = [e for e in weekly if str(e.get("date","")).strip() in days]
         # ensure today first, then recent others
         rest = [e for e in extra if e.get("date") != today]
         rest.sort(key=lambda x: x.get("date",""), reverse=True)
-        payload = [entry] + rest
+        payload = [entry] + [prepare_entry(row) for row in rest]
+
+    validate_rows(payload)
+    # Fail before writing any output if the archive index is damaged.
+    if INDEX_PATH.exists():
+        read_array(INDEX_PATH)
 
     print(f"[info] writing {PUBLIC_TARGET} (count={len(payload)}) skip_dist={args.skip_dist} dry={args.dry_run}")
     if args.dry_run:

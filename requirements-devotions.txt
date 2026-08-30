@@ -1,0 +1,6 @@
+# Shared, tested dependencies for weekly generation, daily recovery, and validation.
+requests==2.34.2
+beautifulsoup4==4.15.0
+jsonschema==4.26.0
+openai==3.6.0
+tzdata==2026.3

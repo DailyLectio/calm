@@ -12,16 +12,18 @@ This repository publishes the JSON feeds used by the Daily Lectio website and co
 
 ## Automation
 
-- `.github/workflows/daily-devotion-update.yml` runs daily and can also be started manually. It checks whether today's entry exists in `public/weeklyfeed.json`, generates a one-day fallback if needed, runs `update_daily_devotion.py`, and commits updates to `public/devotions.json` plus the past-reflections archive.
-- `.github/workflows/generate-weekly.yml` generates the weekly devotion feed.
-- `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to add missing dates to `public/saint.json` using `scripts/generate_saints.py`. It preserves all existing dates and reviewed profiles, including months outside the requested range.
+- `.github/workflows/daily-devotion-update.yml` installs `requirements-devotions.txt`, checks today's Eastern-calendar date, and generates only a missing source day. The validated recovery record is merged into `public/weeklyfeed.json` without replacing other dates. The job validates before publishing and before committing the source, daily feed, and archive.
+- `.github/workflows/generate-weekly.yml` generates and validates the weekly devotion feed. Both generators retain their existing `gpt-5-mini` model settings.
+- `.github/workflows/generate-saints-monthly.yml` runs monthly or manually to create review-only calendar drafts with `scripts/generate_saints.py`. It never changes the published saints file. Drafts are retained as GitHub Actions artifacts for 30 days.
+- `.github/workflows/check-saints-readiness.yml` checks the next complete month on the 20th through the 31st, or a manually selected month. Missing or incomplete days fail visibly in Actions; notification delivery depends on the repository/user's GitHub notification settings.
+- `.github/workflows/validate-publication.yml` runs regression tests and validates published/rolling devotion feeds on relevant pushes and pull requests. It replaces the disabled legacy validation workflow. In-job validation remains essential because some bot pushes do not trigger other Actions workflows; this check is not a branch-protection or deployment gate.
 - `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
 ## Updating Content
 
 To update daily devotion content, edit or regenerate `public/weeklyfeed.json`, then let the daily workflow produce `public/devotions.json`.
 
-To update saint reflections, edit or regenerate `public/saint.json`. The website expects the same record structure for every day:
+To update saint reflections, append reviewed records to `public/saint.json`. Automated drafts must be reviewed first. The website expects the same record structure for every day:
 
 ```json
 {
@@ -31,7 +33,7 @@ To update saint reflections, edit or regenerate `public/saint.json`. The website
   "source": "USCCB 2026 Liturgical Calendar",
   "saintAlt1": "Alternate name",
   "saintAlt2": "",
-  "profile": "Short saint reflection for display.",
+  "profile": "A reviewed, substantial single paragraph on the saint's life and Catholic teachings.",
   "link": "https://source.example"
 }
 ```
@@ -40,11 +42,27 @@ To update saint reflections, edit or regenerate `public/saint.json`. The website
 
 Append each reviewed month to `public/saint.json`, retaining the eight fields above, all earlier records, and one unique record per date. Check complete calendar coverage and compare earlier records with the previous commit before publishing.
 
-The automatic monthly generator is a calendar scaffold, not a replacement for editorial review: newly scraped records can have blank profiles and need reviewed Catholic biographical/theological paragraphs. It never replaces existing records, including incomplete ones. To improve an existing date, edit it explicitly as part of the review process.
+The automatic monthly generator is a calendar scaffold, not a replacement for editorial review: newly scraped records can have blank profiles and need reviewed Catholic biographical/theological paragraphs. It writes requested-month drafts under `drafts/saints-YYYY-MM.json`, never to `public/saint.json`. It never replaces existing records, including incomplete ones. To improve an existing date, edit it explicitly as part of the review process. Keep the paragraph focused on the saint's life, teachings, Scripture, and Catholic principles, without personal, professional, or financial metaphors. Distinguish later tradition from documented history.
 
-`START_MONTH` defaults to next month in `America/New_York`; an absent or blank `MONTHS` defaults to one month (supported range 1–12). Invalid existing JSON, duplicate dates, or invalid field types stop generation without rewriting the file. When the month is already present, the file is left byte-for-byte unchanged. Writes use an atomic replacement, and monthly workflow runs are serialized.
+`START_MONTH` defaults to next month in `America/New_York`; an absent or blank `MONTHS` defaults to one month (supported range 1–12). Invalid existing JSON, duplicate dates, or invalid field types stop generation without rewriting the file. When the requested dates are already present, no draft is needed. Draft writes use atomic replacement, and monthly workflow runs are serialized.
 
-Run the offline regression suite with `python -m unittest discover -s tests -p 'test_generate_saints.py' -v` after installing `requests` and `beautifulsoup4` (also `tzdata` on Windows). Then check GitHub/Vercel status and the live `/saint.json`. A first-day `update_daily_devotion.py --date YYYY-MM-01 --dry-run --skip-dist` checks data readiness only; verify the actual website post on that date after the daily job runs.
+Run `python -m pip install -r requirements-devotions.txt`, then `python -m unittest discover -s tests -v`. Run `python -m scripts.check_saints_readiness --month YYYY-MM` before publishing the reviewed month; this checks every date, field types, source/link/name, and a single-paragraph profile of at least 40 words. That minimum detects scaffolds, not editorial quality or historical accuracy. September's approved profiles are substantially longer. Compare all previous records and the approved new month exactly before committing.
+
+Then check GitHub/Vercel status and the live `/saint.json`. A first-day `python update_daily_devotion.py --date YYYY-MM-01 --dry-run --skip-dist` checks data readiness only; verify the actual website post on that date after the daily job runs. Never publish a future-date test into today's feed or archives.
+
+### Reviewed saints and publication validation
+
+Daily and weekly generation select the exact date from committed `public/saint.json` first. A complete local record needs no saints network request. The live JSON is a fallback only if the local record is unavailable or incomplete. If neither has a complete profile, publication fails rather than inventing a saint or silently publishing a placeholder. Source selection is logged. Weekly generation receives the reviewed profile as context and copies it verbatim into `saintReflection`; its Saints exegesis must agree with that profile.
+
+The devotion contract retains both `gospelRef` and `gospelReference` with equal values for existing clients. Empty required reflections, invalid/duplicate dates, malformed references, missing required files, inconsistent second-reading fields, incorrect cycle labels, and known false "no saint assigned" claims fail validation. Run `python -m scripts.validate_publication` for both live and rolling feeds, or pass explicit paths and `--start YYYY-MM-DD --days N` for exact date coverage. Validation is mechanical, not a substitute for theological or lectionary review.
+
+### Liturgical calendar rules and future years
+
+`scripts/liturgical_calendar.py` calculates the first Sunday of Advent as the Sunday between November 27 and December 3. The liturgical year ending in 2020 anchors Year A; A/B/C repeats every three years and advances at Advent, without annual code changes. Ordinary Time weekday cycles alternate I/II, with the feed's annual context label advancing at Advent. Seasonal and feast readings must still use their date-specific proper readings, not an I/II lookup.
+
+For 2026, Year A continues through November 28 (November 22 is its last Sunday); Year B begins November 29. Ordinary Time weekdays use Cycle II in 2026. The Advent transition carries the new year's Cycle I context, but Advent readings themselves are seasonal. Boundary tests cover 2025–2028 and Advent calculations through 2100. Sources: [USCCB 2026 calendar, printed page 5](https://www.usccb.org/resources/2026cal.pdf) and [USCCB lectionary explanation](https://www.usccb.org/faq/questions-about-lectionary).
+
+During each year's editorial review, compare these fixtures and reading/feast exceptions with the newly issued USCCB calendar. Stable cycle rules advance automatically; new Church decrees, local observances, and calendar exceptions still require source review. Historical archive labels are not bulk-rewritten by this repair.
 
 ## Deployment
 

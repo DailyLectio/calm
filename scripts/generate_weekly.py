@@ -5,7 +5,7 @@
 Generate public/weeklyfeed.json
 
 Updates:
-- Scrapes Saint of the Day from Catholic Online (primary) with JSON fallback.
+- Uses reviewed local saints first, with the deployed JSON as fallback.
 - Robust Psalm extraction (header-proximity + page-wide fallback).
 - Second reading only when truly present (or Sunday + real ref).
 - Proper liturgical cycles (Year A/B/C, Cycle I/II).
@@ -18,6 +18,14 @@ from typing import Dict, Any, Tuple, List
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
 from collections import Counter
+from pathlib import Path
+import sys
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.liturgical_calendar import first_sunday_of_advent, sunday_cycle, weekday_cycle
+from scripts.saints_feed import select_saint, reflection
+from scripts.validate_publication import validate_rows
+from scripts.feed_io import write_json
 
 # ===== Config =====
 APP_TZ = os.getenv("APP_TZ", "America/New_York")
@@ -60,20 +68,13 @@ def is_sunday(d: dt.date) -> bool: return d.weekday() == 6
 
 # ===== Liturgical cycles =====
 def _first_sunday_of_advent(year: int) -> dt.date:
-    d = dt.date(year, 11, 30)
-    while d.weekday() != 6:
-        d -= dt.timedelta(days=1)
-    return d + dt.timedelta(days=7)
+    return first_sunday_of_advent(year)
 
 def compute_year_cycle(d: dt.date) -> str:
-    y = d.year
-    advent = _first_sunday_of_advent(y)
-    ly = y + 1 if d >= advent else y
-    idx = (ly - 2019) % 3  # 2019 Advent = Year A
-    return ["Year A", "Year B", "Year C"][idx]
+    return sunday_cycle(d)
 
 def compute_weekday_cycle(d: dt.date) -> str:
-    return "Cycle I" if d.year % 2 == 1 else "Cycle II"
+    return weekday_cycle(d)
 
 # ===== Regex =====
 REF_RE = re.compile(
@@ -226,9 +227,9 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
     gosp   = grab("Gospel:", ["Lectionary:", "First Reading:"])
 
     def norm(s: str) -> str:
-        s = re.sub(r'\s+', ' ', s)
-        s = re.sub(r'^\bFirst\b|\bSecond\b|\bReading\b|Responsorial Psalm\b', '', s, flags=re.I)
-        return s.strip(" :.,")
+        # The heading has already been removed by grab(). Keep the ordinal in
+        # book names such as First Corinthians; removing it corrupts the citation.
+        return _canon(s).strip(" :.,")
     return norm(first), norm(second), norm(psalm), norm(gosp)
 
 def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
@@ -402,32 +403,7 @@ def saints_remote() -> List[Dict[str, Any]]:
     return []
 
 def saint_for_date(d: dt.date) -> Dict[str, Any]:
-    iso = ymd(d)
-    
-    # 1. Try Online Source (Primary)
-    online_data = fetch_saint_online(d)
-    if online_data and online_data.get("saintName"):
-        log(f"Found Saint (Online): {online_data['saintName']}")
-        return online_data
-
-    # 2. Consolidate Local + Remote JSON (Backup)
-    merged: Dict[str, Dict[str, Any]] = {}
-    
-    # Remote first (higher priority in backup chain?), then Local overrides? 
-    # Usually Local overrides Remote.
-    all_rows = saints_remote() + saints_local()
-    
-    for row in all_rows:
-        if isinstance(row, dict) and row.get("date"):
-            merged.setdefault(row["date"], {}).update(row)
-            
-    backup_data = merged.get(iso, {}).copy()
-    
-    if backup_data.get("saintName"):
-        log(f"Found Saint (Backup JSON): {backup_data['saintName']}")
-        return backup_data
-        
-    return {}
+    return select_saint(d, remote_url=SAINT_JSON_URL)
 
 # ===== OpenAI =====
 def openai_client():
@@ -470,6 +446,11 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
 
 STYLE_CARD = """ROLE: Catholic editor & theologian for FaithLinks.
 RULES:
+- Focus on Catholic theological exegesis and the saint's life, teachings, and principles.
+- Do not use personal, professional, or financial metaphors or secular self-help analogies.
+- The supplied SAINT_NAME and reviewed SAINT_PROFILE are authoritative editorial content.
+- Relate the Saints paragraph to that saint; never say no saint is assigned when one is supplied.
+- Do not invent historical details beyond the supplied profile. Distinguish later tradition from history.
 - Use the exact references I provide. Do not invent or swap.
 - `firstReading` MUST summarize ONLY FIRST_READING_REF.
 - `psalmSummary` MUST summarize ONLY PSALM_REF.
@@ -479,7 +460,8 @@ RULES:
 - Output only JSON with the contract keys.
 LENGTHS (words):
 - quote 9–25; firstReading 50–100; secondReading 0 or 50–100; psalmSummary 50–100; gospelSummary 100–200;
-- saintReflection 50–100; dailyPrayer 150–200; theologicalSynthesis 150–200;
+- saintReflection: use the supplied reviewed profile without shortening it;
+- dailyPrayer 150–200; theologicalSynthesis 150–200;
 - exegesis 750–1000 in 6–8 short paragraphs (Context:, Psalm:, Gospel:, Saints:, Today:).
 """
 
@@ -508,15 +490,13 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
 
     if core_missing:
         msg = f"{iso}: missing core reading(s): {', '.join(core_missing)}"
-        if USCCB_STRICT:
-            raise SystemExit(msg)
-        log("warn:", msg)
+        raise ValueError(msg)
 
     if is_sunday(date) and not second_ref:
         log(f"warn: {iso} is Sunday and has no second reading ref")
 
     saint = saint_for_date(date)
-    # Use data from scraper/JSON, or empty strings if not found
+    # Selection has already required a complete reviewed saint record.
     saint_name = saint.get('saintName', '')
     saint_profile = saint.get('profile', '')
     saint_link = saint.get('link', '')
@@ -554,9 +534,8 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
     out["feast"]        = feast
     out["lectionaryKey"] = f"{iso}:{first_ref}|{second_ref}|{psalm_ref}|{gospel_ref}"
 
-    # Ensure saint-related fields in the AI output match our scraped data if the AI hallucinated something else
-    # Actually, we let the AI generate the *Reflection*, but the *Name* should implicitly match.
-    # We can inject the scraped name back into tags if needed, but the Prompt usually handles it.
+    # Reviewed biography is deterministic, not rewritten by the model.
+    out["saintReflection"] = reflection(saint)
 
     if not _s(second_ref):
         out["secondReading"] = ""
@@ -577,6 +556,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         tags.insert(0, saint_name)
         
     out["tags"] = [str(t).strip().lower().replace(" ", "-")[:32] for t in tags][:12]
+    validate_rows([out], expected_dates=[iso])
     return out
 
 # ===== Final normalize =====
@@ -642,9 +622,8 @@ def main():
             time.sleep(0.7 - elapsed)
 
     normalize_rows(rows)
-    os.makedirs("public", exist_ok=True)
-    with open("public/weeklyfeed.json", "w", encoding="utf-8") as f:
-        json.dump(rows, f, ensure_ascii=False, indent=2)
+    validate_rows(rows, expected_dates=[ymd(d) for d in daterange(start, days)])
+    write_json(Path("public/weeklyfeed.json"), rows)
     log(f"Wrote public/weeklyfeed.json ({len(rows)} days)")
 
 if __name__ == "__main__":
