@@ -13,6 +13,9 @@ def check(root=ROOT):
     paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode().split("\0")
     for name in filter(None, paths):
         path = root / name
+        if path.suffix in (".pyc", ".pyo") or "__pycache__" in path.parts:
+            errors.append(f"{name}: generated Python bytecode must not be tracked")
+            continue
         if not path.exists() or name.startswith(("docs/retired/", ".github/workflows/archive/")):
             continue
         if path.suffix == ".py":

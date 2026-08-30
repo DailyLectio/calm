@@ -278,6 +278,10 @@ class AlertTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_generated_python_bytecode_is_not_tracked(self):
+        tracked = publisher.git(ROOT, "ls-files", "*__pycache__*", "*.pyc", "*.pyo").stdout
+        self.assertEqual(tracked, "")
+
     def test_explicit_dispatch_uses_workflow_token_without_putting_it_in_url(self):
         session = Mock()
         dispatch("offline-test-token", "DailyLectio/calm", session)
