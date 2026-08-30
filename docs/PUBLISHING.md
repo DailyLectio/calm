@@ -11,7 +11,8 @@ GitHub `DailyLectio/calm`, branch `main`, is the production source. Vercel serve
 | Service target | Today's verified live post by 06:00 |
 | GitHub health monitor | 06:00, then 07:17–23:17 hourly; after writer runs and relevant pushes |
 | Reviewed saints readiness | Existing 20th–31st check; health monitor also checks next month from the 20th |
-| Monthly drafts | Existing monthly/manual draft workflow; editorial review required before append |
+| Monthly drafts | Operator-led/manual only; no monthly cron or automatic publication |
+| Independent desktop check | Monday–Friday 09:15 Eastern; no weekend runs |
 
 Daily/weekly/health schedules explicitly use `America/New_York`, including daylight-saving changes. These are operating targets, not guarantees: [GitHub can delay or drop scheduled runs](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule). A monitor on the same scheduler cannot alone guarantee detection of that scheduler's outage. A separate desktop check requires an available PC/app/network; it is not an always-on external monitoring service.
 
@@ -41,7 +42,7 @@ The monitor pins one current GitHub main SHA, then checks both `dailylectio.org`
 
 Deployment convergence is retried up to eight times, 25 seconds apart. Errors stay visible in Actions even after the alert is routed. Reports are retained as 30-day artifacts. No feed or historic record is modified by health checks.
 
-Default destination: a deduplicated issue in this repository assigned to `DailyLectio`. Set `PUBLICATION_HEALTH_ASSIGNEE` to another valid repository assignee when approved. Identical failures do not spam comments. Verified recovery comments and closes the monitor's own issue only. Run **Publication Health → Run workflow → alert_test=true** to create and close a clearly labelled synthetic routing test. Confirm delivery in the recipient's GitHub notification settings; successful assignment is not proof of email/push receipt. An Actions outage can also prevent GitHub-hosted alerts. No paid monitoring, email address or webhook destination is assumed.
+Default destination: a deduplicated issue in this repository assigned to `DailyLectio`. Set `PUBLICATION_HEALTH_ASSIGNEE` to another valid repository assignee when approved. Identical failures do not spam comments. Verified recovery comments and closes the monitor's own issue only. Run **Publication Health → Run workflow → alert_test=true** to create and close a clearly labelled synthetic routing test. Confirm delivery in the recipient's GitHub notification settings; successful assignment is not proof of email/push receipt. The operator also receives existing Vercel emails; these have not been reconfigured or verified as an end-to-end freshness alert. An Actions outage can also prevent GitHub-hosted alerts. No independently hosted always-on monitor, paid service, email address or webhook destination is configured by this work.
 
 Read-only manual verification (no OpenAI key needed):
 
@@ -85,4 +86,10 @@ The retired archive builder and two dormant workflows are non-executable `.txt` 
 
 Generated Python bytecode is ignored and must not be tracked. The previously committed `scripts/__pycache__/generate_weekly.cpython-312.pyc` was removed from Git tracking (not erased from the working PC) after a test run exposed the stale tracked cache. Maintenance checks reject future tracked bytecode. Its prior version remains recoverable in Git history.
 
-The separate desktop automation **LectioLinks daily publication check** was configured in the maintenance chat for 06:10 Eastern. It runs the read-only checker with the current remote baseline and reports here, independently of GitHub's scheduler. It still depends on this PC, app and internet connection being available and uses the account's normal automation capacity; no paid third-party monitor was added.
+The separate desktop automation **LectioLinks daily publication check** runs Monday–Friday at 09:15 Eastern, with no weekend runs, following the operator's normal 09:00 PC/app startup. This supersedes the original 06:10 daily setting. It runs the read-only checker with the current remote baseline and reports here, independently of GitHub's scheduler. It still depends on this PC, app and internet connection being available and uses the account's normal automation capacity; no paid third-party monitor was added. The GitHub health check's 06:00 deadline and seven-day schedule remain unchanged.
+
+## Operator review policy
+
+Monthly saints and reviewed code changes follow: **Codex prepares → operator reviews/approves → Codex validates and pushes to GitHub → Vercel deploys → Codex verifies**. The monthly draft workflow is manual-only. No cron may publish reviewed saints or substitute scraped scaffolds. Existing daily/weekly generation and publication continue unattended under their tests and safety checks. This is an operating approval policy, not a claim that technical branch-protection rules have been enabled. No additional mandatory reviewer or merge policy is imposed without a separate decision.
+
+Framer controls the visual pages and their responsive components; GitHub stores the source/data; Vercel serves the JSON and builds the connected projects. A reviewed saints update normally needs GitHub/Vercel, not a Framer edit. UI/component repairs need a Framer draft/branch and operator approval before publishing. Framer login does not grant access to the FaithLinks Vercel team. Dependency cleanup means identifying which retained template/mobile libraries the Vercel builds or other consumers actually use before removing them; it is not a repair to the Desktop/Tablet/Phone breakpoint layouts.

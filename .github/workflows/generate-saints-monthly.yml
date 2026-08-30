@@ -1,8 +1,8 @@
 name: Generate Monthly Saints JSON
 
 on:
-  schedule:
-    - cron: "30 8 23 * *"
+  # Operator-led: Codex draft -> operator review -> approved publication.
+  # This optional scaffold is manual-only and never publishes saint.json.
   workflow_dispatch:
     inputs:
       start_month:

@@ -278,6 +278,11 @@ class AlertTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_monthly_saints_workflow_is_manual_only(self):
+        flow = self.workflow("generate-saints-monthly.yml")
+        self.assertEqual(set(flow["on"]), {"workflow_dispatch"})
+        self.assertEqual(flow["jobs"]["saints-monthly"]["permissions"], {"contents": "read"})
+
     def test_generated_python_bytecode_is_not_tracked(self):
         tracked = publisher.git(ROOT, "ls-files", "*__pycache__*", "*.pyc", "*.pyo").stdout
         self.assertEqual(tracked, "")
