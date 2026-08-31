@@ -12,12 +12,12 @@ This repository publishes the JSON feeds used by the Daily Lectio website and co
 
 ## Automation
 
-- `.github/workflows/daily-devotion-update.yml` prepares today's Eastern-calendar date at 03:35, retries at 04:35, and also runs after successful weekly preparation/publication. It generates only a missing source day. A separate queued publisher validates and merges against fresh `main`, then commits the source, daily feed, and current archive together.
+- `.github/workflows/daily-devotion-update.yml` checks today's Eastern-calendar publication every half-hour at :11 and :41, and after successful weekly preparation/publication. If the full daily content, dated snapshot and both archive indexes are already current, it skips generation and the publisher. Otherwise it generates only a missing source day; a separate queued publisher validates and merges against fresh `main`, then commits the source, daily feed, and current archive together. Repeated attempts cover missed overnight triggers; GitHub scheduling is still best-effort.
 - `.github/workflows/generate-weekly.yml` prepares the upcoming Friday–Thursday window on Thursday at 03:05 Eastern. It retains all existing dates and reviewed overlaps. Both generators retain their existing `gpt-5-mini` model settings.
 - `.github/workflows/generate-saints-monthly.yml` is manual-only and can create review-only calendar scaffolds with `scripts/generate_saints.py`. It never changes the published saints file. Drafts are retained as GitHub Actions artifacts for 30 days. Monthly publishing follows Codex preparation, operator review/approval, then Codex validation and Git push.
 - `.github/workflows/check-saints-readiness.yml` checks the next complete month on the 20th through the 31st, or a manually selected month. Missing or incomplete days fail visibly in Actions; notification delivery depends on the repository/user's GitHub notification settings.
 - `.github/workflows/validate-publication.yml` checks maintained Python syntax, conflict markers, regression tests and published/rolling feeds on every `main` push and every pull request, including documentation-only changes. In-job validation remains essential; this check is not an enforced branch-protection or deployment gate.
-- `.github/workflows/publication-health.yml` verifies real public content at 06:00 Eastern, hourly at :17 from 07:00–23:00, after publisher runs, and on relevant pushes. Failure opens one incident issue assigned to `DailyLectio`; changed failures update it and recovery closes it. Override the recipient with repository variable `PUBLICATION_HEALTH_ASSIGNEE`. Notification receipt depends on that account's GitHub settings.
+- `.github/workflows/publication-health.yml` verifies real public content every half-hour at :17 and :47, after daily/weekly workflow runs, and on relevant pushes. The current-day deadline remains 06:00 Eastern; a tolerated previous-day result before that deadline is explicitly labelled, not reported as current. Failure opens one incident issue assigned to `DailyLectio`; changed failures update it and recovery closes it. Override the recipient with repository variable `PUBLICATION_HEALTH_ASSIGNEE`. Notification receipt depends on that account's GitHub settings.
 - `.github/workflows/verify-publishing-identity.yml` checks the job-scoped workflow token and Git push transport before future protection is enforced. An explicitly requested manual probe can test a real bot push with an empty commit; no file content changes.
 - `vercel.json` sets JSON headers and no-cache behavior for the public feeds.
 
@@ -83,7 +83,7 @@ The site is hosted on Vercel and connected to this GitHub repository. Pushing ch
 ## Troubleshooting
 
 - If the website is stale, check the relevant public file first: `/devotions.json`, `/weeklyfeed.json`, or `/saint.json`.
-- If daily updates are not refreshing, check the GitHub Actions run for `Update Daily Devotion`.
+- If daily updates are not refreshing, check the GitHub Actions run for `Update Daily Devotion`. If no current-day run exists, dispatch **Run workflow** on `main`; an already prepared day needs no new AI generation. See the [August 31 recovery report](docs/INCIDENT-2026-08-31.md) and runbook for verification and scheduler limitations.
 - Keep `OPENAI_API_KEY` and `OPENAI_PROJECT` current. Production writers use GitHub's short-lived `GITHUB_TOKEN`, not the old failing `GH_PAT`; validation is explicitly dispatched after publishing.
 - Keep all feed dates in `YYYY-MM-DD` format. The automation uses the `America/New_York` timezone.
 

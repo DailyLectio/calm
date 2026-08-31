@@ -182,6 +182,16 @@ class GitPublisherTests(unittest.TestCase):
                 publisher.publish(value, "daily", self.runner)
         self.assertEqual(publisher.git(self.remote, "rev-parse", "main").stdout.strip(), self.sha)
 
+    def test_daily_rollover_preserves_history_and_repeated_attempt_is_noop(self):
+        publisher.publish(candidate([], ["2026-08-31"], self.sha), "daily", self.runner, today="2026-08-31")
+        previous = publisher.git(self.remote, "show", "main:public/past_reflections/2026/08/2026-08-31.json").stdout
+        value = candidate([], ["2026-09-01"], self.sha)
+        head = publisher.publish(value, "daily", self.runner, today="2026-09-01")
+        self.assertEqual(self.published("public/devotions.json")[0]["date"], "2026-09-01")
+        self.assertEqual(self.published("public/past_reflections/search-v1.json")["count"], 2)
+        self.assertEqual(publisher.git(self.remote, "show", "main:public/past_reflections/2026/08/2026-08-31.json").stdout, previous)
+        self.assertEqual(publisher.publish(value, "daily", self.runner, today="2026-09-01"), head)
+
 
 class HealthTests(unittest.TestCase):
     def test_missing_browser_cors_permission_is_not_a_healthy_json_response(self):
@@ -205,6 +215,7 @@ class HealthTests(unittest.TestCase):
 
     def test_healthy_full_content_and_archive(self):
         self.assertEqual(self.check()["date"], "2026-09-01")
+        self.assertEqual(self.check()["freshness"], "current")
 
     def test_http_200_same_date_stale_content_fails(self):
         self.live["https://test/devotions.json"][0]["quote"] = "Stale content"
@@ -231,6 +242,8 @@ class HealthTests(unittest.TestCase):
     def test_previous_day_allowed_only_before_deadline(self):
         self.now = datetime(2026, 9, 2, 5, 59, tzinfo=self.now.tzinfo)
         self.assertEqual(self.check()["date"], "2026-09-01")
+        self.assertEqual(self.check()["expectedDate"], "2026-09-02")
+        self.assertEqual(self.check()["freshness"], "previous_day_before_deadline")
         self.now = self.now.replace(hour=6)
         with self.assertRaisesRegex(ValueError, "06:00 Eastern deadline"):
             self.check()
@@ -322,6 +335,25 @@ class WorkflowTests(unittest.TestCase):
         flow = self.workflow("validate-publication.yml")
         self.assertEqual(flow["on"]["pull_request"], {})
         self.assertNotIn("paths", flow["on"]["push"])
+
+    def test_daily_catchup_does_not_stop_after_two_overnight_attempts(self):
+        flow = self.workflow("daily-devotion-update.yml")
+        self.assertEqual(flow["on"]["schedule"], [{"cron": "11,41 * * * *", "timezone": "America/New_York"}])
+        prepare_job = flow["jobs"]["prepare"]
+        self.assertEqual(prepare_job["outputs"]["needed"], "${{ steps.freshness.outputs.needed }}")
+        self.assertEqual(flow["jobs"]["publish"]["if"], "needs.prepare.outputs.needed == 'true'")
+        gate = next(s for s in prepare_job["steps"] if s.get("id") == "freshness")
+        self.assertEqual(gate["run"], "python -m scripts.daily_publication_needed --github-output")
+        for step in prepare_job["steps"]:
+            if "prepare_publication" in step.get("run", "") or step.get("uses") == "actions/upload-artifact@v4":
+                self.assertEqual(step["if"], "steps.freshness.outputs.needed == 'true'")
+
+    def test_health_repeats_through_every_day_and_keeps_failures_visible(self):
+        flow = self.workflow("publication-health.yml")
+        self.assertEqual(flow["on"]["schedule"], [{"cron": "17,47 * * * *", "timezone": "America/New_York"}])
+        last_step = flow["jobs"]["health"]["steps"][-1]
+        self.assertEqual(last_step["run"], "exit 1")
+        self.assertIn("steps.health.outcome != 'success'", last_step["if"])
 
     def test_retired_files_are_non_executable_and_conflict_markers_absent(self):
         self.assertFalse((ROOT / "scripts/build_archive.py").exists())

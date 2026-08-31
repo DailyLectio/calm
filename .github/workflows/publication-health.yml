@@ -2,9 +2,9 @@ name: Publication Health
 
 on:
   schedule:
-    - cron: '0 6 * * *'
-      timezone: America/New_York
-    - cron: '17 7-23 * * *'
+    # Repeated checks also cover missed triggers and the midnight transition.
+    # 06:00 remains the content deadline, evaluated in Python at actual runtime.
+    - cron: '17,47 * * * *'
       timezone: America/New_York
   push:
     branches: [main]
@@ -14,6 +14,8 @@ on:
       - 'public/saint.json'
       - 'scripts/check_live_publication.py'
       - 'scripts/report_publication_health.py'
+      - 'scripts/daily_publication_needed.py'
+      - '.github/workflows/daily-devotion-update.yml'
       - '.github/workflows/publication-health.yml'
   workflow_run:
     workflows: ['Update Daily Devotion', 'Generate Weekly Devotions (Fri–Thu)']

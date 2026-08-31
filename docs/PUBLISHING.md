@@ -7,9 +7,9 @@ GitHub `DailyLectio/calm`, branch `main`, is the production source. Vercel serve
 | Work | Eastern schedule / behavior |
 | --- | --- |
 | Weekly preparation | Thursday 03:05, upcoming Friday–Thursday |
-| Daily publication | 03:35 primary; 04:35 intentional retry; after successful weekly run |
+| Daily publication | Every half-hour at :11 and :41, all seven days; after successful weekly run; full-content no-op when already current |
 | Service target | Today's verified live post by 06:00 |
-| GitHub health monitor | 06:00, then 07:17–23:17 hourly; after writer runs and relevant pushes |
+| GitHub health monitor | Every half-hour at :17 and :47, all seven days; after daily/weekly runs and relevant pushes |
 | Reviewed saints readiness | Existing 20th–31st check; health monitor also checks next month from the 20th |
 | Monthly drafts | Operator-led/manual only; no monthly cron or automatic publication |
 | Independent desktop check | Monday–Friday 09:15 Eastern; no weekend runs |
@@ -17,6 +17,8 @@ GitHub `DailyLectio/calm`, branch `main`, is the production source. Vercel serve
 Daily/weekly/health schedules explicitly use `America/New_York`, including daylight-saving changes. These are operating targets, not guarantees: [GitHub can delay or drop scheduled runs](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule). A monitor on the same scheduler cannot alone guarantee detection of that scheduler's outage. A separate desktop check requires an available PC/app/network; it is not an always-on external monitoring service.
 
 ## Prepare once, safely publish against fresh main
+
+Before daily preparation, `python -m scripts.daily_publication_needed` performs a read-only check of the Eastern date, full daily content derived from the prepared source and reviewed saint, today's dated snapshot, today's legacy index entry, and the complete derived search index. Only an exact match skips preparation, artifact upload and the publisher job. Same-date edits, missing outputs and a new day require publication. The gate never calls OpenAI or a saints network fallback. Missing/invalid source material is handed to the normal fail-closed preparation/validation path, not treated as healthy. Repeated healthy runs still use Actions runner time, but no generation calls or data commits.
 
 1. Preparation validates the existing rolling feed, retains reviewed overlapping dates and preflights saints for every missing day before making paid generation calls. Both models remain `gpt-5-mini`. The explicit start date takes precedence; a blank weekly start selects this week's Friday (upcoming Monday–Thursday, most recent Friday–Sunday). A delay into a new week selects that new week's release; the daily fallback handles a missing current day.
 2. A validated candidate containing the base commit, target window and only newly generated rows is retained as an Actions artifact for 30 days. Preparation never edits production. A generation failure before a complete candidate is produced stops the run; partial AI output is not published.
@@ -38,7 +40,7 @@ git pull --ff-only
 
 ## Health checks and incident routing
 
-The monitor pins one current GitHub main SHA, then checks both `dailylectio.org` and `www.dailylectio.org`. It verifies JSON/schema, correct cycle labels, nonempty required content, exactly one permitted daily date, the exact reviewed saint profile, daily/weekly reflection agreement, complete prepared coverage, full live-file equality to Git (including same-date corrections), and the current dated snapshot/index agreement. Thursday's 06:00 check additionally requires the next Friday–Thursday release. Before 06:00, yesterday may remain live; future dates are never accepted. From the 20th, missing reviewed saints in the next month raise a readiness incident.
+The monitor pins one current GitHub main SHA, then checks both `dailylectio.org` and `www.dailylectio.org`. It verifies JSON/schema, correct cycle labels, nonempty required content, exactly one permitted daily date, the exact reviewed saint profile, daily/weekly reflection agreement, complete prepared coverage, full live-file equality to Git (including same-date corrections), and the current dated snapshot/index agreement. On Thursdays from 06:00 it additionally requires the next Friday–Thursday release. Before 06:00, yesterday may remain live; future dates are never accepted. Results include `expectedDate` and `freshness`: either `current` or `previous_day_before_deadline`. A green before-deadline result does not prove today's publication. The first scheduled post-deadline check is 06:17, subject to scheduler delay. From the 20th, missing reviewed saints in the next month raise a readiness incident.
 
 Deployment convergence is retried up to eight times, 25 seconds apart. Errors stay visible in Actions even after the alert is routed. Reports are retained as 30-day artifacts. No feed or historic record is modified by health checks.
 
@@ -51,6 +53,12 @@ Read-only manual verification (no OpenAI key needed):
 ```
 
 The `--remote-baseline` option avoids comparing against an obsolete local checkout. This tests the data-host boundary, not whether a Framer component has refreshed its browser cache. Archives/Framer repair and project consolidation remain separate work.
+
+### Missed daily trigger recovery
+
+If the live feed is stale, inspect the latest daily Actions events, their actual Eastern timestamps, and the prepared source. A missing run is different from a failed run. Manually dispatch **Update Daily Devotion → Run workflow → main** to recover a missed trigger; do not regenerate an already prepared day or publish a future-date test. Confirm the publisher's pushed SHA, both Vercel deployments, the live checker above, and a freshly loaded LectioLinks homepage, Deep Dive and Archives. If today's output is already complete, the prepare job succeeds with `needed=false` and the publish job is intentionally skipped.
+
+The August 31 incident and repair are recorded in [INCIDENT-2026-08-31.md](INCIDENT-2026-08-31.md). Half-hour catch-up and health attempts replace the overnight-only retry window. They reduce the impact of isolated delayed/dropped events, but do not provide independence from GitHub Actions scheduling. An always-on external scheduler/monitor would require a separately approved provider and access; none was added.
 
 ## Credentials, Git and future gates
 

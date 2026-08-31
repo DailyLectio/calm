@@ -190,9 +190,9 @@ def clean_keys(entry: Dict[str, Any]) -> Dict[str, Any]:
     return entry
 
 
-def prepare_entry(source: dict) -> dict:
+def prepare_entry(source: dict, saint_path=None) -> dict:
     entry = dict(source)
-    saint = select_saint(entry["date"])
+    saint = select_saint(entry["date"], saint_path)
     entry["saintReflection"] = reflection(saint)
     entry = clean_keys(entry)
     slug = re.sub(r"[^a-z0-9]+", "-", saint["saintName"].lower()).strip("-")

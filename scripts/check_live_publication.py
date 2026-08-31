@@ -108,7 +108,9 @@ def inspect(expected, now, fetch=fetch_json, hosts=HOSTS):
             if matches[0].get(key) != daily[key]:
                 raise ValueError(f"{host}: current archive index {key} mismatch")
         checked.append(host)
-    return {"date": day, "hosts": checked, "dailyHash": fingerprint(daily),
+    return {"date": day, "expectedDate": today.isoformat(),
+            "freshness": "current" if day == today.isoformat() else "previous_day_before_deadline",
+            "hosts": checked, "dailyHash": fingerprint(daily),
             "deadline": "06:00 America/New_York", "checkedAt": now.isoformat()}
 
 
