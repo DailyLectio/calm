@@ -351,6 +351,15 @@ class WorkflowTests(unittest.TestCase):
     def test_weekly_generation_retries_safely_through_thursday(self):
         flow = self.workflow("generate-weekly.yml")
         self.assertEqual(flow["on"]["schedule"], [{"cron": "5 3,9,15,21 * * 4", "timezone": "America/New_York"}])
+        generation = next(s for s in flow["jobs"]["prepare"]["steps"] if "prepare_publication" in s.get("run", ""))
+        self.assertEqual(generation["env"]["GEN_MODEL"], "gpt-5.6-terra")
+        self.assertEqual(generation["env"]["GEN_FALLBACK"], "gpt-5.4-mini")
+
+    def test_daily_fallback_uses_same_generation_models(self):
+        flow = self.workflow("daily-devotion-update.yml")
+        generation = next(s for s in flow["jobs"]["prepare"]["steps"] if "prepare_publication" in s.get("run", ""))
+        self.assertEqual(generation["env"]["GEN_MODEL"], "gpt-5.6-terra")
+        self.assertEqual(generation["env"]["GEN_FALLBACK"], "gpt-5.4-mini")
 
     def test_health_repeats_through_every_day_and_keeps_failures_visible(self):
         flow = self.workflow("publication-health.yml")

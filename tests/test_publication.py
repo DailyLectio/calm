@@ -232,11 +232,19 @@ class SDKTests(unittest.TestCase):
                 "model": "gpt-5-mini", "choices": [{"index": 0, "finish_reason": "stop",
                 "message": {"role": "assistant", "content": '{"verified": true}'}}]})
 
-        with OpenAI(api_key="offline-test-only", http_client=httpx2.Client(transport=httpx2.MockTransport(respond))) as client:
+        with OpenAI(api_key="offline-test-only", http_client=httpx2.Client(transport=httpx2.MockTransport(respond))) as client, \
+             patch.object(generate_weekly, "GEN_MODEL", "gpt-5-mini"):
             self.assertEqual(generate_weekly.gen_json(client, "test", ["test"], 1), {"verified": True})
         self.assertEqual(len(requests), 2)
         self.assertEqual(requests[0]["response_format"], {"type": "json_object"})
         self.assertNotIn("temperature", requests[1])
+
+        requests.clear()
+        with OpenAI(api_key="offline-test-only", http_client=httpx2.Client(transport=httpx2.MockTransport(respond))) as client, \
+             patch.object(generate_weekly, "GEN_MODEL", "gpt-5.6-terra"):
+            self.assertEqual(generate_weekly.gen_json(client, "test", ["test"], 1), {"verified": True})
+        self.assertEqual(len(requests), 1)
+        self.assertNotIn("temperature", requests[0])
 
 
 class ValidationTests(unittest.TestCase):

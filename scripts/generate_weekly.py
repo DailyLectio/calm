@@ -35,8 +35,8 @@ USCCB_STRICT       = os.getenv("USCCB_STRICT", "0") == "1"
 USE_EWTN_FALLBACK  = os.getenv("USE_EWTN_FALLBACK", "1") == "1"   # default ON to be safe
 SAINT_JSON_URL     = os.getenv("SAINT_JSON_URL", "https://dailylectio.org/saint.json")
 
-GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5-mini")
-GEN_FALLBACK       = os.getenv("GEN_FALLBACK", "gpt-5-mini")
+GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5.6-terra")
+GEN_FALLBACK       = os.getenv("GEN_FALLBACK", "gpt-5.4-mini")
 GEN_TEMP           = float(os.getenv("GEN_TEMP", "1"))
 
 # Use a "real" browser UA to avoid weird mobile/anti-bot versions of USCCB/Catholic.org
@@ -435,7 +435,7 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
 
     try:
         try:
-            r = _create(GEN_MODEL, True)
+            r = _create(GEN_MODEL, not GEN_MODEL.startswith("gpt-5.6"))
         except BadRequestError as e:
             if "temperature" in str(e).lower():
                 r = _create(GEN_MODEL, False)
@@ -444,7 +444,7 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
     except Exception as primary_error:
         _raise_quota(primary_error)
         try:
-            r = _create(GEN_FALLBACK, True)
+            r = _create(GEN_FALLBACK, not GEN_FALLBACK.startswith("gpt-5.6"))
         except BadRequestError as e2:
             if "temperature" in str(e2).lower():
                 r = _create(GEN_FALLBACK, False)

@@ -43,8 +43,8 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
-          GEN_MODEL: gpt-5-mini
-          GEN_FALLBACK: gpt-5-mini
+          GEN_MODEL: gpt-5.6-terra
+          GEN_FALLBACK: gpt-5.4-mini
           GEN_TEMP: '1'
           USCCB_STRICT: '1'
         run: python -m scripts.prepare_publication --mode daily
