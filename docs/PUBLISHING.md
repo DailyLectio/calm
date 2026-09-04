@@ -6,7 +6,7 @@ GitHub `DailyLectio/calm`, branch `main`, is the production source. Vercel serve
 
 | Work | Eastern schedule / behavior |
 | --- | --- |
-| Weekly preparation | Thursday 03:05, upcoming Friday–Thursday |
+| Weekly preparation | Thursday 03:05, with catch-up attempts at 09:05, 15:05 and 21:05; upcoming Friday–Thursday |
 | Daily publication | Every half-hour at :11 and :41, all seven days; after successful weekly run; full-content no-op when already current |
 | Service target | Today's verified live post by 06:00 |
 | GitHub health monitor | Every half-hour at :17 and :47, all seven days; after daily/weekly runs and relevant pushes |
@@ -21,6 +21,7 @@ Daily/weekly/health schedules explicitly use `America/New_York`, including dayli
 Before daily preparation, `python -m scripts.daily_publication_needed` performs a read-only check of the Eastern date, full daily content derived from the prepared source and reviewed saint, today's dated snapshot, today's legacy index entry, and the complete derived search index. Only an exact match skips preparation, artifact upload and the publisher job. Same-date edits, missing outputs and a new day require publication. The gate never calls OpenAI or a saints network fallback. Missing/invalid source material is handed to the normal fail-closed preparation/validation path, not treated as healthy. Repeated healthy runs still use Actions runner time, but no generation calls or data commits.
 
 1. Preparation validates the existing rolling feed, retains reviewed overlapping dates and preflights saints for every missing day before making paid generation calls. Both models remain `gpt-5-mini`. The explicit start date takes precedence; a blank weekly start selects this week's Friday (upcoming Monday–Thursday, most recent Friday–Sunday). A delay into a new week selects that new week's release; the daily fallback handles a missing current day.
+   An OpenAI `insufficient_quota`/`credit_balance_exhausted` response is an account billing boundary, not a saint, scheduler or Vercel failure. The job emits a named Actions error and stops without a partial candidate. Thursday catch-up attempts allow automatic recovery after the configured API project's credit balance is restored; they cannot restore credits themselves.
 2. A validated candidate containing the base commit, target window and only newly generated rows is retained as an Actions artifact for 30 days. Preparation never edits production. A generation failure before a complete candidate is produced stops the run; partial AI output is not published.
 3. Daily and weekly **publish jobs** share `production-feed-writer`, with cancellation disabled and [`queue: max`](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency). The queue supports up to 100 pending jobs; it is not an unlimited durable queue. Generation does not hold the short writer lock.
 4. The publisher fetches current `main` into its own temporary worktree and semantically merges the prepared rows. Existing records, unrelated operator edits and historical archives are preserved. A conflicting edit to the same date or a changed reviewed saint blocks publication for review. Reapplying an identical artifact is a no-op.

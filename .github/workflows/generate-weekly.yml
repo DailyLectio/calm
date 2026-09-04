@@ -2,8 +2,10 @@ name: Generate Weekly Devotions (Fri–Thu)
 
 on:
   schedule:
-    # Prepare Friday–Thursday one day ahead; preserve the preceding Thursday.
-    - cron: '5 3 * * 4'
+    # Retry through Thursday so a transient provider/billing repair can recover
+    # the Friday–Thursday window without waiting for an operator dispatch.
+    # Existing dates are retained, so a completed window is a no-generation no-op.
+    - cron: '5 3,9,15,21 * * 4'
       timezone: America/New_York
   workflow_dispatch:
     inputs:

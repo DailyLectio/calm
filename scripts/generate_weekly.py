@@ -426,6 +426,13 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
             kw["temperature"] = temp
         return client.chat.completions.create(**kw)
 
+    def _raise_quota(error):
+        message = str(error)
+        code = getattr(error, "code", "") or ""
+        if code == "insufficient_quota" or "credit_balance_exhausted" in message or "no credits remaining" in message.lower():
+            print("::error title=OpenAI API credits exhausted::Generation cannot continue until the API project credit balance is restored.", flush=True)
+            raise RuntimeError("OpenAI API credits exhausted; restore the configured project credit balance") from error
+
     try:
         try:
             r = _create(GEN_MODEL, True)
@@ -434,7 +441,8 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
                 r = _create(GEN_MODEL, False)
             else:
                 raise
-    except Exception:
+    except Exception as primary_error:
+        _raise_quota(primary_error)
         try:
             r = _create(GEN_FALLBACK, True)
         except BadRequestError as e2:
@@ -442,6 +450,9 @@ def gen_json(client, sys_msg: str, user_lines: List[str], temp: float) -> Dict[s
                 r = _create(GEN_FALLBACK, False)
             else:
                 raise
+        except Exception as fallback_error:
+            _raise_quota(fallback_error)
+            raise
     return json.loads(r.choices[0].message.content)
 
 STYLE_CARD = """ROLE: Catholic editor & theologian for FaithLinks.

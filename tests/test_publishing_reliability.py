@@ -348,6 +348,10 @@ class WorkflowTests(unittest.TestCase):
             if "prepare_publication" in step.get("run", "") or step.get("uses") == "actions/upload-artifact@v4":
                 self.assertEqual(step["if"], "steps.freshness.outputs.needed == 'true'")
 
+    def test_weekly_generation_retries_safely_through_thursday(self):
+        flow = self.workflow("generate-weekly.yml")
+        self.assertEqual(flow["on"]["schedule"], [{"cron": "5 3,9,15,21 * * 4", "timezone": "America/New_York"}])
+
     def test_health_repeats_through_every_day_and_keeps_failures_visible(self):
         flow = self.workflow("publication-health.yml")
         self.assertEqual(flow["on"]["schedule"], [{"cron": "17,47 * * * *", "timezone": "America/New_York"}])
