@@ -38,6 +38,7 @@ SAINT_JSON_URL     = os.getenv("SAINT_JSON_URL", "https://dailylectio.org/saint.
 GEN_MODEL          = os.getenv("GEN_MODEL", "gpt-5.6-terra")
 GEN_FALLBACK       = os.getenv("GEN_FALLBACK", "gpt-5.4-mini")
 GEN_TEMP           = float(os.getenv("GEN_TEMP", "1"))
+WEEKLY_PATH        = Path("public/weeklyfeed.json")
 
 # Use a "real" browser UA to avoid weird mobile/anti-bot versions of USCCB/Catholic.org
 HEADERS = {
@@ -626,7 +627,7 @@ def main():
 
     if not 1 <= days <= 14:
         raise ValueError("DAYS must be 1..14")
-    target = Path("public/weeklyfeed.json")
+    target = WEEKLY_PATH
     existing = read_array(target) if target.exists() else []
     if existing:
         validate_rows(existing)

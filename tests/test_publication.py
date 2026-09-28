@@ -208,6 +208,7 @@ class FileTests(unittest.TestCase):
         self.seed([devotion()])
         before = self.feed.read_bytes()
         with patch.dict(generate_weekly.os.environ, {"START_DATE": "2026-10-01", "DAYS": "1", "USCCB_PRECHECK": "0"}), \
+             patch.object(generate_weekly, "WEEKLY_PATH", self.feed), \
              patch.object(generate_weekly, "saint_for_date", return_value=saint("2026-10-01")), \
              patch.object(generate_weekly, "build_day_payload", return_value={"date": "2026-10-01"}), \
              patch.object(generate_weekly.time, "sleep"), patch.object(generate_weekly, "write_json") as write:
