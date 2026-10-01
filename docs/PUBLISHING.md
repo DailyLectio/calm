@@ -6,7 +6,7 @@ GitHub `DailyLectio/calm`, branch `main`, is the production source. Vercel serve
 
 | Work | Eastern schedule / behavior |
 | --- | --- |
-| Weekly preparation | Thursday 03:05, with catch-up attempts at 09:05, 15:05 and 21:05; upcoming Friday–Thursday |
+| Weekly preparation | Wednesday 21:37 and Thursday 03:37 before the readiness deadline, with catch-up attempts at 09:37, 15:37 and 21:37; upcoming Friday–Thursday |
 | Daily publication | Every half-hour at :11 and :41, all seven days; after successful weekly run; full-content no-op when already current |
 | Service target | Today's verified live post by 06:00 |
 | GitHub health monitor | Every half-hour at :17 and :47, all seven days; after daily/weekly runs and relevant pushes |

@@ -2,10 +2,13 @@ name: Generate Weekly Devotions (Fri–Thu)
 
 on:
   schedule:
-    # Retry through Thursday so a transient provider/billing repair can recover
-    # the Friday–Thursday window without waiting for an operator dispatch.
+    # Start Wednesday evening and retry through Thursday so a dropped GitHub
+    # schedule or transient provider/billing repair can recover before release.
+    # Minute 37 avoids GitHub's documented high-load start-of-hour window.
     # Existing dates are retained, so a completed window is a no-generation no-op.
-    - cron: '5 3,9,15,21 * * 4'
+    - cron: '37 21 * * 3'
+      timezone: America/New_York
+    - cron: '37 3,9,15,21 * * 4'
       timezone: America/New_York
   workflow_dispatch:
     inputs:
