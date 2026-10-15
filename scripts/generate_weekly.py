@@ -224,8 +224,8 @@ def fetch_readings_catholicgallery(date: dt.date) -> Tuple[str, str, str, str]:
 
     first  = grab("First Reading:", ["Responsorial Psalm:", "Gospel:"])
     psalm  = grab("Responsorial Psalm:", ["Alleluia:", "Gospel:"])
-    second = grab("Second Reading:", ["Responsorial Psalm:", "Gospel:"])
-    gosp   = grab("Gospel:", ["Lectionary:", "First Reading:"])
+    second = grab("Second Reading:", ["Alleluia:", "Responsorial Psalm:", "Gospel:"])
+    gosp   = grab("Gospel:", ["Also Read:", "Lectionary:", "First Reading:"])
 
     def norm(s: str) -> str:
         # The heading has already been removed by grab(). Keep the ordinal in
@@ -505,7 +505,7 @@ def build_day_payload(date: dt.date) -> Dict[str, Any]:
         raise ValueError(msg)
 
     if is_sunday(date) and not second_ref:
-        log(f"warn: {iso} is Sunday and has no second reading ref")
+        raise ValueError(f"{iso}: Sunday missing second reading")
 
     saint = saint_for_date(date)
     # Selection has already required a complete reviewed saint record.

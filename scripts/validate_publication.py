@@ -17,6 +17,7 @@ ABSENT_SAINT = re.compile(r"\bno\s+(?:(?:specific|particular|named)\s+)?saint\s+
 REF = re.compile(r"^(?:[1-3]\s*)?[A-Za-z][A-Za-z .'-]*\s+\d+(?::\d+)?")
 GOSPEL = re.compile(r"^(?:Matthew|Mark|Luke|John)\s+\d+\s*:\s*\d+", re.I)
 NUMBERED_ONLY = re.compile(r"^(?:Corinthians|Thessalonians|Timothy|Samuel|Kings|Chronicles|Maccabees|Peter)\s+\d", re.I)
+SOURCE_LABEL = re.compile(r"\b(?:Alleluia|Also Read|Reflection)\b", re.I)
 
 
 def validate_rows(rows, expected_dates=None, require_cycles=True, reject_absent_saint=True):
@@ -36,14 +37,20 @@ def validate_rows(rows, expected_dates=None, require_cycles=True, reject_absent_
         for key in ("firstReadingRef", "psalmRef", "gospelRef"):
             if not REF.match(row[key]) or NUMBERED_ONLY.match(row[key]):
                 raise ValueError(f"{day}: malformed {key}")
+            if SOURCE_LABEL.search(row[key]):
+                raise ValueError(f"{day}: source label leaked into {key}")
         if not GOSPEL.match(row["gospelRef"]):
             raise ValueError(f"{day}: gospelRef is not a Gospel citation")
         if row["gospelReference"] != row["gospelRef"]:
             raise ValueError(f"{day}: Gospel aliases disagree")
         if bool(row["secondReadingRef"].strip()) != bool(row["secondReading"].strip()):
             raise ValueError(f"{day}: second reading/ref mismatch")
+        if day.weekday() == 6 and not row["secondReadingRef"].strip():
+            raise ValueError(f"{day}: Sunday missing second reading")
         if row["secondReadingRef"] and not REF.match(row["secondReadingRef"]):
             raise ValueError(f"{day}: malformed secondReadingRef")
+        if SOURCE_LABEL.search(row["secondReadingRef"]):
+            raise ValueError(f"{day}: source label leaked into secondReadingRef")
         if NUMBERED_ONLY.match(row["secondReadingRef"]):
             raise ValueError(f"{day}: missing numbered-book prefix")
         if require_cycles and (row["cycle"] != sunday_cycle(day) or row["weekdayCycle"] != weekday_cycle(day)):

@@ -258,6 +258,10 @@ class ValidationTests(unittest.TestCase):
     def test_rejects_empty_text_bad_refs_alias_mismatch_cycles_and_absent_saint_claims(self):
         cases = [{"quote": " "}, {"gospelRef": "Psalms 23:1"}, {"gospelReference": "John 1:1"},
                  {"firstReadingRef": "Corinthians 2:10"}, {"secondReading": "Unexpected text"},
+                 {"secondReadingRef": "Romans 13:8-10 Alleluia: 2 Corinthians 5:19",
+                  "secondReading": "Paul teaches the commandment of love."},
+                 {"gospelRef": "Luke 4:31-37 Also Read: Reflection",
+                  "gospelReference": "Luke 4:31-37 Also Read: Reflection"},
                  {"cycle": "Year B"}, {"exegesis": "Saints: Although no particular saint is named today."}]
         for update in cases:
             with self.subTest(update=update), self.assertRaises(ValueError):
@@ -265,6 +269,24 @@ class ValidationTests(unittest.TestCase):
 
     def test_whitespace_in_valid_citation_is_accepted(self):
         validate_rows([dict(devotion(), gospelRef="Luke 4: 31-37", gospelReference="Luke 4: 31-37")])
+
+    def test_sunday_requires_second_reading_but_weekday_does_not(self):
+        validate_rows([devotion("2026-09-01")])
+        with self.assertRaisesRegex(ValueError, "Sunday missing second reading"):
+            validate_rows([devotion("2026-10-11")])
+        validate_rows([dict(devotion("2026-10-11"),
+                            secondReadingRef="Philippians 4:12-14, 19-20",
+                            secondReading="Paul proclaims faithful dependence upon Christ.")])
+
+    def test_generator_stops_before_model_call_when_sunday_second_reading_is_missing(self):
+        client = Mock()
+        with patch.object(generate_weekly, "resolve_readings",
+                          return_value=("Isaiah 25:6-10a", "", "Psalm 23:1-6", "Matthew 22:1-14")), \
+             patch.object(generate_weekly, "load_json", return_value={}), \
+             patch.object(generate_weekly, "openai_client", return_value=client):
+            with self.assertRaisesRegex(ValueError, "Sunday missing second reading"):
+                generate_weekly.build_day_payload(date(2026, 10, 11))
+        client.chat.completions.create.assert_not_called()
 
     def test_readiness_requires_every_day_and_substantial_single_paragraph(self):
         rows = [saint(f"2026-09-{d:02d}") for d in range(1, 31)]
@@ -291,6 +313,18 @@ class ValidationTests(unittest.TestCase):
         with patch.object(generate_weekly.requests, "get", return_value=response):
             result = generate_weekly.fetch_readings_catholicgallery(date(2026, 9, 1))
         self.assertEqual(result[0], "1 Corinthians 2: 10b-16")
+
+    def test_gallery_sunday_parser_excludes_alleluia_and_related_links(self):
+        html = ("<p>First Reading: Isaiah 45: 1, 4-6</p>"
+                "<p>Responsorial Psalm: Psalms 96: 1, 3, 4-5</p>"
+                "<p>Second Reading: First Thessalonians 1: 1-5b</p>"
+                "<p>Alleluia: Philippians 2: 15d, 16a</p>"
+                "<p>Gospel: Matthew 22: 15-21</p><p>Also Read: Sunday Reflection</p>")
+        response = Mock(text=html)
+        with patch.object(generate_weekly.requests, "get", return_value=response):
+            result = generate_weekly.fetch_readings_catholicgallery(date(2026, 10, 18))
+        self.assertEqual(result, ("Isaiah 45: 1, 4-6", "1 Thessalonians 1: 1-5b",
+                                  "Psalms 96: 1, 3, 4-5", "Matthew 22: 15-21"))
 
 
 if __name__ == "__main__":
