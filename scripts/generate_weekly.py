@@ -250,7 +250,11 @@ def fetch_readings_catholicorg(date: dt.date) -> Tuple[str, str, str, str]:
 
     first  = grab("Reading 1,")
     psalm  = grab("Responsorial Psalm,")
-    second = ""
+    # Catholic.org labels the Sunday epistle as "Reading 2,".  This source is
+    # often the only reachable fallback from GitHub-hosted runners when the
+    # USCCB and CatholicGallery reject automated requests, so discarding it
+    # made otherwise complete Sundays fail closed.
+    second = grab("Reading 2,") if is_sunday(date) else ""
     gosp   = grab("Gospel,")
 
     def norm(s: str) -> str:

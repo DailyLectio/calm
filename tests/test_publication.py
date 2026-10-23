@@ -326,6 +326,19 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(result, ("Isaiah 45: 1, 4-6", "1 Thessalonians 1: 1-5b",
                                   "Psalms 96: 1, 3, 4-5", "Matthew 22: 15-21"))
 
+    def test_catholic_org_sunday_parser_keeps_second_reading(self):
+        html = ("<p>Reading 1, Exodus 22:20-26</p>"
+                "<p>Responsorial Psalm, Psalms 18:2-3, 3-4, 47, 51</p>"
+                "<p>Reading 2, 1 Thessalonians 1:5c-10</p>"
+                "<p>Alleluia, John 14:23</p>"
+                "<p>Gospel, Matthew 22:34-40</p><p>Printable</p>")
+        response = Mock(text=html)
+        response.raise_for_status = Mock()
+        with patch.object(generate_weekly.requests, "get", return_value=response):
+            result = generate_weekly.fetch_readings_catholicorg(date(2026, 10, 25))
+        self.assertEqual(result, ("Exodus 22:20-26", "1 Thessalonians 1:5c-10",
+                                  "Psalms 18:2-3, 3-4, 47, 51", "Matthew 22:34-40"))
+
 
 if __name__ == "__main__":
     unittest.main()
