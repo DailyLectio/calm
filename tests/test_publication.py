@@ -339,6 +339,19 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(result, ("Exodus 22:20-26", "1 Thessalonians 1:5c-10",
                                   "Psalms 18:2-3, 3-4, 47, 51", "Matthew 22:34-40"))
 
+    def test_reviewed_sunday_overrides_preserve_numbered_book_prefixes(self):
+        path = Path(__file__).resolve().parents[1] / "public" / "readings-overrides.json"
+        overrides = json.loads(path.read_text(encoding="utf-8"))
+        expected = {
+            "2026-10-25": "1 Thessalonians 1:5c-10",
+            "2026-11-01": "1 John 3:1-3",
+            "2026-11-08": "1 Thessalonians 4:13-18",
+            "2026-11-15": "1 Thessalonians 5:1-6",
+            "2026-11-22": "1 Corinthians 15:20-26, 28",
+            "2026-11-29": "1 Corinthians 1:3-9",
+        }
+        self.assertEqual({day: overrides[day]["secondRef"] for day in expected}, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
